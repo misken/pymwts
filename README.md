@@ -1,4 +1,4 @@
-mwts-paper1
-===========
+pymwts
+======
 
-First paper on mwts model
+Pyomo based multi-week tour scheduling model
