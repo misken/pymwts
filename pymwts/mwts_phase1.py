@@ -26,15 +26,15 @@ model_phase1 = AbstractModel()
 model_phase1.name = "mwts_phase1"
 
 
-#### Constants 
+# Constants 
 
 infinity = float('inf')
 
-#### General temporal parameters
+# General temporal parameters
 
-model_phase1.n_prds_per_day = Param(within=PositiveIntegers)
-model_phase1.n_days_per_week = Param(within=PositiveIntegers)
-model_phase1.n_weeks = Param(within=PositiveIntegers)
+model_phase1.n_prds_per_day = Param(within=PositiveIntegers)   # n_P
+model_phase1.n_days_per_week = Param(within=PositiveIntegers)  # 7
+model_phase1.n_weeks = Param(within=PositiveIntegers)          # n_W
 
 
 def n_prds_per_week_init(M):
@@ -47,26 +47,29 @@ model_phase1.n_prds_per_week = Param(within=PositiveIntegers, initialize=n_prds_
 
 def n_prds_per_cycle_init(M):
     """
-    Initialize convenience parameter n_prds_per_cycle
+    Initialize convenience parameter n_prds_per_cycle where cycle may include
+    one or more weeks.
     """
     return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
 
 model_phase1.n_prds_per_cycle = Param(within=PositiveIntegers, initialize=n_prds_per_cycle_init)
 
 # For range sets, if start omitted, assumed range is 1..args[0]
-model_phase1.PERIODS = RangeSet(1,model_phase1.n_prds_per_day)
-model_phase1.WINDOWS = RangeSet(1,model_phase1.n_prds_per_day)
-model_phase1.DAYS = RangeSet(1,model_phase1.n_days_per_week)
-model_phase1.WEEKS = RangeSet(1,model_phase1.n_weeks)
+model_phase1.PERIODS = RangeSet(1,model_phase1.n_prds_per_day)  # P
+model_phase1.WINDOWS = RangeSet(1,model_phase1.n_prds_per_day)  
+model_phase1.DAYS = RangeSet(1,model_phase1.n_days_per_week)    # D
+model_phase1.WEEKS = RangeSet(1,model_phase1.n_weeks)           # W
 model_phase1.WEEKENDS = RangeSet(1,2)
 
 model_phase1.g_period = Param(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, initialize=g_period_init)
 
-model_phase1.bins = model_phase1.PERIODS * model_phase1.DAYS * model_phase1.WEEKS
+model_phase1.bins = model_phase1.PERIODS * model_phase1.DAYS * model_phase1.WEEKS  # B
 
 def oneweek_bins_init(M):
     """
-    Initialize convenience set oneweek_bins. (period,day) pairs
+    Initialize convenience set oneweek_bins. (period,day) pairs. 
+    
+    Does not appear to be used.
     """
     return [(i,j) for i in M.PERIODS
                   for j in M.DAYS]
