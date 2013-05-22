@@ -36,11 +36,12 @@ stroke
 grestore
 \end{filecontents*}
 %
-\documentclass{svjour3}                     % onecolumn (standard format)
+\documentclass{article}
+%\documentclass{svjour3}                     % onecolumn (standard format)
 %\documentclass[smallextended]{svjour3}     % onecolumn (second format)
 %\documentclass[twocolumn]{svjour3}         % twocolumn
 %
-\smartqed  % flush right qed marks, e.g. at end of proof
+%\smartqed  % flush right qed marks, e.g. at end of proof
 %
 \usepackage{graphicx}
 %
@@ -57,7 +58,7 @@ grestore
 
 %
 % Insert the name of "your journal" with
-\journalname{Health Care Management Science}
+%\journalname{Health Care Management Science}
 %
 
 \begin{document}
@@ -76,22 +77,21 @@ grestore
 
 %\authorrunning{Short form of author list} % if too long for running head
 
-\institute{
-}
+%\institute{}
 
 %\date{Received: date / Accepted: date}
 % The correct dates will be entered by the editor
 
 
-\maketitle
+%\maketitle
 
-\begin{abstract}
+%\begin{abstract}
 
 
-\keywords{tour scheduling \and healthcare \and optimiization}
+%\keywords{tour scheduling \and healthcare \and optimiization}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
-\end{abstract}
+%\end{abstract}
 
 \section{Introduction}
 \label{sec-intro}
@@ -99,9 +99,20 @@ Staff scheduling in healthcare continues to be a vexing problem that consumes va
 
 Wide range of staff scheduling problems whose details depend on the specific healthcare delivery subsystem we are talking about. Examples: recovery room nurses, floor nurses, lab technicians, pharmacists and pharmacy technicians, surgical techs, ED nurses and techs, transporters.
 
-For many systems, the kernel of the problem is a tour scheduling problem in which staffing levels needed vary both by time of day and day of week.
-
 Introduce motivation for tactical tour scheduling problems via real projects
+
+For many systems, the kernel of the problem is a tour scheduling problem in which staffing levels needed vary both by time of day and day of week. 
+
+\section{Tour scheduling problems}
+
+\subsection{Scheduling environment}
+
+Features of tour scheduling problems including notions of planning cycle, periods, required staffing levels, shifts, tours, tour types, intra-tour start time flexibility, 
+
+\subsection{Problem size explosion}
+
+\subsection{Implicit modeling of tours}
+
 
 
 
@@ -117,11 +128,49 @@ Recent multi-week implicit tour scheduling paper
 
 
 
-\section{Multi-week implicit tour scheduling model}
+\section{Definitions and notation}
 \label{sec-mwts}
 
+% Use bold for terms that I define
+
+Let $W$ be the number of weeks in the planning cycle and $P$ be the number of time periods per day. Typical values might be $W=4$ and $P=24$ to model a problem where staffing requirements are specified hourly and shifts can only start on the hour. The total number of periods in the planning cycle is den
+
+\[
+\begin{array}{lll}
+n_W & = & \mbox{number of weeks in the planning cycle} \\
+n_P & = & \mbox{number of periods per day} \\
+n_C & = & 7 n_W n_P\mbox{ number of periods in planning cycle} \\
+\end{array}
+\]
+
+Define a number of sets of indices.
+
+\[
+\begin{array}{lll}
+P & = & \{1,2,\ldots n_P\} \\
+D & = & \{1,2,\ldots 7\} \\
+W & = & \{1,2,\ldots n_W\} \\
+\end{array}
+\]
+
+
+So, each period in the planning cycle is defined by a tuple $(i,d,w) \in B$ where $B = P \times D \times W$.
+
+
+
+%model_phase1.PERIODS = RangeSet(1,model_phase1.n_prds_per_day)
+%model_phase1.WINDOWS = RangeSet(1,model_phase1.n_prds_per_day)
+%model_phase1.DAYS = RangeSet(1,model_phase1.n_days_per_week)
+%model_phase1.WEEKS = RangeSet(1,model_phase1.n_weeks)
+
+
+%#-- Shift Lengths
+%model_phase1.n_lengths = Param(within=PositiveIntegers)    # Number of shift lengths
+%model_phase1.LENGTHS = RangeSet(1,model_phase1.n_lengths)
+%model_phase1.lengths = Param(model_phase1.LENGTHS)  # Vector of shift lengths
 
 To smooth the postpartum occupancy across days of the week, we introduce two, non-negative, dummy variables, $M^{U}$ and $M^{L}$. These are used to bound the mean occupancy across the week from above and below -- see Equation \eqref{eqn:sandwich}. Then we minimize the difference between the bounds.
+
 \newpage
 \nipar {\bf Model:} OB-SMOOTH
 \nipar
@@ -193,8 +242,8 @@ BLAH, BLAH
 % BibTeX users please use one of
 %\bibliographystyle{spbasic}      % basic style, author-year citations
 %\bibliographystyle{spmpsci}      % mathematics and physical sciences
-\bibliographystyle{spphys}       % APS-like style for physics
-\bibliography{obsched-paper}   % name your BibTeX data base
+%\bibliographystyle{spphys}       % APS-like style for physics
+%\bibliography{obsched-paper}   % name your BibTeX data base
 %\bibliographystyle{unsrt}
 
 
