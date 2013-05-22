@@ -1,0 +1,2441 @@
+# ==========================================================
+# = Solver Results                                         =
+# ==========================================================
+
+# ----------------------------------------------------------
+#   Problem Information
+# ----------------------------------------------------------
+Problem: 
+- Name: tmp6YW2Qs.pyomo
+  Lower bound: 760
+  Upper bound: 760
+  Number of objectives: 1
+  Number of constraints: 3651
+  Number of variables: 1331
+  Number of nonzeros: 25917
+  Sense: minimize
+
+# ----------------------------------------------------------
+#   Solver Information
+# ----------------------------------------------------------
+Solver: 
+- Status: ok
+  User time: -1.0
+  Termination condition: optimal
+  Statistics: 
+    Branch and bound: 
+      Number of bounded subproblems: 0
+      Number of created subproblems: 0
+  Error rc: 0
+
+# ----------------------------------------------------------
+#   Solution Information
+# ----------------------------------------------------------
+Solution: 
+- number of solutions: 1
+  number of solutions displayed: 1
+- Gap: 0.0
+  Status: optimal
+  Objective: 
+    __default_objective__: 
+      Id: 0
+      Value: 760
+  Variable: 
+    TourShifts(1,32,1,2,5,1):
+      Id: 1
+      Value: 1
+    TourShifts(1,32,1,4,5,1):
+      Id: 3
+      Value: 1
+    TourShifts(1,32,2,1,5,1):
+      Id: 4
+      Value: 1
+    TourShifts(1,32,2,3,5,1):
+      Id: 6
+      Value: 1
+    TourShifts(1,32,2,4,5,1):
+      Id: 7
+      Value: 1
+    TourShifts(1,32,3,2,5,1):
+      Id: 9
+      Value: 1
+    TourShifts(1,32,3,3,5,1):
+      Id: 10
+      Value: 1
+    TourShifts(1,32,3,4,5,1):
+      Id: 11
+      Value: 1
+    TourShifts(1,32,4,1,5,1):
+      Id: 12
+      Value: 1
+    TourShifts(1,32,4,2,5,1):
+      Id: 13
+      Value: 1
+    TourShifts(1,32,4,4,5,1):
+      Id: 15
+      Value: 1
+    TourShifts(1,32,5,1,5,1):
+      Id: 16
+      Value: 1
+    TourShifts(1,32,5,2,5,1):
+      Id: 17
+      Value: 1
+    TourShifts(1,32,5,3,5,1):
+      Id: 18
+      Value: 1
+    TourShifts(1,32,6,1,5,1):
+      Id: 20
+      Value: 1
+    TourShifts(1,32,6,2,5,1):
+      Id: 21
+      Value: 1
+    TourShifts(1,32,6,3,5,1):
+      Id: 22
+      Value: 1
+    TourShifts(1,32,6,4,5,1):
+      Id: 23
+      Value: 1
+    TourShifts(1,32,7,1,5,1):
+      Id: 24
+      Value: 1
+    TourShifts(1,32,7,3,5,1):
+      Id: 26
+      Value: 1
+    TourShifts(10,48,1,2,5,1):
+      Id: 29
+      Value: 1
+    TourShifts(10,48,1,4,5,1):
+      Id: 31
+      Value: 1
+    TourShifts(10,48,2,1,5,1):
+      Id: 32
+      Value: 1
+    TourShifts(10,48,2,2,5,1):
+      Id: 33
+      Value: 1
+    TourShifts(10,48,2,3,5,1):
+      Id: 34
+      Value: 1
+    TourShifts(10,48,2,4,5,1):
+      Id: 35
+      Value: 1
+    TourShifts(10,48,3,3,5,1):
+      Id: 38
+      Value: 1
+    TourShifts(10,48,3,4,5,1):
+      Id: 39
+      Value: 1
+    TourShifts(10,48,4,1,5,1):
+      Id: 40
+      Value: 1
+    TourShifts(10,48,4,2,5,1):
+      Id: 41
+      Value: 1
+    TourShifts(10,48,4,4,5,1):
+      Id: 43
+      Value: 1
+    TourShifts(10,48,5,1,5,1):
+      Id: 44
+      Value: 1
+    TourShifts(10,48,5,2,5,1):
+      Id: 45
+      Value: 1
+    TourShifts(10,48,5,3,5,1):
+      Id: 46
+      Value: 1
+    TourShifts(10,48,6,1,5,1):
+      Id: 48
+      Value: 1
+    TourShifts(10,48,6,2,5,1):
+      Id: 49
+      Value: 1
+    TourShifts(10,48,6,3,5,1):
+      Id: 50
+      Value: 1
+    TourShifts(10,48,6,4,5,1):
+      Id: 51
+      Value: 1
+    TourShifts(10,48,7,1,5,1):
+      Id: 52
+      Value: 1
+    TourShifts(10,48,7,3,5,1):
+      Id: 54
+      Value: 1
+    TourShifts(11,48,1,1,5,1):
+      Id: 56
+      Value: 1
+    TourShifts(11,48,1,3,5,1):
+      Id: 58
+      Value: 1
+    TourShifts(11,48,2,1,5,1):
+      Id: 60
+      Value: 1
+    TourShifts(11,48,2,3,5,1):
+      Id: 62
+      Value: 1
+    TourShifts(11,48,3,1,5,1):
+      Id: 64
+      Value: 1
+    TourShifts(11,48,3,2,5,1):
+      Id: 65
+      Value: 1
+    TourShifts(11,48,3,3,5,1):
+      Id: 66
+      Value: 1
+    TourShifts(11,48,3,4,5,1):
+      Id: 67
+      Value: 1
+    TourShifts(11,48,4,1,5,1):
+      Id: 68
+      Value: 1
+    TourShifts(11,48,4,2,5,1):
+      Id: 69
+      Value: 1
+    TourShifts(11,48,4,3,5,1):
+      Id: 70
+      Value: 1
+    TourShifts(11,48,4,4,5,1):
+      Id: 71
+      Value: 1
+    TourShifts(11,48,5,2,5,1):
+      Id: 73
+      Value: 1
+    TourShifts(11,48,5,4,5,1):
+      Id: 75
+      Value: 1
+    TourShifts(11,48,6,1,5,1):
+      Id: 76
+      Value: 1
+    TourShifts(11,48,6,2,5,1):
+      Id: 77
+      Value: 1
+    TourShifts(11,48,6,3,5,1):
+      Id: 78
+      Value: 1
+    TourShifts(11,48,6,4,5,1):
+      Id: 79
+      Value: 1
+    TourShifts(11,48,7,2,5,1):
+      Id: 81
+      Value: 1
+    TourShifts(11,48,7,4,5,1):
+      Id: 83
+      Value: 1
+    TourShifts(12,48,1,2,5,1):
+      Id: 85
+      Value: 1
+    TourShifts(12,48,1,4,5,1):
+      Id: 87
+      Value: 1
+    TourShifts(12,48,2,1,5,1):
+      Id: 88
+      Value: 1
+    TourShifts(12,48,2,3,5,1):
+      Id: 90
+      Value: 1
+    TourShifts(12,48,2,4,5,1):
+      Id: 91
+      Value: 1
+    TourShifts(12,48,3,2,5,1):
+      Id: 93
+      Value: 1
+    TourShifts(12,48,3,3,5,1):
+      Id: 94
+      Value: 1
+    TourShifts(12,48,3,4,5,1):
+      Id: 95
+      Value: 1
+    TourShifts(12,48,4,1,5,1):
+      Id: 96
+      Value: 1
+    TourShifts(12,48,4,2,5,1):
+      Id: 97
+      Value: 1
+    TourShifts(12,48,4,3,5,1):
+      Id: 98
+      Value: 1
+    TourShifts(12,48,4,4,5,1):
+      Id: 99
+      Value: 1
+    TourShifts(12,48,5,1,5,1):
+      Id: 100
+      Value: 1
+    TourShifts(12,48,5,2,5,1):
+      Id: 101
+      Value: 1
+    TourShifts(12,48,5,4,5,1):
+      Id: 103
+      Value: 1
+    TourShifts(12,48,6,1,5,1):
+      Id: 104
+      Value: 1
+    TourShifts(12,48,6,2,5,1):
+      Id: 105
+      Value: 1
+    TourShifts(12,48,6,3,5,1):
+      Id: 106
+      Value: 1
+    TourShifts(12,48,7,1,5,1):
+      Id: 108
+      Value: 1
+    TourShifts(12,48,7,3,5,1):
+      Id: 110
+      Value: 1
+    TourShifts(13,31,1,2,5,1):
+      Id: 113
+      Value: 1
+    TourShifts(13,31,1,4,5,1):
+      Id: 115
+      Value: 1
+    TourShifts(13,31,2,1,5,1):
+      Id: 116
+      Value: 1
+    TourShifts(13,31,2,2,5,1):
+      Id: 117
+      Value: 1
+    TourShifts(13,31,2,3,5,1):
+      Id: 118
+      Value: 1
+    TourShifts(13,31,2,4,5,1):
+      Id: 119
+      Value: 1
+    TourShifts(13,31,3,1,5,1):
+      Id: 120
+      Value: 1
+    TourShifts(13,31,3,2,5,1):
+      Id: 121
+      Value: 1
+    TourShifts(13,31,4,2,5,1):
+      Id: 125
+      Value: 1
+    TourShifts(13,31,4,3,5,1):
+      Id: 126
+      Value: 1
+    TourShifts(13,31,4,4,5,1):
+      Id: 127
+      Value: 1
+    TourShifts(13,31,5,1,5,1):
+      Id: 128
+      Value: 1
+    TourShifts(13,31,5,3,5,1):
+      Id: 130
+      Value: 1
+    TourShifts(13,31,5,4,5,1):
+      Id: 131
+      Value: 1
+    TourShifts(13,31,6,1,5,1):
+      Id: 132
+      Value: 1
+    TourShifts(13,31,6,2,5,1):
+      Id: 133
+      Value: 1
+    TourShifts(13,31,6,3,5,1):
+      Id: 134
+      Value: 1
+    TourShifts(13,31,6,4,5,1):
+      Id: 135
+      Value: 1
+    TourShifts(13,31,7,1,5,1):
+      Id: 136
+      Value: 1
+    TourShifts(13,31,7,3,5,1):
+      Id: 138
+      Value: 1
+    TourShifts(14,31,1,1,5,1):
+      Id: 140
+      Value: 1
+    TourShifts(14,31,1,3,5,1):
+      Id: 142
+      Value: 1
+    TourShifts(14,31,2,2,5,1):
+      Id: 145
+      Value: 1
+    TourShifts(14,31,3,1,5,1):
+      Id: 148
+      Value: 1
+    TourShifts(14,31,3,3,5,1):
+      Id: 150
+      Value: 1
+    TourShifts(14,31,3,4,5,1):
+      Id: 151
+      Value: 1
+    TourShifts(14,31,4,1,5,1):
+      Id: 152
+      Value: 1
+    TourShifts(14,31,4,2,5,1):
+      Id: 153
+      Value: 1
+    TourShifts(14,31,4,3,5,1):
+      Id: 154
+      Value: 1
+    TourShifts(14,31,4,4,5,1):
+      Id: 155
+      Value: 1
+    TourShifts(14,31,5,1,5,1):
+      Id: 156
+      Value: 1
+    TourShifts(14,31,5,2,5,1):
+      Id: 157
+      Value: 1
+    TourShifts(14,31,5,3,5,1):
+      Id: 158
+      Value: 1
+    TourShifts(14,31,5,4,5,1):
+      Id: 159
+      Value: 1
+    TourShifts(14,31,6,1,5,1):
+      Id: 160
+      Value: 1
+    TourShifts(14,31,6,2,5,1):
+      Id: 161
+      Value: 1
+    TourShifts(14,31,6,3,5,1):
+      Id: 162
+      Value: 1
+    TourShifts(14,31,6,4,5,1):
+      Id: 163
+      Value: 1
+    TourShifts(14,31,7,2,5,1):
+      Id: 165
+      Value: 1
+    TourShifts(14,31,7,4,5,1):
+      Id: 167
+      Value: 1
+    TourShifts(15,47,1,2,5,1):
+      Id: 169
+      Value: 1
+    TourShifts(15,47,1,4,5,1):
+      Id: 171
+      Value: 1
+    TourShifts(15,47,2,1,5,1):
+      Id: 172
+      Value: 1
+    TourShifts(15,47,2,2,5,1):
+      Id: 173
+      Value: 1
+    TourShifts(15,47,2,4,5,1):
+      Id: 175
+      Value: 1
+    TourShifts(15,47,3,1,5,1):
+      Id: 176
+      Value: 1
+    TourShifts(15,47,3,2,5,1):
+      Id: 177
+      Value: 1
+    TourShifts(15,47,3,3,5,1):
+      Id: 178
+      Value: 1
+    TourShifts(15,47,4,1,5,1):
+      Id: 180
+      Value: 1
+    TourShifts(15,47,4,2,5,1):
+      Id: 181
+      Value: 1
+    TourShifts(15,47,4,3,5,1):
+      Id: 182
+      Value: 1
+    TourShifts(15,47,4,4,5,1):
+      Id: 183
+      Value: 1
+    TourShifts(15,47,5,1,5,1):
+      Id: 184
+      Value: 1
+    TourShifts(15,47,5,3,5,1):
+      Id: 186
+      Value: 1
+    TourShifts(15,47,5,4,5,1):
+      Id: 187
+      Value: 1
+    TourShifts(15,47,6,2,5,1):
+      Id: 189
+      Value: 1
+    TourShifts(15,47,6,3,5,1):
+      Id: 190
+      Value: 1
+    TourShifts(15,47,6,4,5,1):
+      Id: 191
+      Value: 1
+    TourShifts(15,47,7,1,5,1):
+      Id: 192
+      Value: 1
+    TourShifts(15,47,7,3,5,1):
+      Id: 194
+      Value: 1
+    TourShifts(16,47,1,1,5,1):
+      Id: 196
+      Value: 1
+    TourShifts(16,47,1,3,5,1):
+      Id: 198
+      Value: 1
+    TourShifts(16,47,2,1,5,1):
+      Id: 200
+      Value: 1
+    TourShifts(16,47,2,2,5,1):
+      Id: 201
+      Value: 1
+    TourShifts(16,47,2,3,5,1):
+      Id: 202
+      Value: 1
+    TourShifts(16,47,2,4,5,1):
+      Id: 203
+      Value: 1
+    TourShifts(16,47,3,1,5,1):
+      Id: 204
+      Value: 1
+    TourShifts(16,47,3,2,5,1):
+      Id: 205
+      Value: 1
+    TourShifts(16,47,3,3,5,1):
+      Id: 206
+      Value: 1
+    TourShifts(16,47,3,4,5,1):
+      Id: 207
+      Value: 1
+    TourShifts(16,47,4,2,5,1):
+      Id: 209
+      Value: 1
+    TourShifts(16,47,4,3,5,1):
+      Id: 210
+      Value: 1
+    TourShifts(16,47,4,4,5,1):
+      Id: 211
+      Value: 1
+    TourShifts(16,47,5,1,5,1):
+      Id: 212
+      Value: 1
+    TourShifts(16,47,5,2,5,1):
+      Id: 213
+      Value: 1
+    TourShifts(16,47,5,3,5,1):
+      Id: 214
+      Value: 1
+    TourShifts(16,47,5,4,5,1):
+      Id: 215
+      Value: 1
+    TourShifts(16,47,6,1,5,1):
+      Id: 216
+      Value: 1
+    TourShifts(16,47,7,2,5,1):
+      Id: 221
+      Value: 1
+    TourShifts(16,47,7,4,5,1):
+      Id: 223
+      Value: 1
+    TourShifts(17,11,1,1,5,1):
+      Id: 224
+      Value: 1
+    TourShifts(17,11,1,3,5,1):
+      Id: 226
+      Value: 1
+    TourShifts(17,11,2,1,5,1):
+      Id: 228
+      Value: 1
+    TourShifts(17,11,2,2,5,1):
+      Id: 229
+      Value: 1
+    TourShifts(17,11,2,3,5,1):
+      Id: 230
+      Value: 1
+    TourShifts(17,11,2,4,5,1):
+      Id: 231
+      Value: 1
+    TourShifts(17,11,3,1,5,1):
+      Id: 232
+      Value: 1
+    TourShifts(17,11,3,2,5,1):
+      Id: 233
+      Value: 1
+    TourShifts(17,11,3,3,5,1):
+      Id: 234
+      Value: 1
+    TourShifts(17,11,3,4,5,1):
+      Id: 235
+      Value: 1
+    TourShifts(17,11,4,1,5,1):
+      Id: 236
+      Value: 1
+    TourShifts(17,11,4,2,5,1):
+      Id: 237
+      Value: 1
+    TourShifts(17,11,4,3,5,1):
+      Id: 238
+      Value: 1
+    TourShifts(17,11,4,4,5,1):
+      Id: 239
+      Value: 1
+    TourShifts(17,11,5,4,5,1):
+      Id: 243
+      Value: 1
+    TourShifts(17,11,6,1,5,1):
+      Id: 244
+      Value: 1
+    TourShifts(17,11,6,2,5,1):
+      Id: 245
+      Value: 1
+    TourShifts(17,11,6,3,5,1):
+      Id: 246
+      Value: 1
+    TourShifts(17,11,7,2,5,1):
+      Id: 249
+      Value: 1
+    TourShifts(17,11,7,4,5,1):
+      Id: 251
+      Value: 1
+    TourShifts(18,11,1,2,5,1):
+      Id: 253
+      Value: 1
+    TourShifts(18,11,1,4,5,1):
+      Id: 255
+      Value: 1
+    TourShifts(18,11,2,1,5,1):
+      Id: 256
+      Value: 1
+    TourShifts(18,11,2,2,5,1):
+      Id: 257
+      Value: 1
+    TourShifts(18,11,2,3,5,1):
+      Id: 258
+      Value: 1
+    TourShifts(18,11,3,1,5,1):
+      Id: 260
+      Value: 1
+    TourShifts(18,11,3,2,5,1):
+      Id: 261
+      Value: 1
+    TourShifts(18,11,3,4,5,1):
+      Id: 263
+      Value: 1
+    TourShifts(18,11,4,1,5,1):
+      Id: 264
+      Value: 1
+    TourShifts(18,11,4,3,5,1):
+      Id: 266
+      Value: 1
+    TourShifts(18,11,4,4,5,1):
+      Id: 267
+      Value: 1
+    TourShifts(18,11,5,1,5,1):
+      Id: 268
+      Value: 1
+    TourShifts(18,11,5,2,5,1):
+      Id: 269
+      Value: 1
+    TourShifts(18,11,5,3,5,1):
+      Id: 270
+      Value: 1
+    TourShifts(18,11,5,4,5,1):
+      Id: 271
+      Value: 1
+    TourShifts(18,11,6,2,5,1):
+      Id: 273
+      Value: 1
+    TourShifts(18,11,6,3,5,1):
+      Id: 274
+      Value: 1
+    TourShifts(18,11,6,4,5,1):
+      Id: 275
+      Value: 1
+    TourShifts(18,11,7,1,5,1):
+      Id: 276
+      Value: 1
+    TourShifts(18,11,7,3,5,1):
+      Id: 278
+      Value: 1
+    TourShifts(19,11,1,2,5,1):
+      Id: 281
+      Value: 1
+    TourShifts(19,11,1,4,5,1):
+      Id: 283
+      Value: 1
+    TourShifts(19,11,2,1,5,1):
+      Id: 284
+      Value: 1
+    TourShifts(19,11,2,2,5,1):
+      Id: 285
+      Value: 1
+    TourShifts(19,11,2,4,5,1):
+      Id: 287
+      Value: 1
+    TourShifts(19,11,3,1,5,1):
+      Id: 288
+      Value: 1
+    TourShifts(19,11,3,2,5,1):
+      Id: 289
+      Value: 1
+    TourShifts(19,11,3,3,5,1):
+      Id: 290
+      Value: 1
+    TourShifts(19,11,4,2,5,1):
+      Id: 293
+      Value: 1
+    TourShifts(19,11,4,3,5,1):
+      Id: 294
+      Value: 1
+    TourShifts(19,11,4,4,5,1):
+      Id: 295
+      Value: 1
+    TourShifts(19,11,5,1,5,1):
+      Id: 296
+      Value: 1
+    TourShifts(19,11,5,2,5,1):
+      Id: 297
+      Value: 1
+    TourShifts(19,11,5,3,5,1):
+      Id: 298
+      Value: 1
+    TourShifts(19,11,5,4,5,1):
+      Id: 299
+      Value: 1
+    TourShifts(19,11,6,1,5,1):
+      Id: 300
+      Value: 1
+    TourShifts(19,11,6,3,5,1):
+      Id: 302
+      Value: 1
+    TourShifts(19,11,6,4,5,1):
+      Id: 303
+      Value: 1
+    TourShifts(19,11,7,1,5,1):
+      Id: 304
+      Value: 1
+    TourShifts(19,11,7,3,5,1):
+      Id: 306
+      Value: 1
+    TourShifts(2,32,1,1,5,1):
+      Id: 308
+      Value: 1
+    TourShifts(2,32,1,3,5,1):
+      Id: 310
+      Value: 1
+    TourShifts(2,32,2,1,5,1):
+      Id: 312
+      Value: 1
+    TourShifts(2,32,2,2,5,1):
+      Id: 313
+      Value: 1
+    TourShifts(2,32,2,4,5,1):
+      Id: 315
+      Value: 1
+    TourShifts(2,32,3,2,5,1):
+      Id: 317
+      Value: 1
+    TourShifts(2,32,3,3,5,1):
+      Id: 318
+      Value: 1
+    TourShifts(2,32,4,1,5,1):
+      Id: 320
+      Value: 1
+    TourShifts(2,32,4,3,5,1):
+      Id: 322
+      Value: 1
+    TourShifts(2,32,4,4,5,1):
+      Id: 323
+      Value: 1
+    TourShifts(2,32,5,1,5,1):
+      Id: 324
+      Value: 1
+    TourShifts(2,32,5,2,5,1):
+      Id: 325
+      Value: 1
+    TourShifts(2,32,5,3,5,1):
+      Id: 326
+      Value: 1
+    TourShifts(2,32,5,4,5,1):
+      Id: 327
+      Value: 1
+    TourShifts(2,32,6,1,5,1):
+      Id: 328
+      Value: 1
+    TourShifts(2,32,6,2,5,1):
+      Id: 329
+      Value: 1
+    TourShifts(2,32,6,3,5,1):
+      Id: 330
+      Value: 1
+    TourShifts(2,32,6,4,5,1):
+      Id: 331
+      Value: 1
+    TourShifts(2,32,7,2,5,1):
+      Id: 333
+      Value: 1
+    TourShifts(2,32,7,4,5,1):
+      Id: 335
+      Value: 1
+    TourShifts(20,11,1,1,5,1):
+      Id: 336
+      Value: 1
+    TourShifts(20,11,1,3,5,1):
+      Id: 338
+      Value: 1
+    TourShifts(20,11,2,1,5,1):
+      Id: 340
+      Value: 1
+    TourShifts(20,11,2,2,5,1):
+      Id: 341
+      Value: 1
+    TourShifts(20,11,2,3,5,1):
+      Id: 342
+      Value: 1
+    TourShifts(20,11,2,4,5,1):
+      Id: 343
+      Value: 1
+    TourShifts(20,11,3,1,5,1):
+      Id: 344
+      Value: 1
+    TourShifts(20,11,3,3,5,1):
+      Id: 346
+      Value: 1
+    TourShifts(20,11,3,4,5,1):
+      Id: 347
+      Value: 1
+    TourShifts(20,11,4,1,5,1):
+      Id: 348
+      Value: 1
+    TourShifts(20,11,4,2,5,1):
+      Id: 349
+      Value: 1
+    TourShifts(20,11,4,4,5,1):
+      Id: 351
+      Value: 1
+    TourShifts(20,11,5,2,5,1):
+      Id: 353
+      Value: 1
+    TourShifts(20,11,5,3,5,1):
+      Id: 354
+      Value: 1
+    TourShifts(20,11,6,1,5,1):
+      Id: 356
+      Value: 1
+    TourShifts(20,11,6,2,5,1):
+      Id: 357
+      Value: 1
+    TourShifts(20,11,6,3,5,1):
+      Id: 358
+      Value: 1
+    TourShifts(20,11,6,4,5,1):
+      Id: 359
+      Value: 1
+    TourShifts(20,11,7,2,5,1):
+      Id: 361
+      Value: 1
+    TourShifts(20,11,7,4,5,1):
+      Id: 363
+      Value: 1
+    TourShifts(21,11,1,1,5,1):
+      Id: 364
+      Value: 1
+    TourShifts(21,11,1,3,5,1):
+      Id: 366
+      Value: 1
+    TourShifts(21,11,2,1,5,1):
+      Id: 368
+      Value: 1
+    TourShifts(21,11,2,2,5,1):
+      Id: 369
+      Value: 1
+    TourShifts(21,11,2,3,5,1):
+      Id: 370
+      Value: 1
+    TourShifts(21,11,2,4,5,1):
+      Id: 371
+      Value: 1
+    TourShifts(21,11,3,1,5,1):
+      Id: 372
+      Value: 1
+    TourShifts(21,11,3,2,5,1):
+      Id: 373
+      Value: 1
+    TourShifts(21,11,3,3,5,1):
+      Id: 374
+      Value: 1
+    TourShifts(21,11,3,4,5,1):
+      Id: 375
+      Value: 1
+    TourShifts(21,11,4,3,5,1):
+      Id: 378
+      Value: 1
+    TourShifts(21,11,5,1,5,1):
+      Id: 380
+      Value: 1
+    TourShifts(21,11,5,2,5,1):
+      Id: 381
+      Value: 1
+    TourShifts(21,11,5,4,5,1):
+      Id: 383
+      Value: 1
+    TourShifts(21,11,6,1,5,1):
+      Id: 384
+      Value: 1
+    TourShifts(21,11,6,2,5,1):
+      Id: 385
+      Value: 1
+    TourShifts(21,11,6,3,5,1):
+      Id: 386
+      Value: 1
+    TourShifts(21,11,6,4,5,1):
+      Id: 387
+      Value: 1
+    TourShifts(21,11,7,2,5,1):
+      Id: 389
+      Value: 1
+    TourShifts(21,11,7,4,5,1):
+      Id: 391
+      Value: 1
+    TourShifts(22,27,1,1,5,1):
+      Id: 392
+      Value: 1
+    TourShifts(22,27,1,3,5,1):
+      Id: 394
+      Value: 1
+    TourShifts(22,27,2,1,5,1):
+      Id: 396
+      Value: 1
+    TourShifts(22,27,2,2,5,1):
+      Id: 397
+      Value: 1
+    TourShifts(22,27,2,3,5,1):
+      Id: 398
+      Value: 1
+    TourShifts(22,27,2,4,5,1):
+      Id: 399
+      Value: 1
+    TourShifts(22,27,3,1,5,1):
+      Id: 400
+      Value: 1
+    TourShifts(22,27,3,4,5,1):
+      Id: 403
+      Value: 1
+    TourShifts(22,27,4,1,5,1):
+      Id: 404
+      Value: 1
+    TourShifts(22,27,4,2,5,1):
+      Id: 405
+      Value: 1
+    TourShifts(22,27,4,3,5,1):
+      Id: 406
+      Value: 1
+    TourShifts(22,27,5,1,5,1):
+      Id: 408
+      Value: 1
+    TourShifts(22,27,5,2,5,1):
+      Id: 409
+      Value: 1
+    TourShifts(22,27,5,3,5,1):
+      Id: 410
+      Value: 1
+    TourShifts(22,27,5,4,5,1):
+      Id: 411
+      Value: 1
+    TourShifts(22,27,6,2,5,1):
+      Id: 413
+      Value: 1
+    TourShifts(22,27,6,3,5,1):
+      Id: 414
+      Value: 1
+    TourShifts(22,27,6,4,5,1):
+      Id: 415
+      Value: 1
+    TourShifts(22,27,7,2,5,1):
+      Id: 417
+      Value: 1
+    TourShifts(22,27,7,4,5,1):
+      Id: 419
+      Value: 1
+    TourShifts(23,27,1,2,5,1):
+      Id: 421
+      Value: 1
+    TourShifts(23,27,1,4,5,1):
+      Id: 423
+      Value: 1
+    TourShifts(23,27,2,1,5,1):
+      Id: 424
+      Value: 1
+    TourShifts(23,27,2,2,5,1):
+      Id: 425
+      Value: 1
+    TourShifts(23,27,2,3,5,1):
+      Id: 426
+      Value: 1
+    TourShifts(23,27,2,4,5,1):
+      Id: 427
+      Value: 1
+    TourShifts(23,27,3,1,5,1):
+      Id: 428
+      Value: 1
+    TourShifts(23,27,3,3,5,1):
+      Id: 430
+      Value: 1
+    TourShifts(23,27,3,4,5,1):
+      Id: 431
+      Value: 1
+    TourShifts(23,27,4,1,5,1):
+      Id: 432
+      Value: 1
+    TourShifts(23,27,4,2,5,1):
+      Id: 433
+      Value: 1
+    TourShifts(23,27,4,3,5,1):
+      Id: 434
+      Value: 1
+    TourShifts(23,27,5,2,5,1):
+      Id: 437
+      Value: 1
+    TourShifts(23,27,5,3,5,1):
+      Id: 438
+      Value: 1
+    TourShifts(23,27,5,4,5,1):
+      Id: 439
+      Value: 1
+    TourShifts(23,27,6,1,5,1):
+      Id: 440
+      Value: 1
+    TourShifts(23,27,6,2,5,1):
+      Id: 441
+      Value: 1
+    TourShifts(23,27,6,4,5,1):
+      Id: 443
+      Value: 1
+    TourShifts(23,27,7,1,5,1):
+      Id: 444
+      Value: 1
+    TourShifts(23,27,7,3,5,1):
+      Id: 446
+      Value: 1
+    TourShifts(24,27,1,2,5,1):
+      Id: 449
+      Value: 1
+    TourShifts(24,27,1,4,5,1):
+      Id: 451
+      Value: 1
+    TourShifts(24,27,2,1,5,1):
+      Id: 452
+      Value: 1
+    TourShifts(24,27,2,2,5,1):
+      Id: 453
+      Value: 1
+    TourShifts(24,27,2,3,5,1):
+      Id: 454
+      Value: 1
+    TourShifts(24,27,2,4,5,1):
+      Id: 455
+      Value: 1
+    TourShifts(24,27,3,1,5,1):
+      Id: 456
+      Value: 1
+    TourShifts(24,27,3,2,5,1):
+      Id: 457
+      Value: 1
+    TourShifts(24,27,3,3,5,1):
+      Id: 458
+      Value: 1
+    TourShifts(24,27,3,4,5,1):
+      Id: 459
+      Value: 1
+    TourShifts(24,27,4,2,5,1):
+      Id: 461
+      Value: 1
+    TourShifts(24,27,4,4,5,1):
+      Id: 463
+      Value: 1
+    TourShifts(24,27,5,1,5,1):
+      Id: 464
+      Value: 1
+    TourShifts(24,27,5,3,5,1):
+      Id: 466
+      Value: 1
+    TourShifts(24,27,5,4,5,1):
+      Id: 467
+      Value: 1
+    TourShifts(24,27,6,1,5,1):
+      Id: 468
+      Value: 1
+    TourShifts(24,27,6,2,5,1):
+      Id: 469
+      Value: 1
+    TourShifts(24,27,6,3,5,1):
+      Id: 470
+      Value: 1
+    TourShifts(24,27,7,1,5,1):
+      Id: 472
+      Value: 1
+    TourShifts(24,27,7,3,5,1):
+      Id: 474
+      Value: 1
+    TourShifts(25,27,1,1,5,1):
+      Id: 476
+      Value: 1
+    TourShifts(25,27,1,3,5,1):
+      Id: 478
+      Value: 1
+    TourShifts(25,27,2,1,5,1):
+      Id: 480
+      Value: 1
+    TourShifts(25,27,2,2,5,1):
+      Id: 481
+      Value: 1
+    TourShifts(25,27,2,3,5,1):
+      Id: 482
+      Value: 1
+    TourShifts(25,27,2,4,5,1):
+      Id: 483
+      Value: 1
+    TourShifts(25,27,3,1,5,1):
+      Id: 484
+      Value: 1
+    TourShifts(25,27,3,2,5,1):
+      Id: 485
+      Value: 1
+    TourShifts(25,27,3,3,5,1):
+      Id: 486
+      Value: 1
+    TourShifts(25,27,3,4,5,1):
+      Id: 487
+      Value: 1
+    TourShifts(25,27,4,1,5,1):
+      Id: 488
+      Value: 1
+    TourShifts(25,27,4,2,5,1):
+      Id: 489
+      Value: 1
+    TourShifts(25,27,4,4,5,1):
+      Id: 491
+      Value: 1
+    TourShifts(25,27,5,3,5,1):
+      Id: 494
+      Value: 1
+    TourShifts(25,27,5,4,5,1):
+      Id: 495
+      Value: 1
+    TourShifts(25,27,6,1,5,1):
+      Id: 496
+      Value: 1
+    TourShifts(25,27,6,2,5,1):
+      Id: 497
+      Value: 1
+    TourShifts(25,27,6,3,5,1):
+      Id: 498
+      Value: 1
+    TourShifts(25,27,7,2,5,1):
+      Id: 501
+      Value: 1
+    TourShifts(25,27,7,4,5,1):
+      Id: 503
+      Value: 1
+    TourShifts(26,43,1,1,5,1):
+      Id: 504
+      Value: 1
+    TourShifts(26,43,1,3,5,1):
+      Id: 506
+      Value: 1
+    TourShifts(26,43,2,3,5,1):
+      Id: 510
+      Value: 1
+    TourShifts(26,43,2,4,5,1):
+      Id: 511
+      Value: 1
+    TourShifts(26,43,3,1,5,1):
+      Id: 512
+      Value: 1
+    TourShifts(26,43,3,2,5,1):
+      Id: 513
+      Value: 1
+    TourShifts(26,43,3,4,5,1):
+      Id: 515
+      Value: 1
+    TourShifts(26,43,4,1,5,1):
+      Id: 516
+      Value: 1
+    TourShifts(26,43,4,2,5,1):
+      Id: 517
+      Value: 1
+    TourShifts(26,43,4,3,5,1):
+      Id: 518
+      Value: 1
+    TourShifts(26,43,4,4,5,1):
+      Id: 519
+      Value: 1
+    TourShifts(26,43,5,1,5,1):
+      Id: 520
+      Value: 1
+    TourShifts(26,43,5,2,5,1):
+      Id: 521
+      Value: 1
+    TourShifts(26,43,5,3,5,1):
+      Id: 522
+      Value: 1
+    TourShifts(26,43,5,4,5,1):
+      Id: 523
+      Value: 1
+    TourShifts(26,43,6,1,5,1):
+      Id: 524
+      Value: 1
+    TourShifts(26,43,6,2,5,1):
+      Id: 525
+      Value: 1
+    TourShifts(26,43,6,3,5,1):
+      Id: 526
+      Value: 1
+    TourShifts(26,43,7,2,5,1):
+      Id: 529
+      Value: 1
+    TourShifts(26,43,7,4,5,1):
+      Id: 531
+      Value: 1
+    TourShifts(27,43,1,2,5,1):
+      Id: 533
+      Value: 1
+    TourShifts(27,43,1,4,5,1):
+      Id: 535
+      Value: 1
+    TourShifts(27,43,2,1,5,1):
+      Id: 536
+      Value: 1
+    TourShifts(27,43,2,2,5,1):
+      Id: 537
+      Value: 1
+    TourShifts(27,43,2,3,5,1):
+      Id: 538
+      Value: 1
+    TourShifts(27,43,2,4,5,1):
+      Id: 539
+      Value: 1
+    TourShifts(27,43,3,1,5,1):
+      Id: 540
+      Value: 1
+    TourShifts(27,43,3,3,5,1):
+      Id: 542
+      Value: 1
+    TourShifts(27,43,3,4,5,1):
+      Id: 543
+      Value: 1
+    TourShifts(27,43,4,1,5,1):
+      Id: 544
+      Value: 1
+    TourShifts(27,43,4,2,5,1):
+      Id: 545
+      Value: 1
+    TourShifts(27,43,5,2,5,1):
+      Id: 549
+      Value: 1
+    TourShifts(27,43,5,3,5,1):
+      Id: 550
+      Value: 1
+    TourShifts(27,43,5,4,5,1):
+      Id: 551
+      Value: 1
+    TourShifts(27,43,6,1,5,1):
+      Id: 552
+      Value: 1
+    TourShifts(27,43,6,2,5,1):
+      Id: 553
+      Value: 1
+    TourShifts(27,43,6,3,5,1):
+      Id: 554
+      Value: 1
+    TourShifts(27,43,6,4,5,1):
+      Id: 555
+      Value: 1
+    TourShifts(27,43,7,1,5,1):
+      Id: 556
+      Value: 1
+    TourShifts(27,43,7,3,5,1):
+      Id: 558
+      Value: 1
+    TourShifts(28,43,1,2,5,1):
+      Id: 561
+      Value: 1
+    TourShifts(28,43,1,4,5,1):
+      Id: 563
+      Value: 1
+    TourShifts(28,43,2,1,5,1):
+      Id: 564
+      Value: 1
+    TourShifts(28,43,2,2,5,1):
+      Id: 565
+      Value: 1
+    TourShifts(28,43,2,3,5,1):
+      Id: 566
+      Value: 1
+    TourShifts(28,43,2,4,5,1):
+      Id: 567
+      Value: 1
+    TourShifts(28,43,3,1,5,1):
+      Id: 568
+      Value: 1
+    TourShifts(28,43,3,2,5,1):
+      Id: 569
+      Value: 1
+    TourShifts(28,43,3,3,5,1):
+      Id: 570
+      Value: 1
+    TourShifts(28,43,3,4,5,1):
+      Id: 571
+      Value: 1
+    TourShifts(28,43,4,1,5,1):
+      Id: 572
+      Value: 1
+    TourShifts(28,43,4,2,5,1):
+      Id: 573
+      Value: 1
+    TourShifts(28,43,4,3,5,1):
+      Id: 574
+      Value: 1
+    TourShifts(28,43,5,1,5,1):
+      Id: 576
+      Value: 1
+    TourShifts(28,43,5,3,5,1):
+      Id: 578
+      Value: 1
+    TourShifts(28,43,5,4,5,1):
+      Id: 579
+      Value: 1
+    TourShifts(28,43,6,2,5,1):
+      Id: 581
+      Value: 1
+    TourShifts(28,43,6,4,5,1):
+      Id: 583
+      Value: 1
+    TourShifts(28,43,7,1,5,1):
+      Id: 584
+      Value: 1
+    TourShifts(28,43,7,3,5,1):
+      Id: 586
+      Value: 1
+    TourShifts(29,13,1,1,5,1):
+      Id: 588
+      Value: 1
+    TourShifts(29,13,1,3,5,1):
+      Id: 590
+      Value: 1
+    TourShifts(29,13,2,1,5,1):
+      Id: 592
+      Value: 1
+    TourShifts(29,13,2,2,5,1):
+      Id: 593
+      Value: 1
+    TourShifts(29,13,2,3,5,1):
+      Id: 594
+      Value: 1
+    TourShifts(29,13,2,4,5,1):
+      Id: 595
+      Value: 1
+    TourShifts(29,13,3,1,5,1):
+      Id: 596
+      Value: 1
+    TourShifts(29,13,3,2,5,1):
+      Id: 597
+      Value: 1
+    TourShifts(29,13,3,3,5,1):
+      Id: 598
+      Value: 1
+    TourShifts(29,13,3,4,5,1):
+      Id: 599
+      Value: 1
+    TourShifts(29,13,4,1,5,1):
+      Id: 600
+      Value: 1
+    TourShifts(29,13,4,2,5,1):
+      Id: 601
+      Value: 1
+    TourShifts(29,13,5,1,5,1):
+      Id: 604
+      Value: 1
+    TourShifts(29,13,5,3,5,1):
+      Id: 606
+      Value: 1
+    TourShifts(29,13,5,4,5,1):
+      Id: 607
+      Value: 1
+    TourShifts(29,13,6,2,5,1):
+      Id: 609
+      Value: 1
+    TourShifts(29,13,6,3,5,1):
+      Id: 610
+      Value: 1
+    TourShifts(29,13,6,4,5,1):
+      Id: 611
+      Value: 1
+    TourShifts(29,13,7,2,5,1):
+      Id: 613
+      Value: 1
+    TourShifts(29,13,7,4,5,1):
+      Id: 615
+      Value: 1
+    TourShifts(3,32,1,2,5,1):
+      Id: 617
+      Value: 1
+    TourShifts(3,32,1,4,5,1):
+      Id: 619
+      Value: 1
+    TourShifts(3,32,2,1,5,1):
+      Id: 620
+      Value: 1
+    TourShifts(3,32,2,3,5,1):
+      Id: 622
+      Value: 1
+    TourShifts(3,32,2,4,5,1):
+      Id: 623
+      Value: 1
+    TourShifts(3,32,3,1,5,1):
+      Id: 624
+      Value: 1
+    TourShifts(3,32,3,2,5,1):
+      Id: 625
+      Value: 1
+    TourShifts(3,32,3,3,5,1):
+      Id: 626
+      Value: 1
+    TourShifts(3,32,3,4,5,1):
+      Id: 627
+      Value: 1
+    TourShifts(3,32,4,1,5,1):
+      Id: 628
+      Value: 1
+    TourShifts(3,32,4,2,5,1):
+      Id: 629
+      Value: 1
+    TourShifts(3,32,4,3,5,1):
+      Id: 630
+      Value: 1
+    TourShifts(3,32,4,4,5,1):
+      Id: 631
+      Value: 1
+    TourShifts(3,32,5,2,5,1):
+      Id: 633
+      Value: 1
+    TourShifts(3,32,5,4,5,1):
+      Id: 635
+      Value: 1
+    TourShifts(3,32,6,1,5,1):
+      Id: 636
+      Value: 1
+    TourShifts(3,32,6,2,5,1):
+      Id: 637
+      Value: 1
+    TourShifts(3,32,6,3,5,1):
+      Id: 638
+      Value: 1
+    TourShifts(3,32,7,1,5,1):
+      Id: 640
+      Value: 1
+    TourShifts(3,32,7,3,5,1):
+      Id: 642
+      Value: 1
+    TourShifts(30,13,1,1,5,1):
+      Id: 644
+      Value: 1
+    TourShifts(30,13,1,3,5,1):
+      Id: 646
+      Value: 1
+    TourShifts(30,13,2,1,5,1):
+      Id: 648
+      Value: 1
+    TourShifts(30,13,2,2,5,1):
+      Id: 649
+      Value: 1
+    TourShifts(30,13,2,3,5,1):
+      Id: 650
+      Value: 1
+    TourShifts(30,13,2,4,5,1):
+      Id: 651
+      Value: 1
+    TourShifts(30,13,3,2,5,1):
+      Id: 653
+      Value: 1
+    TourShifts(30,13,3,3,5,1):
+      Id: 654
+      Value: 1
+    TourShifts(30,13,3,4,5,1):
+      Id: 655
+      Value: 1
+    TourShifts(30,13,4,1,5,1):
+      Id: 656
+      Value: 1
+    TourShifts(30,13,4,2,5,1):
+      Id: 657
+      Value: 1
+    TourShifts(30,13,4,4,5,1):
+      Id: 659
+      Value: 1
+    TourShifts(30,13,5,1,5,1):
+      Id: 660
+      Value: 1
+    TourShifts(30,13,5,3,5,1):
+      Id: 662
+      Value: 1
+    TourShifts(30,13,5,4,5,1):
+      Id: 663
+      Value: 1
+    TourShifts(30,13,6,1,5,1):
+      Id: 664
+      Value: 1
+    TourShifts(30,13,6,2,5,1):
+      Id: 665
+      Value: 1
+    TourShifts(30,13,6,3,5,1):
+      Id: 666
+      Value: 1
+    TourShifts(30,13,7,2,5,1):
+      Id: 669
+      Value: 1
+    TourShifts(30,13,7,4,5,1):
+      Id: 671
+      Value: 1
+    TourShifts(31,13,1,2,5,1):
+      Id: 673
+      Value: 1
+    TourShifts(31,13,1,4,5,1):
+      Id: 675
+      Value: 1
+    TourShifts(31,13,2,2,5,1):
+      Id: 677
+      Value: 1
+    TourShifts(31,13,2,3,5,1):
+      Id: 678
+      Value: 1
+    TourShifts(31,13,2,4,5,1):
+      Id: 679
+      Value: 1
+    TourShifts(31,13,3,1,5,1):
+      Id: 680
+      Value: 1
+    TourShifts(31,13,3,2,5,1):
+      Id: 681
+      Value: 1
+    TourShifts(31,13,3,4,5,1):
+      Id: 683
+      Value: 1
+    TourShifts(31,13,4,1,5,1):
+      Id: 684
+      Value: 1
+    TourShifts(31,13,4,2,5,1):
+      Id: 685
+      Value: 1
+    TourShifts(31,13,4,3,5,1):
+      Id: 686
+      Value: 1
+    TourShifts(31,13,4,4,5,1):
+      Id: 687
+      Value: 1
+    TourShifts(31,13,5,1,5,1):
+      Id: 688
+      Value: 1
+    TourShifts(31,13,5,2,5,1):
+      Id: 689
+      Value: 1
+    TourShifts(31,13,5,3,5,1):
+      Id: 690
+      Value: 1
+    TourShifts(31,13,5,4,5,1):
+      Id: 691
+      Value: 1
+    TourShifts(31,13,6,1,5,1):
+      Id: 692
+      Value: 1
+    TourShifts(31,13,6,3,5,1):
+      Id: 694
+      Value: 1
+    TourShifts(31,13,7,1,5,1):
+      Id: 696
+      Value: 1
+    TourShifts(31,13,7,3,5,1):
+      Id: 698
+      Value: 1
+    TourShifts(32,13,1,2,5,1):
+      Id: 701
+      Value: 1
+    TourShifts(32,13,1,4,5,1):
+      Id: 703
+      Value: 1
+    TourShifts(32,13,2,1,5,1):
+      Id: 704
+      Value: 1
+    TourShifts(32,13,2,2,5,1):
+      Id: 705
+      Value: 1
+    TourShifts(32,13,2,3,5,1):
+      Id: 706
+      Value: 1
+    TourShifts(32,13,2,4,5,1):
+      Id: 707
+      Value: 1
+    TourShifts(32,13,3,2,5,1):
+      Id: 709
+      Value: 1
+    TourShifts(32,13,3,3,5,1):
+      Id: 710
+      Value: 1
+    TourShifts(32,13,3,4,5,1):
+      Id: 711
+      Value: 1
+    TourShifts(32,13,4,1,5,1):
+      Id: 712
+      Value: 1
+    TourShifts(32,13,4,2,5,1):
+      Id: 713
+      Value: 1
+    TourShifts(32,13,4,3,5,1):
+      Id: 714
+      Value: 1
+    TourShifts(32,13,5,1,5,1):
+      Id: 716
+      Value: 1
+    TourShifts(32,13,5,2,5,1):
+      Id: 717
+      Value: 1
+    TourShifts(32,13,5,3,5,1):
+      Id: 718
+      Value: 1
+    TourShifts(32,13,5,4,5,1):
+      Id: 719
+      Value: 1
+    TourShifts(32,13,6,1,5,1):
+      Id: 720
+      Value: 1
+    TourShifts(32,13,6,4,5,1):
+      Id: 723
+      Value: 1
+    TourShifts(32,13,7,1,5,1):
+      Id: 724
+      Value: 1
+    TourShifts(32,13,7,3,5,1):
+      Id: 726
+      Value: 1
+    TourShifts(33,16,1,1,5,1):
+      Id: 728
+      Value: 1
+    TourShifts(33,16,1,3,5,1):
+      Id: 730
+      Value: 1
+    TourShifts(33,16,2,1,5,1):
+      Id: 732
+      Value: 1
+    TourShifts(33,16,2,2,5,1):
+      Id: 733
+      Value: 1
+    TourShifts(33,16,3,2,5,1):
+      Id: 737
+      Value: 1
+    TourShifts(33,16,3,3,5,1):
+      Id: 738
+      Value: 1
+    TourShifts(33,16,3,4,5,1):
+      Id: 739
+      Value: 1
+    TourShifts(33,16,4,1,5,1):
+      Id: 740
+      Value: 1
+    TourShifts(33,16,4,3,5,1):
+      Id: 742
+      Value: 1
+    TourShifts(33,16,4,4,5,1):
+      Id: 743
+      Value: 1
+    TourShifts(33,16,5,1,5,1):
+      Id: 744
+      Value: 1
+    TourShifts(33,16,5,2,5,1):
+      Id: 745
+      Value: 1
+    TourShifts(33,16,5,3,5,1):
+      Id: 746
+      Value: 1
+    TourShifts(33,16,5,4,5,1):
+      Id: 747
+      Value: 1
+    TourShifts(33,16,6,1,5,1):
+      Id: 748
+      Value: 1
+    TourShifts(33,16,6,2,5,1):
+      Id: 749
+      Value: 1
+    TourShifts(33,16,6,3,5,1):
+      Id: 750
+      Value: 1
+    TourShifts(33,16,6,4,5,1):
+      Id: 751
+      Value: 1
+    TourShifts(33,16,7,2,5,1):
+      Id: 753
+      Value: 1
+    TourShifts(33,16,7,4,5,1):
+      Id: 755
+      Value: 1
+    TourShifts(34,16,1,2,5,1):
+      Id: 757
+      Value: 1
+    TourShifts(34,16,1,4,5,1):
+      Id: 759
+      Value: 1
+    TourShifts(34,16,2,1,5,1):
+      Id: 760
+      Value: 1
+    TourShifts(34,16,2,3,5,1):
+      Id: 762
+      Value: 1
+    TourShifts(34,16,2,4,5,1):
+      Id: 763
+      Value: 1
+    TourShifts(34,16,3,1,5,1):
+      Id: 764
+      Value: 1
+    TourShifts(34,16,3,2,5,1):
+      Id: 765
+      Value: 1
+    TourShifts(34,16,3,3,5,1):
+      Id: 766
+      Value: 1
+    TourShifts(34,16,3,4,5,1):
+      Id: 767
+      Value: 1
+    TourShifts(34,16,4,1,5,1):
+      Id: 768
+      Value: 1
+    TourShifts(34,16,4,2,5,1):
+      Id: 769
+      Value: 1
+    TourShifts(34,16,4,3,5,1):
+      Id: 770
+      Value: 1
+    TourShifts(34,16,5,2,5,1):
+      Id: 773
+      Value: 1
+    TourShifts(34,16,5,4,5,1):
+      Id: 775
+      Value: 1
+    TourShifts(34,16,6,1,5,1):
+      Id: 776
+      Value: 1
+    TourShifts(34,16,6,2,5,1):
+      Id: 777
+      Value: 1
+    TourShifts(34,16,6,3,5,1):
+      Id: 778
+      Value: 1
+    TourShifts(34,16,6,4,5,1):
+      Id: 779
+      Value: 1
+    TourShifts(34,16,7,1,5,1):
+      Id: 780
+      Value: 1
+    TourShifts(34,16,7,3,5,1):
+      Id: 782
+      Value: 1
+    TourShifts(35,16,1,2,5,1):
+      Id: 785
+      Value: 1
+    TourShifts(35,16,1,4,5,1):
+      Id: 787
+      Value: 1
+    TourShifts(35,16,2,3,5,1):
+      Id: 790
+      Value: 1
+    TourShifts(35,16,2,4,5,1):
+      Id: 791
+      Value: 1
+    TourShifts(35,16,3,1,5,1):
+      Id: 792
+      Value: 1
+    TourShifts(35,16,3,2,5,1):
+      Id: 793
+      Value: 1
+    TourShifts(35,16,4,1,5,1):
+      Id: 796
+      Value: 1
+    TourShifts(35,16,4,2,5,1):
+      Id: 797
+      Value: 1
+    TourShifts(35,16,4,3,5,1):
+      Id: 798
+      Value: 1
+    TourShifts(35,16,4,4,5,1):
+      Id: 799
+      Value: 1
+    TourShifts(35,16,5,1,5,1):
+      Id: 800
+      Value: 1
+    TourShifts(35,16,5,2,5,1):
+      Id: 801
+      Value: 1
+    TourShifts(35,16,5,3,5,1):
+      Id: 802
+      Value: 1
+    TourShifts(35,16,5,4,5,1):
+      Id: 803
+      Value: 1
+    TourShifts(35,16,6,1,5,1):
+      Id: 804
+      Value: 1
+    TourShifts(35,16,6,2,5,1):
+      Id: 805
+      Value: 1
+    TourShifts(35,16,6,3,5,1):
+      Id: 806
+      Value: 1
+    TourShifts(35,16,6,4,5,1):
+      Id: 807
+      Value: 1
+    TourShifts(35,16,7,1,5,1):
+      Id: 808
+      Value: 1
+    TourShifts(35,16,7,3,5,1):
+      Id: 810
+      Value: 1
+    TourShifts(36,16,1,2,5,1):
+      Id: 813
+      Value: 1
+    TourShifts(36,16,1,4,5,1):
+      Id: 815
+      Value: 1
+    TourShifts(36,16,2,1,5,1):
+      Id: 816
+      Value: 1
+    TourShifts(36,16,2,3,5,1):
+      Id: 818
+      Value: 1
+    TourShifts(36,16,2,4,5,1):
+      Id: 819
+      Value: 1
+    TourShifts(36,16,3,1,5,1):
+      Id: 820
+      Value: 1
+    TourShifts(36,16,3,2,5,1):
+      Id: 821
+      Value: 1
+    TourShifts(36,16,3,3,5,1):
+      Id: 822
+      Value: 1
+    TourShifts(36,16,3,4,5,1):
+      Id: 823
+      Value: 1
+    TourShifts(36,16,4,2,5,1):
+      Id: 825
+      Value: 1
+    TourShifts(36,16,4,4,5,1):
+      Id: 827
+      Value: 1
+    TourShifts(36,16,5,1,5,1):
+      Id: 828
+      Value: 1
+    TourShifts(36,16,5,2,5,1):
+      Id: 829
+      Value: 1
+    TourShifts(36,16,5,3,5,1):
+      Id: 830
+      Value: 1
+    TourShifts(36,16,5,4,5,1):
+      Id: 831
+      Value: 1
+    TourShifts(36,16,6,1,5,1):
+      Id: 832
+      Value: 1
+    TourShifts(36,16,6,2,5,1):
+      Id: 833
+      Value: 1
+    TourShifts(36,16,6,3,5,1):
+      Id: 834
+      Value: 1
+    TourShifts(36,16,7,1,5,1):
+      Id: 836
+      Value: 1
+    TourShifts(36,16,7,3,5,1):
+      Id: 838
+      Value: 1
+    TourShifts(37,29,1,2,5,1):
+      Id: 841
+      Value: 1
+    TourShifts(37,29,1,4,5,1):
+      Id: 843
+      Value: 1
+    TourShifts(37,29,2,1,5,1):
+      Id: 844
+      Value: 1
+    TourShifts(37,29,2,2,5,1):
+      Id: 845
+      Value: 1
+    TourShifts(37,29,3,1,5,1):
+      Id: 848
+      Value: 1
+    TourShifts(37,29,3,2,5,1):
+      Id: 849
+      Value: 1
+    TourShifts(37,29,3,3,5,1):
+      Id: 850
+      Value: 1
+    TourShifts(37,29,3,4,5,1):
+      Id: 851
+      Value: 1
+    TourShifts(37,29,4,1,5,1):
+      Id: 852
+      Value: 1
+    TourShifts(37,29,4,2,5,1):
+      Id: 853
+      Value: 1
+    TourShifts(37,29,4,3,5,1):
+      Id: 854
+      Value: 1
+    TourShifts(37,29,4,4,5,1):
+      Id: 855
+      Value: 1
+    TourShifts(37,29,5,1,5,1):
+      Id: 856
+      Value: 1
+    TourShifts(37,29,5,2,5,1):
+      Id: 857
+      Value: 1
+    TourShifts(37,29,5,3,5,1):
+      Id: 858
+      Value: 1
+    TourShifts(37,29,5,4,5,1):
+      Id: 859
+      Value: 1
+    TourShifts(37,29,6,3,5,1):
+      Id: 862
+      Value: 1
+    TourShifts(37,29,6,4,5,1):
+      Id: 863
+      Value: 1
+    TourShifts(37,29,7,1,5,1):
+      Id: 864
+      Value: 1
+    TourShifts(37,29,7,3,5,1):
+      Id: 866
+      Value: 1
+    TourShifts(38,29,1,1,5,1):
+      Id: 868
+      Value: 1
+    TourShifts(38,29,1,3,5,1):
+      Id: 870
+      Value: 1
+    TourShifts(38,29,2,2,5,1):
+      Id: 873
+      Value: 1
+    TourShifts(38,29,2,3,5,1):
+      Id: 874
+      Value: 1
+    TourShifts(38,29,2,4,5,1):
+      Id: 875
+      Value: 1
+    TourShifts(38,29,3,1,5,1):
+      Id: 876
+      Value: 1
+    TourShifts(38,29,3,2,5,1):
+      Id: 877
+      Value: 1
+    TourShifts(38,29,3,3,5,1):
+      Id: 878
+      Value: 1
+    TourShifts(38,29,3,4,5,1):
+      Id: 879
+      Value: 1
+    TourShifts(38,29,4,1,5,1):
+      Id: 880
+      Value: 1
+    TourShifts(38,29,4,3,5,1):
+      Id: 882
+      Value: 1
+    TourShifts(38,29,4,4,5,1):
+      Id: 883
+      Value: 1
+    TourShifts(38,29,5,1,5,1):
+      Id: 884
+      Value: 1
+    TourShifts(38,29,5,2,5,1):
+      Id: 885
+      Value: 1
+    TourShifts(38,29,5,3,5,1):
+      Id: 886
+      Value: 1
+    TourShifts(38,29,6,1,5,1):
+      Id: 888
+      Value: 1
+    TourShifts(38,29,6,2,5,1):
+      Id: 889
+      Value: 1
+    TourShifts(38,29,6,4,5,1):
+      Id: 891
+      Value: 1
+    TourShifts(38,29,7,2,5,1):
+      Id: 893
+      Value: 1
+    TourShifts(38,29,7,4,5,1):
+      Id: 895
+      Value: 1
+    TourShifts(4,32,1,1,5,1):
+      Id: 896
+      Value: 1
+    TourShifts(4,32,1,3,5,1):
+      Id: 898
+      Value: 1
+    TourShifts(4,32,2,1,5,1):
+      Id: 900
+      Value: 1
+    TourShifts(4,32,2,2,5,1):
+      Id: 901
+      Value: 1
+    TourShifts(4,32,2,3,5,1):
+      Id: 902
+      Value: 1
+    TourShifts(4,32,3,1,5,1):
+      Id: 904
+      Value: 1
+    TourShifts(4,32,3,2,5,1):
+      Id: 905
+      Value: 1
+    TourShifts(4,32,3,3,5,1):
+      Id: 906
+      Value: 1
+    TourShifts(4,32,3,4,5,1):
+      Id: 907
+      Value: 1
+    TourShifts(4,32,4,2,5,1):
+      Id: 909
+      Value: 1
+    TourShifts(4,32,4,3,5,1):
+      Id: 910
+      Value: 1
+    TourShifts(4,32,4,4,5,1):
+      Id: 911
+      Value: 1
+    TourShifts(4,32,5,1,5,1):
+      Id: 912
+      Value: 1
+    TourShifts(4,32,5,2,5,1):
+      Id: 913
+      Value: 1
+    TourShifts(4,32,5,4,5,1):
+      Id: 915
+      Value: 1
+    TourShifts(4,32,6,1,5,1):
+      Id: 916
+      Value: 1
+    TourShifts(4,32,6,3,5,1):
+      Id: 918
+      Value: 1
+    TourShifts(4,32,6,4,5,1):
+      Id: 919
+      Value: 1
+    TourShifts(4,32,7,2,5,1):
+      Id: 921
+      Value: 1
+    TourShifts(4,32,7,4,5,1):
+      Id: 923
+      Value: 1
+    TourShifts(5,45,1,2,5,1):
+      Id: 925
+      Value: 1
+    TourShifts(5,45,1,4,5,1):
+      Id: 927
+      Value: 1
+    TourShifts(5,45,2,2,5,1):
+      Id: 929
+      Value: 1
+    TourShifts(5,45,2,3,5,1):
+      Id: 930
+      Value: 1
+    TourShifts(5,45,3,1,5,1):
+      Id: 932
+      Value: 1
+    TourShifts(5,45,3,2,5,1):
+      Id: 933
+      Value: 1
+    TourShifts(5,45,3,3,5,1):
+      Id: 934
+      Value: 1
+    TourShifts(5,45,3,4,5,1):
+      Id: 935
+      Value: 1
+    TourShifts(5,45,4,1,5,1):
+      Id: 936
+      Value: 1
+    TourShifts(5,45,4,3,5,1):
+      Id: 938
+      Value: 1
+    TourShifts(5,45,4,4,5,1):
+      Id: 939
+      Value: 1
+    TourShifts(5,45,5,1,5,1):
+      Id: 940
+      Value: 1
+    TourShifts(5,45,5,2,5,1):
+      Id: 941
+      Value: 1
+    TourShifts(5,45,5,3,5,1):
+      Id: 942
+      Value: 1
+    TourShifts(5,45,5,4,5,1):
+      Id: 943
+      Value: 1
+    TourShifts(5,45,6,1,5,1):
+      Id: 944
+      Value: 1
+    TourShifts(5,45,6,2,5,1):
+      Id: 945
+      Value: 1
+    TourShifts(5,45,6,4,5,1):
+      Id: 947
+      Value: 1
+    TourShifts(5,45,7,1,5,1):
+      Id: 948
+      Value: 1
+    TourShifts(5,45,7,3,5,1):
+      Id: 950
+      Value: 1
+    TourShifts(6,45,1,1,5,1):
+      Id: 952
+      Value: 1
+    TourShifts(6,45,1,3,5,1):
+      Id: 954
+      Value: 1
+    TourShifts(6,45,2,1,5,1):
+      Id: 956
+      Value: 1
+    TourShifts(6,45,2,2,5,1):
+      Id: 957
+      Value: 1
+    TourShifts(6,45,2,4,5,1):
+      Id: 959
+      Value: 1
+    TourShifts(6,45,3,1,5,1):
+      Id: 960
+      Value: 1
+    TourShifts(6,45,3,2,5,1):
+      Id: 961
+      Value: 1
+    TourShifts(6,45,3,3,5,1):
+      Id: 962
+      Value: 1
+    TourShifts(6,45,3,4,5,1):
+      Id: 963
+      Value: 1
+    TourShifts(6,45,4,1,5,1):
+      Id: 964
+      Value: 1
+    TourShifts(6,45,4,2,5,1):
+      Id: 965
+      Value: 1
+    TourShifts(6,45,4,3,5,1):
+      Id: 966
+      Value: 1
+    TourShifts(6,45,4,4,5,1):
+      Id: 967
+      Value: 1
+    TourShifts(6,45,5,1,5,1):
+      Id: 968
+      Value: 1
+    TourShifts(6,45,5,2,5,1):
+      Id: 969
+      Value: 1
+    TourShifts(6,45,5,3,5,1):
+      Id: 970
+      Value: 1
+    TourShifts(6,45,6,3,5,1):
+      Id: 974
+      Value: 1
+    TourShifts(6,45,6,4,5,1):
+      Id: 975
+      Value: 1
+    TourShifts(6,45,7,2,5,1):
+      Id: 977
+      Value: 1
+    TourShifts(6,45,7,4,5,1):
+      Id: 979
+      Value: 1
+    TourShifts(7,15,1,2,5,1):
+      Id: 981
+      Value: 1
+    TourShifts(7,15,1,4,5,1):
+      Id: 983
+      Value: 1
+    TourShifts(7,15,2,1,5,1):
+      Id: 984
+      Value: 1
+    TourShifts(7,15,2,2,5,1):
+      Id: 985
+      Value: 1
+    TourShifts(7,15,3,1,5,1):
+      Id: 988
+      Value: 1
+    TourShifts(7,15,3,2,5,1):
+      Id: 989
+      Value: 1
+    TourShifts(7,15,3,3,5,1):
+      Id: 990
+      Value: 1
+    TourShifts(7,15,3,4,5,1):
+      Id: 991
+      Value: 1
+    TourShifts(7,15,4,1,5,1):
+      Id: 992
+      Value: 1
+    TourShifts(7,15,4,3,5,1):
+      Id: 994
+      Value: 1
+    TourShifts(7,15,4,4,5,1):
+      Id: 995
+      Value: 1
+    TourShifts(7,15,5,1,5,1):
+      Id: 996
+      Value: 1
+    TourShifts(7,15,5,2,5,1):
+      Id: 997
+      Value: 1
+    TourShifts(7,15,5,3,5,1):
+      Id: 998
+      Value: 1
+    TourShifts(7,15,5,4,5,1):
+      Id: 999
+      Value: 1
+    TourShifts(7,15,6,2,5,1):
+      Id: 1001
+      Value: 1
+    TourShifts(7,15,6,3,5,1):
+      Id: 1002
+      Value: 1
+    TourShifts(7,15,6,4,5,1):
+      Id: 1003
+      Value: 1
+    TourShifts(7,15,7,1,5,1):
+      Id: 1004
+      Value: 1
+    TourShifts(7,15,7,3,5,1):
+      Id: 1006
+      Value: 1
+    TourShifts(8,15,1,1,5,1):
+      Id: 1008
+      Value: 1
+    TourShifts(8,15,1,3,5,1):
+      Id: 1010
+      Value: 1
+    TourShifts(8,15,2,2,5,1):
+      Id: 1013
+      Value: 1
+    TourShifts(8,15,2,3,5,1):
+      Id: 1014
+      Value: 1
+    TourShifts(8,15,2,4,5,1):
+      Id: 1015
+      Value: 1
+    TourShifts(8,15,3,1,5,1):
+      Id: 1016
+      Value: 1
+    TourShifts(8,15,3,2,5,1):
+      Id: 1017
+      Value: 1
+    TourShifts(8,15,3,3,5,1):
+      Id: 1018
+      Value: 1
+    TourShifts(8,15,4,1,5,1):
+      Id: 1020
+      Value: 1
+    TourShifts(8,15,4,2,5,1):
+      Id: 1021
+      Value: 1
+    TourShifts(8,15,4,3,5,1):
+      Id: 1022
+      Value: 1
+    TourShifts(8,15,4,4,5,1):
+      Id: 1023
+      Value: 1
+    TourShifts(8,15,5,1,5,1):
+      Id: 1024
+      Value: 1
+    TourShifts(8,15,5,3,5,1):
+      Id: 1026
+      Value: 1
+    TourShifts(8,15,5,4,5,1):
+      Id: 1027
+      Value: 1
+    TourShifts(8,15,6,1,5,1):
+      Id: 1028
+      Value: 1
+    TourShifts(8,15,6,2,5,1):
+      Id: 1029
+      Value: 1
+    TourShifts(8,15,6,4,5,1):
+      Id: 1031
+      Value: 1
+    TourShifts(8,15,7,2,5,1):
+      Id: 1033
+      Value: 1
+    TourShifts(8,15,7,4,5,1):
+      Id: 1035
+      Value: 1
+    TourShifts(9,48,1,1,5,1):
+      Id: 1036
+      Value: 1
+    TourShifts(9,48,1,3,5,1):
+      Id: 1038
+      Value: 1
+    TourShifts(9,48,2,2,5,1):
+      Id: 1041
+      Value: 1
+    TourShifts(9,48,3,1,5,1):
+      Id: 1044
+      Value: 1
+    TourShifts(9,48,3,2,5,1):
+      Id: 1045
+      Value: 1
+    TourShifts(9,48,3,3,5,1):
+      Id: 1046
+      Value: 1
+    TourShifts(9,48,3,4,5,1):
+      Id: 1047
+      Value: 1
+    TourShifts(9,48,4,1,5,1):
+      Id: 1048
+      Value: 1
+    TourShifts(9,48,4,2,5,1):
+      Id: 1049
+      Value: 1
+    TourShifts(9,48,4,3,5,1):
+      Id: 1050
+      Value: 1
+    TourShifts(9,48,4,4,5,1):
+      Id: 1051
+      Value: 1
+    TourShifts(9,48,5,1,5,1):
+      Id: 1052
+      Value: 1
+    TourShifts(9,48,5,2,5,1):
+      Id: 1053
+      Value: 1
+    TourShifts(9,48,5,3,5,1):
+      Id: 1054
+      Value: 1
+    TourShifts(9,48,5,4,5,1):
+      Id: 1055
+      Value: 1
+    TourShifts(9,48,6,1,5,1):
+      Id: 1056
+      Value: 1
+    TourShifts(9,48,6,3,5,1):
+      Id: 1058
+      Value: 1
+    TourShifts(9,48,6,4,5,1):
+      Id: 1059
+      Value: 1
+    TourShifts(9,48,7,2,5,1):
+      Id: 1061
+      Value: 1
+    TourShifts(9,48,7,4,5,1):
+      Id: 1063
+      Value: 1
+    TourWkendDof(1,7,32,1):
+      Id: 1070
+      Value: 1
+    TourWkendDof(2,5,32,1):
+      Id: 1075
+      Value: 1
+    TourWkendDof(3,7,32,1):
+      Id: 1084
+      Value: 1
+    TourWkendDof(4,5,32,1):
+      Id: 1089
+      Value: 1
+    TourWkendDof(5,7,45,1):
+      Id: 1098
+      Value: 1
+    TourWkendDof(6,5,45,1):
+      Id: 1103
+      Value: 1
+    TourWkendDof(7,7,15,1):
+      Id: 1112
+      Value: 1
+    TourWkendDof(8,5,15,1):
+      Id: 1117
+      Value: 1
+    TourWkendDof(9,5,48,1):
+      Id: 1124
+      Value: 1
+    TourWkendDof(10,7,48,1):
+      Id: 1133
+      Value: 1
+    TourWkendDof(11,5,48,1):
+      Id: 1138
+      Value: 1
+    TourWkendDof(12,7,48,1):
+      Id: 1147
+      Value: 1
+    TourWkendDof(13,7,31,1):
+      Id: 1154
+      Value: 1
+    TourWkendDof(14,5,31,1):
+      Id: 1159
+      Value: 1
+    TourWkendDof(15,7,47,1):
+      Id: 1168
+      Value: 1
+    TourWkendDof(16,5,47,1):
+      Id: 1173
+      Value: 1
+    TourWkendDof(17,5,11,1):
+      Id: 1180
+      Value: 1
+    TourWkendDof(18,7,11,1):
+      Id: 1189
+      Value: 1
+    TourWkendDof(19,7,11,1):
+      Id: 1196
+      Value: 1
+    TourWkendDof(20,5,11,1):
+      Id: 1201
+      Value: 1
+    TourWkendDof(21,5,11,1):
+      Id: 1208
+      Value: 1
+    TourWkendDof(22,5,27,1):
+      Id: 1215
+      Value: 1
+    TourWkendDof(23,7,27,1):
+      Id: 1224
+      Value: 1
+    TourWkendDof(24,7,27,1):
+      Id: 1231
+      Value: 1
+    TourWkendDof(25,5,27,1):
+      Id: 1236
+      Value: 1
+    TourWkendDof(26,5,43,1):
+      Id: 1243
+      Value: 1
+    TourWkendDof(27,7,43,1):
+      Id: 1252
+      Value: 1
+    TourWkendDof(28,7,43,1):
+      Id: 1259
+      Value: 1
+    TourWkendDof(29,5,13,1):
+      Id: 1264
+      Value: 1
+    TourWkendDof(30,5,13,1):
+      Id: 1271
+      Value: 1
+    TourWkendDof(31,7,13,1):
+      Id: 1280
+      Value: 1
+    TourWkendDof(32,7,13,1):
+      Id: 1287
+      Value: 1
+    TourWkendDof(33,5,16,1):
+      Id: 1292
+      Value: 1
+    TourWkendDof(34,7,16,1):
+      Id: 1301
+      Value: 1
+    TourWkendDof(35,7,16,1):
+      Id: 1308
+      Value: 1
+    TourWkendDof(36,7,16,1):
+      Id: 1315
+      Value: 1
+    TourWkendDof(37,7,29,1):
+      Id: 1322
+      Value: 1
+    TourWkendDof(38,5,29,1):
+      Id: 1327
+      Value: 1
+    ONE_VAR_CONSTANT:
+      Id: 1330
+      Value: 1
+  Constraint: No nonzero values

@@ -1,0 +1,3 @@
+egrep -A 1 "\sTourType\[[0-9]{1,2},1\]" mwts01_01.sol
+
+grep -A 2 '\sTourType' mwts01_06_gurobi_phase1_results.yml

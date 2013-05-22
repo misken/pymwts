@@ -1,0 +1,568 @@
+= mwts01_06a_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 590
+
+so, could be a problem with one of the weekend related constraints. This scenario uses all 6 tour types.
+
+= mwts01_06b_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = False
+        
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 590
+
+so, the offender appears to be ShiftWkendDof_integration1.
+
+= mwts01_06c_gurobi =
+
+Found some omitted .value properties in the index init for the ShiftWkendDof_integration1 constraints.
+Don't think this is the cause but might as well check.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible (as expected)
+
+= mwts01_06d_gurobi =
+
+Let's try keeping the weekend constraints in and selectively adding the bounds back in
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 599
+
+= mwts01_06e_gurobi =
+
+Found major phase 1 constraint omission. DSW_WT bounds over weeks and cumulative weeks
+
+Let's try keeping the weekend constraints in and selectively adding the bounds back in
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> OPTIMAL 574 !!!!  Ok, activate all phase 2 constraints and resolve.
+
+= mwts01_06f_gurobi =
+
+--> INFUCKINGFEASIBLE!!!!
+
+breathe
+
+ok, let's add the constraints back in pairs
+
+= mwts01_06g_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> OPTIMAL 574
+
+= mwts01_06h_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> INFEASIBLE
+
+= mwts01_06i_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> INFEASIBLE
+
+
+Ok, made a few more fixes but still have two infeasible problems, 06 and 17
+
+= mwts01_06j_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+= mwts01_06k_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_06m_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 574
+
+
+= mwts01_06n_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Weekly_Prds_UB_active = True
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 574
+
+= mwts01_06n_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Weekly_Prds_UB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+= mwts01_06o_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Weekly_Prds_UB_active = True
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_06p_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Weekly_Prds_UB_active = True
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 574
+
+
+= mwts01_06q_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Weekly_Prds_UB_active = True
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_06r_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> INFEASIBLE !!! WTF???
+
+= mwts01_06s_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> Infeasible
+
+
+= mwts01_06t_gurobi =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 574
+
+Check the cumulative constraints.
+
+
+= mwts01_06u_gurobi =
+
+I created a new dat file mwts01_06_oneofeach.dat that has lb=ub=1 for all 6 tour types. I also changed
+min_staff to zero to prevent that type of infeasibility.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False 
+            
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Weekly_Prds_UB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible PHASE 1!!!
+
+Why should phase 1 be infeasible? Let's try one of each tour type, one at a time.
+
+= mwts01_06v_gurobi =
+
+Just tt01
+
+--> optimal
+
+This means that the infeasibility has nothing to do understaffing.
+
+= mwts01_06w_gurobi =
+
+Just tt02
+
+--> optimal
+
+= mwts01_06x_gurobi =
+
+Just tt03
+
+-->
+
+
+
+
+
+
+
+
+

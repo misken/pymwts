@@ -1,0 +1,8 @@
+#5: Get gurobi working on laptop 	task 	major 	open 	Mark Isken 	5 days ago
+#8: Clearn up src folder and repo 	task 	major 	new 	Mark Isken 	5 days ago
+#7: Create suite of width=0 test problems 	task 	major 	new 	Mark Isken 	5 days ago
+#6: Create MPS of a moderately sized problem 	task 	minor 	new 	Mark Isken 	5 days ago
+#4: FriSat weekend constraints not implemented 	enhancement 	major 	new 	Mark Isken 	5 days ago
+#3: Add test folder with sample files to main dev trunk 	task 	major 	new 	Mark Isken 	5 days ago
+#1: Create phase 2 model 	task 	major 	open 	Mark Isken 	2012-01-13
+#2: Create base model usable by both phase 1 and phase 2 	task 	major 	open 	Mark Isken 	2012-01-16

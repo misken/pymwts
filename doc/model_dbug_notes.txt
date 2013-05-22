@@ -1,0 +1,656 @@
+== 05/16/2012 ==
+mwts01_01 solved successfully (full time 8hr only).
+mwts01_02 is "infeasible or unbounded" in phase 2 (full and part time 8hr)
+
+Created mwts01_02dbug that only contained TT=2 and it solved successfully (just part time 8hr).
+Check the part-time fraction constraint.
+
+== 05/17/2012 ==
+
+Created mwts01_07 with (16,5) and (20,4) --> infeasible in phase 2
+
+Created mwts01_08 with (20,4) --> solved optimally
+
+So far, as long as only one tour type is allowed, the problem solves. So, what's happening with multiple tour types?
+
+= mwts01_07a =
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = False
+        bTours_Daily_conservation_active = False
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 636
+
+= mwts01_07b =
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 0
+
+= mwts01_07c =
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 636
+
+= mwts01_07d =
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 636
+
+
+
+= mwts01_07e =
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 636
+
+= mwts01_07f =
+
+Retrying mwts01_07 with the following constraint activation config:
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 636
+
+= mwts01_02 =
+(16,5) (16,2-4)
+
+--> infeasible
+
+= mwts01_08 =
+tt=2 only (16,2-4)
+
+--> optimal 496
+
+So, why mwts01_02 (16,5) (16,2-4) infeasible?
+
+
+Remember, when I only use one tour type, the problems seem to solve with all constraints activated.
+Are tours being indexed correctly in terms of the window and tour type?
+--> checked win and tt tour indexes for mwts01_07g and they are correct
+
+= mwts01_02a =
+(16,5) (16,2-4) with ptfrac = 1.0
+
+
+--> infeasible
+
+= mwts01_02b =
+
+Let's try inactivating some constraints to see if there is a problem with missing/erroneous phase 1 constraints.
+Start with the weekend related constraints.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+While this problem was running, I checked one of the phase 1 summaries and found some constraints with 0 elements:
+
+Constraint summary 
+------------------
+max_labor_budget --> 1
+coverage1 --> 1344
+coverage2 --> 1344
+coverage3 --> 1344
+coverage4 --> 1344
+tot_coverage --> 1344
+coverage --> 1344
+minstaff --> 1344
+TourType_LB_con --> 6
+TourType_UB_con --> 6
+weekend_total_con --> 288
+weekend_integration_1_con --> 2304
+*** weekend_integration_2_con --> 0 --> This is expected since it's Fri-Sat constraints
+shift_DWT_dailyconservation_con --> 8064
+DWT_WT_UB_con --> 8064
+DWT_DSW_con --> 8064
+prds_worked_weekly_LB_con --> 1152
+prds_worked_weekly_UB_con --> 1152
+prds_worked_cumul_weekly_LB_con --> 1152
+prds_worked_cumul_weekly_UB_con --> 1152
+prds_ID_weeklyconservation_LB_con --> 0 --> This is expected since it's Fri-Sat constraints
+prds_ID_cumul_weeklyconservation_LB_con --> 0 --> This is expected since it's Fri-Sat constraints
+DWT_WT_weeklyconservation_LB --> 1152
+DWT_WT_weeklyconservation_UB_con --> 1152
+DWT_WT_cumul_weeklyconservation_LB_con --> 1152
+DWT_WT_cumul_weeklyconservation_UB_con --> 1152
+DWT_ID_weeklyconservation_LB --> 0 --> This is expected since it's Fri-Sat constraints
+DWT_ID_cumul_weeklyconservation_LB --> 0 --> This is expected since it's Fri-Sat constraints
+max_ptfrac_con --> 1
+chains_sweep_l_con --> 0
+chains_sweep_u_con --> 0
+chains_tot_con --> 0
+
+While the ones above with 0 constraints are legit, I found an entire set of missing constraints. They were the ones controlling the 
+shiftlen specific cumulative and non-cumulative bounds on periods worked. These are pretty important.
+
+
+= mwts01_02c =
+
+I added the missing constraints mentioned in = mwts01_02b = and reactivated all the constraints.
+
+--> infeasible!!!
+
+= mwts01_02d =
+
+Changed ptfrac to 1.0
+
+--> infeasible
+
+So, is the problem in phase 1 or phase 2?
+
+= mwts01_01b =
+
+I made so many minor changes in an attempt to debug _02 that I want to make sure mwts01_01 still solves.
+
+--> optimal 840
+
+= mwts01_03 =
+
+--> infeasible
+
+= mwts01_04 =
+
+--> infeasible
+
+
+OK, let's start by assuming the problem is in phase 2 and that we are somehow overconstraining. Or, we could try to see if we
+can find a feasible phase 2 solution ourselves with the phase 1 answer (and make sure phase 1 answer isn't violating some
+key conservation constraint.
+
+= mwts01_02e =
+
+We can use mwts01_02 as the base.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+= mwts01_02f =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = False
+        bTours_Daily_conservation_active = False
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+= mwts01_02g =
+
+        bOnePatternPerTourShift_active = False
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible
+
+= mwts01_02h =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> optimal 232
+
+Ok, one at a time
+
+= mwts01_02i =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_02j =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+
+= mwts01_02k =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_02m =
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+Ok, since I confirmed that the correct number of shifts, dwt, and daily shift worked are coordinated, it
+seems it has to be the implementation of the various bound constraints in phase 2 model. How to check this?
+
+= mwts01_02n =
+Massive changes. Redefined TourShift variables so that week is in both the window and shift 
+
+###    # tourshift[s,i,j,w,k,t,p,d,q] = 1 if an x[i,j,w,k,t] shift is assigned to tour s in window (p,d,q)
+###    #            = 0 otherwise
+
+fixed all constraints using TourShift.
+
+Same constraints activated as above in mwts01_02m
+
+--> infeasible!!!! Hmmm, it's late.
+
+= mwts01_02p =
+Massive changes. Redefined TourShift variables again since window trip at end is redundant given tour s
+
+###    # tourshift[s,i,j,w,k,t] = 1 if an x[i,j,w,k,t] shift is assigned to tour s
+###    #            = 0 otherwise
+
+fixed all constraints using TourShift.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        # If bound constraints are bad, weekend off may be bad too
+        # since they use some of the same ideas. Fix bounds first and
+        # then any fixed needed for these should be obvious.
+        bTour_WkendDof_conservation_active = False
+        bTour_ShiftWkendDof_integration1_active = False
+        
+        # I'm guessing something is wrong with how I did these constraints.
+        bTours_Weekly_LB_active = False
+        bTours_Weekly_UB_active = False
+        bTours_Total_LB_active = False
+        bTours_Total_UB_active = False
+        bTours_Shiftlen_Weekly_LB_active = False
+        bTours_Shiftlen_Weekly_UB_active = False
+        bTours_Shiftlen_Total_LB_active = False
+        bTours_Shiftlen_Total_UB_active = False      
+        bTours_Weekly_Prds_LB_active = False
+        bTours_Total_Prds_LB_active = False
+        bTours_Total_Prds_UB_active = False
+
+--> infeasible
+
+= mwts01_01 =
+
+mwts01_01 resolve after all of the TourShift related modifications
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 840 (whew)
+
+
+= mwts01_09 =
+
+mwts01_09 has part-time (16,2-4) only
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible !!!! 
+
+Actually, I guess that's good news. Maybe it's a problem with tour types that have variable number of days per week.
+
+= mwts01_07g =
+
+mwts01_07 resolve after all of the TourShift related modifications
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal 620 (whew)
+
+Again, that's good news. Maybe it's a problem with tour types that have variable number of days per week.
+
+
+= mwts01_10 =
+
+#(24,3)+(16,1) every other week
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> optimal
+
+= mwts01_02q =
+
+mwts01_02q has part-time (16,2-4) only but I switched off the part time toggle to see if it was the part time fraction
+constraint causing the problem.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible --> so it's not the part time fraction constraint
+
+
+= mwts01_02q_mindmd =
+
+mwts01_02q has part-time (16,2-4).
+
+In addition, to help in debugging I replaced the dmd with 1.0 in every period.
+
+        bOnePatternPerTourShift_active = True
+        bTours_Daily_active = True
+        bTours_Daily_conservation_active = True
+        bTour_WkendDof_conservation_active = True
+        bTour_ShiftWkendDof_integration1_active = True
+        bTours_Weekly_LB_active = True
+        bTours_Weekly_UB_active = True
+        bTours_Total_LB_active = True
+        bTours_Total_UB_active = True
+        bTours_Shiftlen_Weekly_LB_active = True
+        bTours_Shiftlen_Weekly_UB_active = True
+        bTours_Shiftlen_Total_LB_active = True
+        bTours_Shiftlen_Total_UB_active = True      
+        bTours_Weekly_Prds_LB_active = True
+        bTours_Total_Prds_LB_active = True
+        bTours_Total_Prds_UB_active = True
+
+--> infeasible !!!! 
+
+I explored the phase 1 solution and found that there were five shifts (and DailyTourType=1 for five variables)
+in week 2 for (i,t) = (15,2). I confirmed that the upper bound in the problem was 4 shifts per week by
+checking the constraint bodies and the value of tt_max_dys_weeks[2,2] was =4. WHAT IS GOING ON? It seems like
+a constraint is being violated but the reported phase 1 solution is optimal.
+
+= mwts01_02q_mindmd_b =
+Let's resolve the same problem with just a minor revision to the DWT_WT_weeklyconservation constraints in 
+that I removed an if (i,t,d) in okDailyTourTypes because that it was redundant.
+
+--> OPTIMAL !!!!
+
+
+
+
+
+
+

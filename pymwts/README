@@ -1,0 +1,29 @@
+=======================================
+Overview of pymts src and related files
+=======================================
+
+To Do
+=====
+
+Currently it seems that I need to run the solvemwts.py from scripts that live in 
+main src directory for the models. 
+
+Files
+=====
+
+mwts.py
+-------
+Provides a command line interface to solvemwts procedure. User can specify inputs 
+such as scenario, phase 1 dat file, output path, solver, mipgap, debug mode,
+phase 1 model, and phase 2 model. It appears that there were plans to have
+the ability to read a YAML formatted input config file - not implemented yet.
+
+
+
+
+mwts_phase1.py
+--------------
+
+Main Phase 1 model written in Pyomo
+
+

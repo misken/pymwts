@@ -1,0 +1,65 @@
+# YAML version of new MIX file, v0.01
+---
+mixscenario: new01
+mixes:
+  - ttnum: 1
+  
+    shiftlengths: 
+      - numbins: 16
+        min_shiftlen_days_week: [2,2,2,2]
+        max_shiftlen_days_week: [5,5,5,5]
+        
+        min_shiftlen_cumul_days_week: [2,4,6,8]
+        max_shiftlen_cumul_days_week: [5,10,15,20]
+    
+        min_shiftlen_prds_week: [32,32,32,32]
+        max_shiftlen_prds_week: [80,80,80,80]
+    
+        min_shiftlen_cumul_prds_week: [32,64,96,128]
+        max_shiftlen_cumul_prds_week: [80,160,240,320]
+        
+      - numbins: 8
+        min_shiftlen_days_week: [2,2,2,2]
+        max_shiftlen_days_week: [5,5,5,5]
+        
+        min_shiftlen_cumul_days_week: [2,4,6,8]
+        max_shiftlen_cumul_days_week: [5,10,15,20]
+    
+        min_shiftlen_prds_week: [16,16,16,16]
+        max_shiftlen_prds_week: [40,40,40,40]
+    
+        min_shiftlen_cumul_prds_week: [16,32,48,64]
+        max_shiftlen_cumul_prds_week: [40,80,120,160]
+        
+    # The following 8 params are only needed when more than one shift
+    # length is allowed for the tour type. 
+    
+    min_days_week: [2,2,2,2]
+    max_days_week: [5,5,5,5]
+    
+    min_cumul_days_week: [2,4,6,8]
+    max_cumul_days_week: [5,10,15,20]
+    
+    min_prds_week: [32,32,32,32]
+    max_prds_week: [80,80,80,80]
+    
+    min_cumul_prds_week: [32,64,96,128]
+    max_cumul_prds_week: [80,160,240,320]
+    
+  - ttnum: 2
+    shiftlengths: 
+      - numbins: 16
+        min_shiftlen_days_week: [2,2,2,2]
+        max_shiftlen_days_week: [5,5,5,5]
+        
+        min_shiftlen_cumul_days_week: [2,4,6,8]
+        max_shiftlen_cumul_days_week: [5,10,15,20]
+    
+        min_shiftlen_prds_week: [32,32,32,32]
+        max_shiftlen_prds_week: [80,80,80,80]
+    
+        min_shiftlen_cumul_prds_week: [32,64,96,128]
+        max_shiftlen_cumul_prds_week: [80,160,240,320]
+          
+
+...

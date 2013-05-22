@@ -1,0 +1,31 @@
+# tt01 only
+tourtypes:
+  - ttnum: 1
+    description: full-time 8hr shifts
+    tt_lb: 0
+    tt_ub: 1000
+    
+  - ttnum: 2
+    description: part-time 8hr shifts
+    tt_lb: 0
+    tt_ub: 0
+    
+  - ttnum: 3
+    description: part-time 4-8hr shifts
+    tt_lb: 0
+    tt_ub: 0
+    
+  - ttnum: 4
+    description: full-time 12hr shifts with extra 8hr shift every other week
+    tt_lb: 2
+    tt_ub: 0
+    
+  - ttnum: 5
+    description: full-time 10hr shifts
+    tt_lb: 0
+    tt_ub: 0
+    
+  - ttnum: 6
+    description: part-time 10hr shifts, 2-3 days per week
+    tt_lb: 0
+    tt_ub: 0
