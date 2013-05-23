@@ -12,29 +12,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% First comes an example EPS file -- just ignore it and
-% proceed on the \documentclass line
-% your LaTeX will extract the file if required
-\begin{filecontents*}{example.eps}
-%!PS-Adobe-3.0 EPSF-3.0
-%%BoundingBox: 19 19 221 221
-%%CreationDate: Mon Sep 29 1997
-%%Creator: programmed by hand (JK)
-%%EndComments
-gsave
-newpath
-  20 20 moveto
-  20 220 lineto
-  220 220 lineto
-  220 20 lineto
-closepath
-2 setlinewidth
-gsave
-  .4 setgray fill
-grestore
-stroke
-grestore
-\end{filecontents*}
+
 %
 \documentclass{article}
 %\documentclass{svjour3}                     % onecolumn (standard format)
@@ -50,7 +28,10 @@ grestore
 % insert here the call for the packages your document requires
 %\usepackage{latexsym}
 % etc.
-\usepackage{amsmath, amssymb}
+\usepackage[fleqn]{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{euscript}
 %\usepackage{amsthm}
 %
 % please place your own definitions here and don't use \def but
@@ -109,65 +90,161 @@ For many systems, the kernel of the problem is a tour scheduling problem in whic
 
 Features of tour scheduling problems including notions of planning cycle, periods, required staffing levels, shifts, tours, tour types, intra-tour start time flexibility, 
 
-\subsection{Problem size explosion}
+To explicitly represent a tour we need of list of days worked, including the shift start times and lengths over the planning cycle. For example, consider the following very simple scenario for a two week planning cycle:
+
+\begin{itemize}
+\item only allowable tour type calls for five eight-hour shifts per week, M-F,
+\item within each tour, all shifts must start at 7a or they must all start at 3p,
+\item no restrictions on the number of weekend days worked over the planning cycle.
+\end{itemize}
+
+In this case, there are only two possible tours:
+
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline 
+• & \multicolumn{7}{c|}{Week 1} & \multicolumn{7}{c|}{Week 2} \\ 
+\hline 
+Tour Variable & Su & M & T & W & U & F & Sa & Su & M & T & W & U & F & Sa \\ 
+\hline 
+x_1 & x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\ 
+\hline 
+x_2 & x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\ 
+\hline 
+\end{tabular} 
+
+In this case, the solution to the tour scheduling problem is fully specified by the number of people working Tour 1 and the number working Tour 2 and we only need two tour variables ($x_1$ and $x_2$) in our model. Of course, the number of tour variables can become enormous as we increase our scheduling options such as additional tour types, shift start times and shift lengths. We will explore this issue in the next section. Here, we want to show that there are other ways we could model this very simple scenario in terms of the variables we choose to use. For example, instead of explicit tour variables, we could use one variable to represent the number of people working a specific days worked pattern and another to represent the number of people working each shift. This is called an $implicit modeling$ approach \cite{}.
+
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline 
+• & \multicolumn{7}{c|}{Week 1} & \multicolumn{7}{c|}{Week 2} \\  
+Days Worked Variable & Su & M & T & W & U & F & Sa & Su & M & T & W & U & F & Sa \\ 
+\hline 
+y_1 & x & On & On & On & On & On & x & x & On & On & On & On & On & x \\  
+\hline 
+\end{tabular}
+
+\begin{tabular}{|c|c|}
+\hline 
+Shift Variable & Shift Start Time \\ 
+\hline 
+s_1 & 7a \\ 
+\hline 
+s_2 & 3p \\ 
+\hline 
+\end{tabular}
+
+To specify a valid solution to our tour scheduling problem, we need values for $s_1, s_2$ and $y_1$. For this toy problem, it is easy to see the correspondence between variables in the two approaches. For given values of $x_1$ and $x_2$, $y_1 = x_1 + x_2$, $s_1 = x_1$, and $s_2 = x_2$. While the explicit approach only used two variables, the implicit approach required three variables. However, as we start to model more realistic problems, it will become clear that the implicit approach requires far fewer variables than its explicit counterpart. This reduction will come at a cost in terms of additional constraints as well as in the need for a tour construction post-processing phase. In terms of additional constraints, note that in the implicit approach we must ensure that $y_1 = s_1 + s_2$ if we are going to be able to translate a solution to the implicit problem to an explicit set of tours.
 
 \subsection{Implicit modeling of tours}
+
+Implicit modeling for tour scheduling problems is not new. 
+
+Review one week implicit tour scheduling models including my AOR 2004 paper.
+
+Recent multi-week implicit tour scheduling paper
+
+Also review implicit modeling of breaks and other stuff
+
+\subsection{Problem size explosion}
+\label{subsec-explosion}
 
 
 
 
 \section{Related Work}
 \label{sec-relatedwork}
-Review one week implicit tour scheduling models including my AOR 2004 paper.
 
-Recent multi-week implicit tour scheduling paper
-
+If I haven't already covered it above
  
 
+\section{Overview of an Implicit Multi-Week Model}
+\label{sec-overview}
 
+As depressingly illustrated in Section \ref{subsec-explosion}, multi-week tour scheduling problems can get massively large. Since even the number of explicit multi-week days worked patterns can get large as the number of weeks increases, our approach is to model these days worked patterns implicitly by focusing on only explicitly modeling the patterns of weekend days worked. This is driven by the observation that it is often the weekends that must be treated in some special way due to the general undesirability of working on weekends as well as the often different required staffing levels seen on weekends. While drastically reducing the total number of variables required, we need to introduce several additional types of variables as well as many control constraints to ensure that a solution to an instance of our implicit model corresponds with a feasible and optimal solution to the equivalent tour scheduling model.
 
 
 
 \section{Definitions and notation}
 \label{sec-mwts}
-
+%http://en.wikibooks.org/wiki/LaTeX/Mathematics
 % Use bold for terms that I define
 
-Let $W$ be the number of weeks in the planning cycle and $P$ be the number of time periods per day. Typical values might be $W=4$ and $P=24$ to model a problem where staffing requirements are specified hourly and shifts can only start on the hour. The total number of periods in the planning cycle is den
+Planning cycle related terms...
 
-\[
-\begin{array}{lll}
-n_W & = & \mbox{number of weeks in the planning cycle} \\
-n_P & = & \mbox{number of periods per day} \\
-n_C & = & 7 n_W n_P\mbox{ number of periods in planning cycle} \\
-\end{array}
-\]
+\subsubsection*{Planning cycle parameters}
 
-Define a number of sets of indices.
+\begin{flalign*}
+n_W & =  \text{number of weeks in the planning cycle} \\
+n_P & =  \text{number of periods per day} \\
+n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
+\end{flalign*}
 
-\[
-\begin{array}{lll}
-P & = & \{1,2,\ldots n_P\} \\
-D & = & \{1,2,\ldots 7\} \\
-W & = & \{1,2,\ldots n_W\} \\
-\end{array}
-\]
+\nipar Define a number of sets of indices.
 
+\begin{flalign*}
+\mathbb{P} & =  \{1,2,\ldots n_P\} \\
+\mathbb{D} & =  \{1,2,\ldots 7\} \\
+\mathbb{W} & =  \{1,2,\ldots n_W\} \\
+\end{flalign*}
 
-So, each period in the planning cycle is defined by a tuple $(i,d,w) \in B$ where $B = P \times D \times W$.
+\nipar So, each period in the planning cycle is defined by a tuple $(i,d,w) \in B$ where $B = \mathbb{P} \times \mathbb{D} \times \mathbb{W}$.
 
+ 
 
-
-%model_phase1.PERIODS = RangeSet(1,model_phase1.n_prds_per_day)
-%model_phase1.WINDOWS = RangeSet(1,model_phase1.n_prds_per_day)
-%model_phase1.DAYS = RangeSet(1,model_phase1.n_days_per_week)
-%model_phase1.WEEKS = RangeSet(1,model_phase1.n_weeks)
-
-
+\subsubsection*{Shift length and tour type parameters}
 %#-- Shift Lengths
 %model_phase1.n_lengths = Param(within=PositiveIntegers)    # Number of shift lengths
 %model_phase1.LENGTHS = RangeSet(1,model_phase1.n_lengths)
 %model_phase1.lengths = Param(model_phase1.LENGTHS)  # Vector of shift lengths
+
+\begin{flalign*}
+n_H& = \text{number of different shift lengths} \\
+\mathbb{H}& = \{1,2,\ldots n_T\} \\
+h_k& = \text{$k$'th shift length in periods, for $k \in \mathbb{H}$}
+\end{flalign*}
+
+
+%#-- Tour Types
+%model_phase1.n_tts = Param(within=PositiveIntegers)  # Number of different tour types
+%model_phase1.TTYPES = RangeSet(1,model_phase1.n_tts)
+%model_phase1.tt_length_x = Set(model_phase1.TTYPES,ordered=True,)  # Set of allowable length indices by tour type
+
+\begin{flalign*}
+n_T& = \text{number of different tour types} \\
+\mathbb{T}& = \{1,2,\ldots n_T\} \\
+L(i)& = \text{set of shift length indices allowed for tour type $i$, for $i \in \mathbb{T}$}
+\end{flalign*}
+
+
+
+%### Bounds on tour type variables
+%model_phase1.tt_lb =  Param(model_phase1.TTYPES)       # RHS from .MIX
+%model_phase1.tt_ub =  Param(model_phase1.TTYPES,  default=infinity)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 To smooth the postpartum occupancy across days of the week, we introduce two, non-negative, dummy variables, $M^{U}$ and $M^{L}$. These are used to bound the mean occupancy across the week from above and below -- see Equation \eqref{eqn:sandwich}. Then we minimize the difference between the bounds.
 

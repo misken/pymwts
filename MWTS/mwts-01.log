@@ -1,22 +1,14 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2013.5.22)  22 MAY 2013 16:05
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  22 MAY 2013 23:58
 entering extended mode
+ %&-line parsing enabled.
 **mwts-01.tex
-(C:\Users\isken.ADMNET\Documents\GitHub\pymwts\MWTS\mwts-01.tex
-LaTeX2e <2011/06/27>
-Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, arabic, armenian, assamese, basque, bengali
-, bokmal, bulgarian, catalan, coptic, croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, galic
-ian, german, german-x-2009-06-19, greek, gujarati, hindi, hungarian, icelandic, indonesian, interlingua, irish, italian,
- kannada, kurmanji, lao, latin, latvian, lithuanian, malayalam, marathi, mongolian, mongolianlmc, monogreek, ngerman, ng
-erman-x-2009-06-19, nynorsk, oriya, panjabi, pinyin, polish, portuguese, romanian, russian, sanskrit, serbian, slovak, s
-lovenian, spanish, swedish, swissgerman, tamil, telugu, turkish, turkmen, ukenglish, ukrainian, uppersorbian, usenglishm
-ax, welsh, loaded.
-
-LaTeX Warning: File `example.eps' already exists on the system.
-               Not generating it from this source.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
+(./mwts-01.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+(/usr/share/texmf-texlive/tex/latex/base/article.cls
 Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo"
+(/usr/share/texmf-texlive/tex/latex/base/size10.clo
 File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
@@ -30,36 +22,33 @@ File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 \abovecaptionskip=\skip41
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
-) ("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+)
+(/usr/share/texmf-texlive/tex/latex/graphics/graphicx.sty
 Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
- ("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+
+(/usr/share/texmf-texlive/tex/latex/graphics/keyval.sty
 Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
 \KV@toks@=\toks14
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+(/usr/share/texmf-texlive/tex/latex/graphics/graphics.sty
 Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
- ("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+
+(/usr/share/texmf-texlive/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
-) ("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
-File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+(/etc/texmf/tex/latex/config/graphics.cfg
+File: graphics.cfg 2009/08/28 v1.8 graphics configuration of TeX Live
 )
 Package graphics Info: Driver file: pdftex.def on input line 91.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.def"
-File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
-
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\infwarerr.sty"
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/message (HO)
-)
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds.sty"
-Package: ltxcmds 2011/04/18 v1.20 LaTeX kernel commands for general use (HO)
-)
+(/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
 \Gread@gobject=\count87
 ))
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\mathptmx.sty"
+(/usr/share/texmf-texlive/tex/latex/psnfss/mathptmx.sty
 Package: mathptmx 2005/04/12 PSNFSS-v9.2a Times w/ Math, improved (SPQR, WaS) 
 LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
@@ -95,22 +84,24 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
 LaTeX Info: Redefining \hbar on input line 50.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsmath.sty"
+(/usr/share/texmf-texlive/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2000/07/18 v2.13 AMS math features
 \@mathmargin=\skip43
 
 For additional information on amsmath, use the `?' option.
-("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amstext.sty"
+(/usr/share/texmf-texlive/tex/latex/amsmath/amstext.sty
 Package: amstext 2000/06/29 v2.01
- ("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsgen.sty"
+
+(/usr/share/texmf-texlive/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0
 \@emptytoks=\toks15
 \ex@=\dimen105
-)) ("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsbsy.sty"
+))
+(/usr/share/texmf-texlive/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d
 \pmbraise@=\dimen106
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsopn.sty"
+(/usr/share/texmf-texlive/tex/latex/amsmath/amsopn.sty
 Package: amsopn 1999/12/14 v2.01 operator names
 )
 \inf@bad=\count88
@@ -151,33 +142,41 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
 LaTeX Info: Redefining \[ on input line 2666.
 LaTeX Info: Redefining \] on input line 2667.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\amssymb.sty"
+(/usr/share/texmf-texlive/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2009/06/22 v3.00
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\amsfonts.sty"
+(/usr/share/texmf-texlive/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2009/06/22 v3.00 Basic AMSFonts support
 \symAMSa=\mathgroup6
 \symAMSb=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 96.
 ))
-(C:\Users\isken.ADMNET\Documents\GitHub\pymwts\MWTS\mwts-01.aux)
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 64.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ptm.fd"
+(/usr/share/texmf-texlive/tex/latex/amsfonts/euscript.sty
+Package: euscript 2009/06/22 v3.00 Euler Script fonts
+LaTeX Font Info:    Overwriting math alphabet `\EuScript' in version `bold'
+(Font)                  U/eus/m/n --> U/eus/b/n on input line 33.
+) (./mwts-01.aux)
+\openout1 = `mwts-01.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 45.
+
+(/usr/share/texmf-texlive/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
-) ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
+)
+(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count100
 \scratchdimen=\dimen114
@@ -188,122 +187,323 @@ File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 \MPscratchCnt=\count103
 \MPscratchDim=\dimen115
 \MPnumerator=\count104
-\makeMPintoPDFobject=\count105
 \everyMPtoPDFconversion=\toks21
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 96.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 77.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 108.
-LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 136.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 89.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 96.
+ (/usr/share/texmf-texlive/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 96.
+LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 10
+3.
+
+(/usr/share/texmf-texlive/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 136.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omlztmcm.fd"
+LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 10
+3.
+
+(/usr/share/texmf-texlive/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 136.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omsztmcm.fd"
+LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 10
+3.
+
+(/usr/share/texmf-texlive/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 136.
+LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 10
+3.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omxztmcm.fd"
+(/usr/share/texmf-texlive/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 136.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 136.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 136.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no ¢ in font ptmr7t!
 
-! Missing delimiter (. inserted).
-<to be read again> 
-                   i
-l.157 ...ning cycle is defined by a tuple $\left i
-                                                  ,d,w\right \in B$ where $B...
-I was expecting to see something like `(' or `\{' or
-`\}' here. If you typed, e.g., `{' instead of `\{', you
-should probably delete the `{' by typing `1' now, so that
-braces don't get unbalanced. Otherwise just proceed.
-Acceptable delimiters are characters whose \delcode is
-nonnegative, or you can use `\delimiter <delimiter code>'.
+! Missing $ inserted.
+<inserted text> 
+                $
+l.109 x_
+        1 & x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
-! Missing delimiter (. inserted).
-<to be read again> 
-                   \in 
-l.157 ...defined by a tuple $\left i,d,w\right \in
-                                                   B$ where $B = P \times D ...
-I was expecting to see something like `(' or `\{' or
-`\}' here. If you typed, e.g., `{' instead of `\{', you
-should probably delete the `{' by typing `1' now, so that
-braces don't get unbalanced. Otherwise just proceed.
-Acceptable delimiters are characters whose \delcode is
-nonnegative, or you can use `\delimiter <delimiter code>'.
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.109 x_1 &
+            x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.109 x_1 &
+            x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.109 x_1 &
+            x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.111 x_
+        2 & x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.111 x_2 &
+            x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.111 x_2 &
+            x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.111 x_2 &
+            x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (45.57918pt too wide) in paragraph at lines 103--114
+[][] 
+ []
+
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no ¢ in font ptmr7t!
+! Missing $ inserted.
+<inserted text> 
+                $
+l.122 y_
+        1 & x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.122 y_1 &
+            x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.122 y_1 &
+            x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.122 y_1 &
+            x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (103.4986pt too wide) in paragraph at lines 117--125
+[][] 
+ []
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.130 s_
+        1 & 7a \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.130 s_1 &
+            7a \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.130 s_1 &
+            7a \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.130 s_1 &
+            7a \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.132 s_
+        2 & 3p \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+<template> \unskip \hfil }
+                          \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
+l.132 s_2 &
+            3p \\
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.132 s_2 &
+            3p \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.132 s_2 &
+            3p \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
 
 [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
 
-LaTeX Warning: Reference `eqn:arrrate1' on page 3 undefined on input line 189.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:arrrate1' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:arrrate11' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 3 undefined on input line 189.
+
+LaTeX Warning: Reference `eqn:discharge' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:varocc2' on page 3 undefined on input line 189.
+
+LaTeX Warning: Reference `eqn:meanocc' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:varocc1' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:varocc2' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:arrrate1' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:varocc1' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:arrrate11' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:arrrate1' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:arrrate11' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 3 undefined on input line 189.
+
+LaTeX Warning: Reference `eqn:discharge' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:varocc2' on page 3 undefined on input line 189.
+
+LaTeX Warning: Reference `eqn:meanocc' on page 4 undefined on input line 260.
 
 
-LaTeX Warning: Reference `eqn:varocc1' on page 3 undefined on input line 189.
+LaTeX Warning: Reference `eqn:varocc2' on page 4 undefined on input line 260.
 
-[3] [4] (C:\Users\isken.ADMNET\Documents\GitHub\pymwts\MWTS\mwts-01.aux)
+
+LaTeX Warning: Reference `eqn:varocc1' on page 4 undefined on input line 260.
+
+[4] [5] (./mwts-01.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 2140 strings out of 494045
- 26769 string characters out of 3148366
- 82318 words of memory out of 3000000
- 5417 multiletter control sequences out of 15000+200000
+ 1957 strings out of 495061
+ 23687 string characters out of 1182621
+ 80028 words of memory out of 3000000
+ 5121 multiletter control sequences out of 15000+50000
  36446 words of font info for 85 fonts, out of 3000000 for 9000
- 715 hyphenation exceptions out of 8191
- 28i,13n,24p,687b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/hoekwater/rsfs/rsfs10.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><C:/Program File
-s/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program 
-Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on mwts-01.pdf (4 pages, 84122 bytes).
+ 28 hyphenation exceptions out of 8191
+ 28i,13n,24p,844b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
+{/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-texli
+ve/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/sym
+bols/msbm10.pfb></usr/share/texmf-texlive/fonts/type1/public/rsfs/rsfs10.pfb></
+usr/share/texmf-texlive/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texli
+ve/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/ti
+mes/utmb8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr
+/share/texmf-texlive/fonts/type1/urw/times/utmri8a.pfb>
+Output written on mwts-01.pdf (5 pages, 95404 bytes).
 PDF statistics:
- 52 PDF objects out of 1000 (max. 8388607)
+ 59 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
