@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  22 MAY 2013 23:58
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  27 MAY 2013 21:59
 entering extended mode
  %&-line parsing enabled.
 **mwts-01.tex
@@ -438,72 +438,111 @@ my insertion and my current dilemma will both disappear.
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.224 A_
+        {ijkt}=\begin{cases}
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
-LaTeX Warning: Reference `eqn:arrrate1' on page 4 undefined on input line 260.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 4 undefined on input line 260.
-
-
-
-LaTeX Warning: Reference `eqn:discharge' on page 4 undefined on input line 260.
-
-
-
-LaTeX Warning: Reference `eqn:meanocc' on page 4 undefined on input line 260.
-
-
-LaTeX Warning: Reference `eqn:varocc2' on page 4 undefined on input line 260.
-
-
-LaTeX Warning: Reference `eqn:varocc1' on page 4 undefined on input line 260.
+! Missing $ inserted.
+<inserted text> 
+                $
+l.229 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
 
-LaTeX Warning: Reference `eqn:arrrate1' on page 4 undefined on input line 260.
+Overfull \hbox (26.32524pt too wide) in paragraph at lines 224--229
+[]\OT1/ptm/m/n/10 A$[] \OT1/ztmcm/m/n/10 = []$ 
+ []
+
+[3]
+! Misplaced alignment tab character &.
+l.246 S_{ijkwt}&
+                 = \mbox{number of shifts of length $k$ starting in period $...
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
 
 
-LaTeX Warning: Reference `eqn:arrrate11' on page 4 undefined on input line 260.
+Overfull \hbox (112.07219pt too wide) detected at line 248
+ $\OML/ztmcm/m/it/10 S[] \OT1/ztmcm/m/n/10 = []$ 
+ []
+
+[4]
+
+LaTeX Warning: Reference `eqn:arrrate1' on page 5 undefined on input line 303.
+
+
+LaTeX Warning: Reference `eqn:arrrate11' on page 5 undefined on input line 303.
 
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 4 undefined on input line 260.
+LaTeX Warning: Reference `eqn:discharge' on page 5 undefined on input line 303.
 
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 4 undefined on input line 260.
+LaTeX Warning: Reference `eqn:meanocc' on page 5 undefined on input line 303.
 
 
-LaTeX Warning: Reference `eqn:varocc2' on page 4 undefined on input line 260.
+LaTeX Warning: Reference `eqn:varocc2' on page 5 undefined on input line 303.
 
 
-LaTeX Warning: Reference `eqn:varocc1' on page 4 undefined on input line 260.
+LaTeX Warning: Reference `eqn:varocc1' on page 5 undefined on input line 303.
 
-[4] [5] (./mwts-01.aux)
+
+LaTeX Warning: Reference `eqn:arrrate1' on page 5 undefined on input line 303.
+
+
+LaTeX Warning: Reference `eqn:arrrate11' on page 5 undefined on input line 303.
+
+
+
+LaTeX Warning: Reference `eqn:discharge' on page 5 undefined on input line 303.
+
+
+
+LaTeX Warning: Reference `eqn:meanocc' on page 5 undefined on input line 303.
+
+
+LaTeX Warning: Reference `eqn:varocc2' on page 5 undefined on input line 303.
+
+
+LaTeX Warning: Reference `eqn:varocc1' on page 5 undefined on input line 303.
+
+[5] [6] (./mwts-01.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 1957 strings out of 495061
- 23687 string characters out of 1182621
- 80028 words of memory out of 3000000
- 5121 multiletter control sequences out of 15000+50000
+ 1959 strings out of 495061
+ 23719 string characters out of 1182621
+ 80046 words of memory out of 3000000
+ 5123 multiletter control sequences out of 15000+50000
  36446 words of font info for 85 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 28i,13n,24p,844b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 28i,13n,24p,961b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-texli
-ve/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/ty
-pe1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/a
-msfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/sym
-bols/msbm10.pfb></usr/share/texmf-texlive/fonts/type1/public/rsfs/rsfs10.pfb></
-usr/share/texmf-texlive/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texli
-ve/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/ti
-mes/utmb8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr
-/share/texmf-texlive/fonts/type1/urw/times/utmri8a.pfb>
-Output written on mwts-01.pdf (5 pages, 95404 bytes).
+ve/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/public/
+amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
+cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/symbols/msbm10
+.pfb></usr/share/texmf-texlive/fonts/type1/public/rsfs/rsfs10.pfb></usr/share/t
+exmf-texlive/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.
+pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texm
+f-texlive/fonts/type1/urw/times/utmri8a.pfb>
+Output written on mwts-01.pdf (6 pages, 106942 bytes).
 PDF statistics:
- 59 PDF objects out of 1000 (max. 8388607)
+ 66 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

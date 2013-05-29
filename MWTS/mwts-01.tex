@@ -169,6 +169,10 @@ As depressingly illustrated in Section \ref{subsec-explosion}, multi-week tour s
 %http://en.wikibooks.org/wiki/LaTeX/Mathematics
 % Use bold for terms that I define
 
+The notation and definitions presented in this section, are very closely aligned with the implementation of the model in Pyomo. 
+
+
+
 Planning cycle related terms...
 
 \subsubsection*{Planning cycle parameters}
@@ -187,7 +191,7 @@ n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 \mathbb{W} & =  \{1,2,\ldots n_W\} \\
 \end{flalign*}
 
-\nipar So, each period in the planning cycle is defined by a tuple $(i,d,w) \in B$ where $B = \mathbb{P} \times \mathbb{D} \times \mathbb{W}$.
+\nipar So, each period in the planning cycle is defined by a tuple $(i,d,w) \in \mathbb{B}$ where $\mathbb{B} = \mathbb{P} \times \mathbb{D} \times \mathbb{W}$.
 
  
 
@@ -198,10 +202,12 @@ n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 %model_phase1.lengths = Param(model_phase1.LENGTHS)  # Vector of shift lengths
 
 \begin{flalign*}
-n_H& = \text{number of different shift lengths} \\
-\mathbb{H}& = \{1,2,\ldots n_T\} \\
-h_k& = \text{$k$'th shift length in periods, for $k \in \mathbb{H}$}
+n_K& = \text{number of different shift lengths} \\
+\mathbb{K}& = \{1,2,\ldots n_K\} \\
+l_k& = \text{$k$'th shift length in periods, for $k \in \mathbb{K}$}
 \end{flalign*}
+
+
 
 
 %#-- Tour Types
@@ -215,7 +221,37 @@ n_T& = \text{number of different tour types} \\
 L(i)& = \text{set of shift length indices allowed for tour type $i$, for $i \in \mathbb{T}$}
 \end{flalign*}
 
+A_{ijkt}=\begin{cases}
+1& \text{1 if a shift of length $k$ starting in period $i$ of day $j$ for tour type $t$ is allowed},\\
+& \text{for $i \in \mathbb{P}$, $j \in \mathbb{D}$, $k \in \mathbb{K}$, $t \in \mathbb{T}$.} \\
+0& \text{otherwise}.
+\end{cases}
 
+\begin{flalign*}
+\mathbb{A} & =  \{(i,j,k,t) | A_{ijkt}=1 \} \\
+\end{flalign*}
+
+Instead of explicitly representing tours with one variable per tour, we implicitly represent tours using a number of building block variables whose values are coordinated by numerous control constraints to ensure that valid tours can be constructed from these variables.
+
+\subsubsection*{Shift length and tour type variables}
+
+Shift variables represent a single shift with a start day and time, shift length, in a specific week and corresponding to a certain tour type.
+
+\begin{flalign*}
+S_{ijkwt} = & \text{ number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for} \\
+&  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$.}  
+\end{flalign*}
+
+\[
+S_{ijkwt}& = \mbox{number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for \\
+tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$}
+\]
+
+\begin{flalign*}
+T_{it} = & \text{number of tours of tour type $t$ assigned to start time band $i$} \\
+&  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$.}  
+\end{flalign*}
+%& = \text(tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$}
 
 %### Bounds on tour type variables
 %model_phase1.tt_lb =  Param(model_phase1.TTYPES)       # RHS from .MIX
