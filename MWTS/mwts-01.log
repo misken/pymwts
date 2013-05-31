@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  27 MAY 2013 21:59
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  31 MAY 2013 14:47
 entering extended mode
  %&-line parsing enabled.
 **mwts-01.tex
@@ -192,43 +192,48 @@ File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 77.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 89.
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 96.
- (/usr/share/texmf-texlive/tex/latex/psnfss/omsptm.fd
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 91.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 96.
+
+
+LaTeX Warning: Citation `isken:2004' on page 1 undefined on input line 96.
+
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 101.
+
+(/usr/share/texmf-texlive/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 96.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 101.
 LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 10
-3.
+8.
 
 (/usr/share/texmf-texlive/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
 LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 10
-3.
+8.
 
 (/usr/share/texmf-texlive/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
 LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 10
-3.
+8.
 
 (/usr/share/texmf-texlive/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
 LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 10
-3.
+8.
 
 (/usr/share/texmf-texlive/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 108.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 103.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 108.
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ¢ in font ptmr7t!
@@ -236,7 +241,7 @@ Missing character: There is no ¢ in font ptmr7t!
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.109 x_
+l.114 x_
         1 & x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -244,7 +249,7 @@ you left one out. Proceed, with fingers crossed.
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
-l.109 x_1 &
+l.114 x_1 &
             x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -255,7 +260,7 @@ deleted material, e.g., by typing `I$}'.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.109 x_1 &
+l.114 x_1 &
             x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -263,7 +268,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing } inserted.
 <inserted text> 
                 }
-l.109 x_1 &
+l.114 x_1 &
             x & 7a & 7a & 7a & 7a & 7a & x & x & 7a & 7a & 7a & 7a & 7a & x \\
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -274,7 +279,7 @@ my insertion and my current dilemma will both disappear.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.111 x_
+l.116 x_
         2 & x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -282,7 +287,7 @@ you left one out. Proceed, with fingers crossed.
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
-l.111 x_2 &
+l.116 x_2 &
             x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -293,7 +298,7 @@ deleted material, e.g., by typing `I$}'.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.111 x_2 &
+l.116 x_2 &
             x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -301,7 +306,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing } inserted.
 <inserted text> 
                 }
-l.111 x_2 &
+l.116 x_2 &
             x & 3p & 3p & 3p & 3p & 3p & x & x & 3p & 3p & 3p & 3p & 3p & x \\
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -310,17 +315,21 @@ really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
 
-Overfull \hbox (45.57918pt too wide) in paragraph at lines 103--114
+Overfull \hbox (45.57918pt too wide) in paragraph at lines 108--119
 [][] 
  []
 
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ¢ in font ptmr7t!
+
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.122 y_
+l.127 y_
         1 & x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -328,7 +337,7 @@ you left one out. Proceed, with fingers crossed.
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
-l.122 y_1 &
+l.127 y_1 &
             x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -339,7 +348,7 @@ deleted material, e.g., by typing `I$}'.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.122 y_1 &
+l.127 y_1 &
             x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -347,7 +356,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing } inserted.
 <inserted text> 
                 }
-l.122 y_1 &
+l.127 y_1 &
             x & On & On & On & On & On & x & x & On & On & On & On & On & x \\
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -356,14 +365,14 @@ really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
 
-Overfull \hbox (103.4986pt too wide) in paragraph at lines 117--125
+Overfull \hbox (103.4986pt too wide) in paragraph at lines 122--130
 [][] 
  []
 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.130 s_
+l.135 s_
         1 & 7a \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -371,7 +380,7 @@ you left one out. Proceed, with fingers crossed.
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
-l.130 s_1 &
+l.135 s_1 &
             7a \\
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -382,7 +391,7 @@ deleted material, e.g., by typing `I$}'.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.130 s_1 &
+l.135 s_1 &
             7a \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -390,7 +399,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing } inserted.
 <inserted text> 
                 }
-l.130 s_1 &
+l.135 s_1 &
             7a \\
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -401,7 +410,7 @@ my insertion and my current dilemma will both disappear.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.132 s_
+l.137 s_
         2 & 3p \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -409,7 +418,7 @@ you left one out. Proceed, with fingers crossed.
 ! Extra }, or forgotten $.
 <template> \unskip \hfil }
                           \hskip \tabcolsep \hskip -.5\arrayrulewidth \vrule...
-l.132 s_2 &
+l.137 s_2 &
             3p \\
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -420,7 +429,7 @@ deleted material, e.g., by typing `I$}'.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.132 s_2 &
+l.137 s_2 &
             3p \\
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -428,7 +437,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing } inserted.
 <inserted text> 
                 }
-l.132 s_2 &
+l.137 s_2 &
             3p \\
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -436,13 +445,11 @@ With luck, this will get me unwedged. But if you
 really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
-[1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+[2]
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.224 A_
+l.229 A_
         {ijkt}=\begin{cases}
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -450,99 +457,130 @@ you left one out. Proceed, with fingers crossed.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.229 
+l.234 
       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
 
-Overfull \hbox (26.32524pt too wide) in paragraph at lines 224--229
+Overfull \hbox (26.32524pt too wide) in paragraph at lines 229--234
 []\OT1/ptm/m/n/10 A$[] \OT1/ztmcm/m/n/10 = []$ 
  []
 
 [3]
-! Misplaced alignment tab character &.
-l.246 S_{ijkwt}&
-                 = \mbox{number of shifts of length $k$ starting in period $...
-I can't figure out why you would want to use a tab mark
-here. If you just want an ampersand, the remedy is
-simple: Just type `I\&' now. But if some right brace
-up above has ended a previous alignment prematurely,
-you're probably due for more error messages, and you
-might try typing `S' now just to see what is salvageable.
+Overfull \hbox (9.70924pt too wide) in paragraph at lines 264--264
+[] 
+ []
 
 
-Overfull \hbox (112.07219pt too wide) detected at line 248
- $\OML/ztmcm/m/it/10 S[] \OT1/ztmcm/m/n/10 = []$ 
+Overfull \hbox (18.20049pt too wide) in paragraph at lines 271--271
+[] 
  []
 
 [4]
-
-LaTeX Warning: Reference `eqn:arrrate1' on page 5 undefined on input line 303.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 5 undefined on input line 303.
-
+Overfull \hbox (122.24593pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 model_phase1.DailyShiftWorked_index = Set(dimen=5,initialize
+=DailyShiftWorked_index_rule)[] 
+ []
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 5 undefined on input line 303.
+Overfull \hbox (179.99542pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 model_phase1.DailyShiftWorked = Var(model_phase1.DailyShiftW
+orked_index, within=NonNegativeIntegers)[] 
+ []
+
+
+Overfull \hbox (43.49661pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 model_phase1.okDailyTourType = model_phase1.okTourType * mod
+el_phase1.DAYS[] 
+ []
+
+
+Overfull \hbox (11.99689pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 #    /* DailyTourType[i,t,d] Number of employees working tou
+r type t[] 
+ []
+
+
+Overfull \hbox (90.7462pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 model_phase1.DailyTourType_index = Set(dimen=4,initialize=Da
+ilyTourType_index_rule)[] 
+ []
+
+
+Overfull \hbox (148.4957pt too wide) in paragraph at lines 309--309
+[]\OT1/cmtt/m/n/10 model_phase1.DailyTourType = Var(model_phase1.DailyTourType_
+index, within=NonNegativeIntegers)[] 
+ []
+
+[5]
+
+LaTeX Warning: Reference `eqn:arrrate1' on page 6 undefined on input line 357.
+
+
+LaTeX Warning: Reference `eqn:arrrate11' on page 6 undefined on input line 357.
 
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 5 undefined on input line 303.
-
-
-LaTeX Warning: Reference `eqn:varocc2' on page 5 undefined on input line 303.
-
-
-LaTeX Warning: Reference `eqn:varocc1' on page 5 undefined on input line 303.
-
-
-LaTeX Warning: Reference `eqn:arrrate1' on page 5 undefined on input line 303.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 5 undefined on input line 303.
+LaTeX Warning: Reference `eqn:discharge' on page 6 undefined on input line 357.
 
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 5 undefined on input line 303.
+LaTeX Warning: Reference `eqn:meanocc' on page 6 undefined on input line 357.
+
+
+LaTeX Warning: Reference `eqn:varocc2' on page 6 undefined on input line 357.
+
+
+LaTeX Warning: Reference `eqn:varocc1' on page 6 undefined on input line 357.
+
+
+LaTeX Warning: Reference `eqn:arrrate1' on page 6 undefined on input line 357.
+
+
+LaTeX Warning: Reference `eqn:arrrate11' on page 6 undefined on input line 357.
 
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 5 undefined on input line 303.
+LaTeX Warning: Reference `eqn:discharge' on page 6 undefined on input line 357.
 
 
-LaTeX Warning: Reference `eqn:varocc2' on page 5 undefined on input line 303.
+
+LaTeX Warning: Reference `eqn:meanocc' on page 6 undefined on input line 357.
 
 
-LaTeX Warning: Reference `eqn:varocc1' on page 5 undefined on input line 303.
+LaTeX Warning: Reference `eqn:varocc2' on page 6 undefined on input line 357.
 
-[5] [6] (./mwts-01.aux)
+
+LaTeX Warning: Reference `eqn:varocc1' on page 6 undefined on input line 357.
+
+[6] [7] (./mwts-01.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 1959 strings out of 495061
- 23719 string characters out of 1182621
- 80046 words of memory out of 3000000
- 5123 multiletter control sequences out of 15000+50000
- 36446 words of font info for 85 fonts, out of 3000000 for 9000
+ 1963 strings out of 495061
+ 23766 string characters out of 1182621
+ 78056 words of memory out of 3000000
+ 5126 multiletter control sequences out of 15000+50000
+ 36614 words of font info for 86 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 28i,13n,24p,961b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 28i,13n,24p,961b,246s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-texli
 ve/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts/ty
 pe1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/public/
 amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
-cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/symbols/msbm10
-.pfb></usr/share/texmf-texlive/fonts/type1/public/rsfs/rsfs10.pfb></usr/share/t
-exmf-texlive/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/ty
-pe1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.
-pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texm
-f-texlive/fonts/type1/urw/times/utmri8a.pfb>
-Output written on mwts-01.pdf (6 pages, 106942 bytes).
+cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/
+share/texmf-texlive/fonts/type1/public/rsfs/rsfs10.pfb></usr/share/texmf-texliv
+e/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/sym
+bol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.pfb></usr/s
+hare/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/f
+onts/type1/urw/times/utmri8a.pfb>
+Output written on mwts-01.pdf (7 pages, 127610 bytes).
 PDF statistics:
- 66 PDF objects out of 1000 (max. 8388607)
+ 75 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

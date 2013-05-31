@@ -868,7 +868,7 @@ model_phase1.okTourType = Set(dimen=2,initialize=okTourType_rule)
 def TourType_index_rule(M):
     return [(i,t) for i in M.WINDOWS                        
                       for t in M.activeTT
-                      if (i,t,) in M.okTourType]
+                      if (i,t) in M.okTourType]
                         
 
 

@@ -80,15 +80,20 @@ Staff scheduling in healthcare continues to be a vexing problem that consumes va
 
 Wide range of staff scheduling problems whose details depend on the specific healthcare delivery subsystem we are talking about. Examples: recovery room nurses, floor nurses, lab technicians, pharmacists and pharmacy technicians, surgical techs, ED nurses and techs, transporters.
 
-Introduce motivation for tactical tour scheduling problems via real projects
+Introduce motivation for tactical tour scheduling problems via real projects. Value of being able to produce realistic multi-week schedules to illustrate how new scheduling practices might actually work.
 
 For many systems, the kernel of the problem is a tour scheduling problem in which staffing levels needed vary both by time of day and day of week. 
+
+Introduce project website containing Pyomo implementation of this model, motivation for doing this, relationship to OBSched
 
 \section{Tour scheduling problems}
 
 \subsection{Scheduling environment}
+\label{sec-schedenv}
 
-Features of tour scheduling problems including notions of planning cycle, periods, required staffing levels, shifts, tours, tour types, intra-tour start time flexibility, 
+Features of tour scheduling problems including notions of planning cycle, periods, required staffing levels, shifts, tours, tour types, 
+
+In \cite{isken:2004}, intra-tour start time flexibility was implicitly modeled using start time windows and associated control constraints. That same approach can be used in this multi-week model. However, it significantly complicates notation to include start time windows and since the focus of this paper is on multi-week modeling, we will restrict our attention to the case of no intra-tour start time flexibility. The Pyomo implementation available at the project website includes intra-tour start time flexibility.   
 
 To explicitly represent a tour we need of list of days worked, including the shift start times and lengths over the planning cycle. For example, consider the following very simple scenario for a two week planning cycle:
 
@@ -193,6 +198,10 @@ n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 
 \nipar So, each period in the planning cycle is defined by a tuple $(i,d,w) \in \mathbb{B}$ where $\mathbb{B} = \mathbb{P} \times \mathbb{D} \times \mathbb{W}$.
 
+\subsubsection*{Staffing requirements parameters}
+
+We model the staffing requirements in each period with two sets of variables; one set for minimum staffing requirements that cannot be violated and the other for target staffing requirements that can be violated but where violations are penalized according to an understaffing cost function.
+
  
 
 \subsubsection*{Shift length and tour type parameters}
@@ -231,31 +240,75 @@ A_{ijkt}=\begin{cases}
 \mathbb{A} & =  \{(i,j,k,t) | A_{ijkt}=1 \} \\
 \end{flalign*}
 
+is the set of \textit{allowable shift start times}.
+
+\subsubsection*{Shift and tour type variables}
+
 Instead of explicitly representing tours with one variable per tour, we implicitly represent tours using a number of building block variables whose values are coordinated by numerous control constraints to ensure that valid tours can be constructed from these variables.
 
-\subsubsection*{Shift length and tour type variables}
-
-Shift variables represent a single shift with a start day and time, shift length, in a specific week and corresponding to a certain tour type.
+\textit{Shift variables} represent a single shift with a start day and time, shift length, in a specific week and corresponding to a certain tour type.
 
 \begin{flalign*}
 S_{ijkwt} = & \text{ number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for} \\
-&  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$.}  
+&  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb{A},t \in \mathbb{T}$.}  
 \end{flalign*}
 
-\[
-S_{ijkwt}& = \mbox{number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for \\
-tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$}
-\]
+\textit{Tour type variables} represent the number of people assigned to each tour type in each start time period. 
 
 \begin{flalign*}
-T_{it} = & \text{number of tours of tour type $t$ assigned to start time band $i$} \\
-&  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$.}  
+T_{it} = & \text{ number of tours of tour type $t$ assigned to start time period $i$} \\
+&  \text{for $i \in \mathbb{P},t \in \mathbb{T}$.}  
 \end{flalign*}
-%& = \text(tour type $t$, for $(i,j,k,t) \in \mathbb(A),t \in T$}
 
-%### Bounds on tour type variables
-%model_phase1.tt_lb =  Param(model_phase1.TTYPES)       # RHS from .MIX
-%model_phase1.tt_ub =  Param(model_phase1.TTYPES,  default=infinity)
+\textit{Daily tour type variables} represent the number of people assigned to each tour type in each start time period and working on a given day in a given week. Note that these variables are not shift length specific.
+
+\begin{flalign*}
+DT_{itjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
+&  \text{ day $j$ in week $w$, for $i \in \mathbb{P},j \in \mathbb{D}, t \in \mathbb{T}, w \in \mathbb{W}$.} 
+\end{flalign*}
+
+\textit{Daily shift tour type variables} represent the number of people assigned to each tour type in each start time period and working a shift of a given length on a given day in a given week. 
+
+\begin{flalign*}
+ST_{itkjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
+&  \text{ shift length $k$ on day $j$ in week $w$, for $i \in \mathbb{P},t \in \mathbb{T},k \in \mathbb{K},j \in \mathbb{D}, w \in \mathbb{W}$.} 
+\end{flalign*}
+
+Discussion of weekend days worked patterns
+
+\begin{flalign*}
+\mathbb{X}(i,t)& = \text{set of shift length indices allowed for tour type $i$, for $i \in \mathbb{T}$}
+\end{flalign*}
+
+\begin{flalign*}
+WW_{itp} = & \text{ number of people working tours of tour type $t$ assigned to start time period $i$} \\
+&  \text{ and weekend pattern $p$, for $i \in \mathbb{P},t \in \mathbb{T},p in \mathbb{X}(i,t)$.}  
+\end{flalign*}
+
+\begin{verbatim}
+#var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES : 
+#                      (i,t) in okTourType and p <= num_weekend_patterns[weekend_type[i,t],t]} 
+#       >= 0, integer ;
+       
+def ok_weekenddaysworked_index_rule(M):
+    index_list =[]
+    for (i,t) in M.okTourType:
+        for p in sequence(M.max_weekend_patterns.value):
+            weekendtype = M.weekend_type[i,t].value
+            if p <= M.num_weekend_patterns[weekendtype,t].value:
+                index_list.append((i,t,p))
+    
+    return index_list
+                        
+model_phase1.ok_weekenddaysworked_index = Set(dimen=3,initialize=ok_weekenddaysworked_index_rule)
+
+model_phase1.WeekendDaysWorked = Var(model_phase1.ok_weekenddaysworked_index, within=NonNegativeIntegers) 
+    
+    # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
+    # in start window i and of tour type t
+
+
+\end{verbatim}
 
 
 
