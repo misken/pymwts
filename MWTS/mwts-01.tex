@@ -93,7 +93,7 @@ Introduce project website containing Pyomo implementation of this model, motivat
 
 Features of tour scheduling problems including notions of planning cycle, periods, required staffing levels, shifts, tours, tour types, 
 
-In \cite{isken:2004}, intra-tour start time flexibility was implicitly modeled using start time windows and associated control constraints. That same approach can be used in this multi-week model. However, it significantly complicates notation to include start time windows and since the focus of this paper is on multi-week modeling, we will restrict our attention to the case of no intra-tour start time flexibility. The Pyomo implementation available at the project website includes intra-tour start time flexibility.   
+In \cite{isken:2004}, intra-tour start time flexibility was implicitly modeled using start time windows and associated control constraints. That same approach can be used in this multi-week model. However, it significantly complicates notation to include start time windows and since the focus of this paper is on multi-week modeling, we will restrict our attention to the case of no intra-tour start time flexibility. The Pyomo implementation available at the project website includes intra-tour start time flexibility.  Similarly, for purposes of this paper, we only consider the case where weekends are defined as Saturday and Sunday. In reality, depending on the start time of the shift, it may be more appropriate to consider Friday and Saturday as the weekend. Again, the Pyomo implementations includes this practical complication. 
 
 To explicitly represent a tour we need of list of days worked, including the shift start times and lengths over the planning cycle. For example, consider the following very simple scenario for a two week planning cycle:
 
@@ -174,16 +174,13 @@ As depressingly illustrated in Section \ref{subsec-explosion}, multi-week tour s
 %http://en.wikibooks.org/wiki/LaTeX/Mathematics
 % Use bold for terms that I define
 
-The notation and definitions presented in this section, are very closely aligned with the implementation of the model in Pyomo. 
-
-
 
 Planning cycle related terms...
 
 \subsubsection*{Planning cycle parameters}
 
 \begin{flalign*}
-n_W & =  \text{number of weeks in the planning cycle} \\
+n_E & =  \text{number of weeks in the planning cycle} \\
 n_P & =  \text{number of periods per day} \\
 n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 \end{flalign*}
@@ -193,7 +190,7 @@ n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 \begin{flalign*}
 \mathbb{P} & =  \{1,2,\ldots n_P\} \\
 \mathbb{D} & =  \{1,2,\ldots 7\} \\
-\mathbb{W} & =  \{1,2,\ldots n_W\} \\
+\mathbb{E} & =  \{1,2,\ldots n_E\} \\
 \end{flalign*}
 
 \nipar So, each period in the planning cycle is defined by a tuple $(i,d,w) \in \mathbb{B}$ where $\mathbb{B} = \mathbb{P} \times \mathbb{D} \times \mathbb{W}$.
@@ -202,7 +199,19 @@ n_C & =  7 n_W n_P\mbox{ number of periods in planning cycle} \\
 
 We model the staffing requirements in each period with two sets of variables; one set for minimum staffing requirements that cannot be violated and the other for target staffing requirements that can be violated but where violations are penalized according to an understaffing cost function.
 
- 
+\begin{flalign*}
+s_{ijw} = & \text{ target staffing level in period $i$ of day $j$ in week $w$,} \\
+m_{ijw} = & \text{ minimum allowable staffing level in period $i$ of day $j$ in week $w$,} \\
+&  \text{ for $i \in \mathbb{P},j \in \mathbb{D},w \in \mathbb{E}$.}  
+\end{flalign*}
+
+\begin{verbatim}
+# Target and minimum staffing levels - this is week specific. We can always allow user to input
+# a single week and then repeat it for the other weeks.
+
+model_phase1.dmd_staff = Param(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS)
+model_phase1.min_staff = Param(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS) 
+\end{verbatim}
 
 \subsubsection*{Shift length and tour type parameters}
 %#-- Shift Lengths
@@ -227,7 +236,7 @@ l_k& = \text{$k$'th shift length in periods, for $k \in \mathbb{K}$}
 \begin{flalign*}
 n_T& = \text{number of different tour types} \\
 \mathbb{T}& = \{1,2,\ldots n_T\} \\
-L(i)& = \text{set of shift length indices allowed for tour type $i$, for $i \in \mathbb{T}$}
+L(t)& = \text{set of shift length indices allowed for tour type $t$, for $t \in \mathbb{T}$}
 \end{flalign*}
 
 A_{ijkt}=\begin{cases}
@@ -264,20 +273,20 @@ T_{it} = & \text{ number of tours of tour type $t$ assigned to start time period
 
 \begin{flalign*}
 DT_{itjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
-&  \text{ day $j$ in week $w$, for $i \in \mathbb{P},j \in \mathbb{D}, t \in \mathbb{T}, w \in \mathbb{W}$.} 
+&  \text{ day $j$ in week $w$, for $i \in \mathbb{P},j \in \mathbb{D}, t \in \mathbb{T}, w \in \mathbb{E}$.} 
 \end{flalign*}
 
 \textit{Daily shift tour type variables} represent the number of people assigned to each tour type in each start time period and working a shift of a given length on a given day in a given week. 
 
 \begin{flalign*}
 ST_{itkjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
-&  \text{ shift length $k$ on day $j$ in week $w$, for $i \in \mathbb{P},t \in \mathbb{T},k \in \mathbb{K},j \in \mathbb{D}, w \in \mathbb{W}$.} 
+&  \text{ shift length $k$ on day $j$ in week $w$, for $i \in \mathbb{P},t \in \mathbb{T},k \in \mathbb{K},j \in \mathbb{D}, w \in \mathbb{E}$.} 
 \end{flalign*}
 
 Discussion of weekend days worked patterns
 
 \begin{flalign*}
-\mathbb{X}(i,t)& = \text{set of shift length indices allowed for tour type $i$, for $i \in \mathbb{T}$}
+\mathbb{X}(it)& = \text{set of allowable weekend patterns for tour type $i$, for $i \in \mathbb{T}$}
 \end{flalign*}
 
 \begin{flalign*}
@@ -285,60 +294,92 @@ WW_{itp} = & \text{ number of people working tours of tour type $t$ assigned to 
 &  \text{ and weekend pattern $p$, for $i \in \mathbb{P},t \in \mathbb{T},p in \mathbb{X}(i,t)$.}  
 \end{flalign*}
 
+
+
+
+%TODO Coverage constraints
+%TODO Min staff constraints
+
+%TODO Understaffing variables
+%TODO Understaffing bounds
+%TODO Understaffing cost parameters
+
+%TODO Part time fraction parameter
+%TODO Part time fraction constraint
+
+%TODO Budget parameter
+%TODO Budget constraint
+
+%TODO Obective function
+
+%TODO DTT_TT_UB_wkendadj constraint - special constraint for tour type working 2 days/week
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Constraints in:
+%	TT upper and lower bounds
+%   Weekends worked total - coordinates W and T for each (i,t)
+%   Weekends and daily tour type
+%   Daily tour type and tour type
+
+
+
+
+
+\newpage
+\nipar {\bf Model:} MWTS
+\nipar
+\nipar Minimize
+\begin{gather}
+M^{U} - M^{L} \label{eqn:obj} 
+\end{gather}
+Subject to
+\begin{gather}
+% Bounds on T
+T^{L}_{t} \leq \sum_{i \in \mathbb{P}}T_{it} \leq T^{U}_{t} \quad \text{($t \in \mathbb{T}$)} \label{eqn:tt_ub} \\
+%
+% Integrate W and T overall
+\sum_{x \in \mathbb{X}_{it}}W_{xit} = T_{it} \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:W_T_tot} \\
+%
+% Integrate W and DT
+\sum_{x \in \mathbb{X}_{it}}A_{xjwt}W_{xit} = DT_{itjw} \quad \text{($j \in \{1,7\},w \in \mathbb{E},i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:WW_DT} \\
+%
+% Integrate DT and T - no more than T can work on any given day
+DT_{itjw} \leq T{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:DT_T_dailyub} \\
+%
+%Coordinate DailyShiftWorked and DailyTourType variables for each day of week in each week
+\sum_{k \in L(t)}ST_{itkjw} = DT_{itjw} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:ST_DT_dailyeq} \\
+%
+% Weekly lower and upper bounds on daily tour type
+\sum_{d \in \mathbb{D}}T_{itdw} \geq m(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklylb} \\
+\sum_{d \in \mathbb{D}}T_{itdw} \leq M(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklyub} \\
+%
+% Non-negativity and integer
+T_{it} \geq 0 \text{ and integer}, \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:TT_int}
+\end{gather} 
+
+
+
 \begin{verbatim}
-#var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES : 
-#                      (i,t) in okTourType and p <= num_weekend_patterns[weekend_type[i,t],t]} 
-#       >= 0, integer ;
-       
-def ok_weekenddaysworked_index_rule(M):
-    index_list =[]
-    for (i,t) in M.okTourType:
-        for p in sequence(M.max_weekend_patterns.value):
-            weekendtype = M.weekend_type[i,t].value
-            if p <= M.num_weekend_patterns[weekendtype,t].value:
-                index_list.append((i,t,p))
-    
-    return index_list
-                        
-model_phase1.ok_weekenddaysworked_index = Set(dimen=3,initialize=ok_weekenddaysworked_index_rule)
-
-model_phase1.WeekendDaysWorked = Var(model_phase1.ok_weekenddaysworked_index, within=NonNegativeIntegers) 
-    
-    # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
-    # in start window i and of tour type t
-
-
+def DTT_TT_weeklyconservation_LB_rule(M,i,t,w):
+    return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS)  >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
 \end{verbatim}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-To smooth the postpartum occupancy across days of the week, we introduce two, non-negative, dummy variables, $M^{U}$ and $M^{L}$. These are used to bound the mean occupancy across the week from above and below -- see Equation \eqref{eqn:sandwich}. Then we minimize the difference between the bounds.
-
 \newpage
-\nipar {\bf Model:} OB-SMOOTH
+\nipar {\bf Model:} OBSCHED
 \nipar
 \nipar Minimize
 \begin{gather}
@@ -357,7 +398,6 @@ L^{a} \leq \sum_{i=1}^{P}\sum_{j=1}^{7}\Lambda_{i,j}^{a} \leq U^{a} \quad \text{
 \text{Equations \eqref{eqn:varocc2}-\eqref{eqn:varocc1} for variance of occupancy }  \\
 \Lambda_{i,j}^{a} \geq 0 \text{ and integer}, \quad \text{($a=5,6, i=1,2,\ldots P$, $j=1,2,\ldots 7)$} \label{eqn:schedint}
 \end{gather} 
-
 Equation \eqref{eqn:schedbin} sets upper and lower bounds on the number of scheduled inductions and scheduled cesareans by time period of day and day of week. Equations \eqref{eqn:schedday} and \eqref{eqn:schedweek} set upper and lower bounds on the number of scheduled inductions and scheduled cesareans by day of week and for the entire week, respectively. The remaining constraints constitute the patient flow portion of the model. Note that the only decision variables are $\Lambda_{i,j}^{5}$, the number of scheduled inductions, and $\Lambda_{i,j}^{6}$, the number of scheduled cesareans. The model OB-SMOOTH is a standard mixed integer linear program. 
 
 
