@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  2 JUN 2013 14:07
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2012.5.15)  3 JUN 2013 08:41
 entering extended mode
  %&-line parsing enabled.
 **mwts-01.tex
@@ -503,53 +503,53 @@ Overfull \hbox (22.25623pt too wide) in paragraph at lines 295--295
  []
 
 [5]
-Overfull \hbox (179.99542pt too wide) in paragraph at lines 377--377
-[]    \OT1/cmtt/m/n/10 return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS)  >=
- M.TourType[i,t]*M.tt_min_dys_weeks[t,w][] 
+Overfull \hbox (347.99396pt too wide) in paragraph at lines 399--399
+[]    \OT1/cmtt/m/n/10 return sum(M.DailyShiftWorked[i,t,k,d,w] for d in M.DAYS
+ for k in M.tt_length_x[t] if (i,t,k,d,w) in M.DailyShiftWorked_index) \[] 
  []
 
-[6]
+[6] [7]
 
-LaTeX Warning: Reference `eqn:arrrate1' on page 7 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:arrrate1' on page 8 undefined on input line 422.
 
 
-
-LaTeX Warning: Reference `eqn:discharge' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:arrrate11' on page 8 undefined on input line 422.
 
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 7 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eqn:varocc2' on page 7 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eqn:varocc1' on page 7 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eqn:arrrate1' on page 7 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eqn:arrrate11' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:discharge' on page 8 undefined on input line 422.
 
 
 
-LaTeX Warning: Reference `eqn:discharge' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:meanocc' on page 8 undefined on input line 422.
+
+
+LaTeX Warning: Reference `eqn:varocc2' on page 8 undefined on input line 422.
+
+
+LaTeX Warning: Reference `eqn:varocc1' on page 8 undefined on input line 422.
+
+
+LaTeX Warning: Reference `eqn:arrrate1' on page 8 undefined on input line 422.
+
+
+LaTeX Warning: Reference `eqn:arrrate11' on page 8 undefined on input line 422.
 
 
 
-LaTeX Warning: Reference `eqn:meanocc' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:discharge' on page 8 undefined on input line 422.
 
 
-LaTeX Warning: Reference `eqn:varocc2' on page 7 undefined on input line 400.
+
+LaTeX Warning: Reference `eqn:meanocc' on page 8 undefined on input line 422.
 
 
-LaTeX Warning: Reference `eqn:varocc1' on page 7 undefined on input line 400.
+LaTeX Warning: Reference `eqn:varocc2' on page 8 undefined on input line 422.
 
-[7] [8] (./mwts-01.aux)
+
+LaTeX Warning: Reference `eqn:varocc1' on page 8 undefined on input line 422.
+
+[8] [9] (./mwts-01.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -558,13 +558,13 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 1976 strings out of 495061
- 23918 string characters out of 1182621
- 81164 words of memory out of 3000000
- 5134 multiletter control sequences out of 15000+50000
+ 1986 strings out of 495061
+ 24168 string characters out of 1182621
+ 81135 words of memory out of 3000000
+ 5144 multiletter control sequences out of 15000+50000
  38900 words of font info for 91 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 28i,13n,24p,961b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 28i,13n,24p,961b,245s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-texli
 ve/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts/ty
 pe1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/public/
@@ -576,9 +576,9 @@ e/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/sym
 bol/usyr.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.pfb></usr/s
 hare/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/f
 onts/type1/urw/times/utmri8a.pfb>
-Output written on mwts-01.pdf (8 pages, 130285 bytes).
+Output written on mwts-01.pdf (9 pages, 132478 bytes).
 PDF statistics:
- 78 PDF objects out of 1000 (max. 8388607)
+ 81 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

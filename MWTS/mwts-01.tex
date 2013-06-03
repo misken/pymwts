@@ -332,7 +332,7 @@ WW_{itp} = & \text{ number of people working tours of tour type $t$ assigned to 
 %   Weekends worked total - coordinates W and T for each (i,t)
 %   Weekends and daily tour type
 %   Daily tour type and tour type
-
+%   Weekly lower and upper bounds on daily tour type
 
 
 
@@ -347,7 +347,7 @@ M^{U} - M^{L} \label{eqn:obj}
 Subject to
 \begin{gather}
 % Bounds on T
-T^{L}_{t} \leq \sum_{i \in \mathbb{P}}T_{it} \leq T^{U}_{t} \quad \text{($t \in \mathbb{T}$)} \label{eqn:tt_ub} \\
+T^{L}_{t} \leq \sum_{i \in \mathbb{P}} T_{it} \leq T^{U}_{t} \quad \text{($t \in \mathbb{T}$)} \label{eqn:tt_ub} \\
 %
 % Integrate W and T overall
 \sum_{x \in \mathbb{X}_{it}}W_{xit} = T_{it} \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:W_T_tot} \\
@@ -361,9 +361,35 @@ DT_{itjw} \leq T{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \math
 %Coordinate DailyShiftWorked and DailyTourType variables for each day of week in each week
 \sum_{k \in L(t)}ST_{itkjw} = DT_{itjw} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:ST_DT_dailyeq} \\
 %
+%
+% ----------------- DT and T, days--------------------------------------------------
 % Weekly lower and upper bounds on daily tour type
-\sum_{d \in \mathbb{D}}T_{itdw} \geq m(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklylb} \\
-\sum_{d \in \mathbb{D}}T_{itdw} \leq M(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklyub} \\
+\sum_{d \in \mathbb{D}}DT_{itdw} \geq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklylb} \\
+\sum_{d \in \mathbb{D}}DT_{itdw} \leq \xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklyub} \\
+%
+% Weekly cumulative lower and upper bounds on daily tour type
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} DT_{itdw} \geq M (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} DT_{itdw} \leq \Xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklyub} \\
+%
+%
+% ----------------- ST and T, days--------------------------------------------------
+% Weekly lower and upper bounds on shift tour type
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}ST_{itkjw} \geq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_weeklylb} \\
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}ST_{itkjw} \leq \xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_weeklyub} \\
+%
+% Weekly cumulative lower and upper bounds on shift tour type
+\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} ST_{itkjw} \geq M (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_cum_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} ST_{itkjw} \leq \Xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_cum_weeklyub} \\
+%
+% ----------------- ST and T, days, shiftlen--------------------------------------------------
+% Weekly lower and upper bounds on shift tour type by shiftlen
+\sum_{d \in \mathbb{D}}ST_{itkjw} \geq \mu_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_shiftlen_weeklylb} \\
+\sum_{d \in \mathbb{D}}ST_{itkjw} \leq \xi_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_shiftlen_weeklyub} \\
+%
+% Weekly cumulative lower and upper bounds on shift tour type by shiftlen
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} ST_{itkjw} \geq M_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_cum_shiftlen_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} ST_{itkjw} \leq \Xi_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_cum_shiftlen_weeklyub} \\
+%
 %
 % Non-negativity and integer
 T_{it} \geq 0 \text{ and integer}, \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:TT_int}
@@ -372,8 +398,10 @@ T_{it} \geq 0 \text{ and integer}, \quad \text{($i \in \mathbb{P}, t \in \mathbb
 
 
 \begin{verbatim}
-def DTT_TT_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS)  >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
+def DSW_TT_weeklyconservation_LB_rule(M,i,t,w):
+    return sum(M.DailyShiftWorked[i,t,k,d,w] for d in M.DAYS for k in M.tt_length_x[t] if (i,t,k,d,w) in M.DailyShiftWorked_index) \
+    >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
+
 \end{verbatim}
 
 
