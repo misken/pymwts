@@ -258,7 +258,7 @@ Instead of explicitly representing tours with one variable per tour, we implicit
 \textit{Shift variables} represent a single shift with a start day and time, shift length, in a specific week and corresponding to a certain tour type.
 
 \begin{flalign*}
-S_{ijkwt} = & \text{ number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for} \\
+x_{ijkwt} = & \text{ number of shifts of length $k$ starting in period $i$ of day $j$ in week $w$ for} \\
 &  \text{ tour type $t$, for $(i,j,k,t) \in \mathbb{A},t \in \mathbb{T}$.}  
 \end{flalign*}
 
@@ -272,14 +272,14 @@ T_{it} = & \text{ number of tours of tour type $t$ assigned to start time period
 \textit{Daily tour type variables} represent the number of people assigned to each tour type in each start time period and working on a given day in a given week. Note that these variables are not shift length specific.
 
 \begin{flalign*}
-DT_{itjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
+D_{itjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
 &  \text{ day $j$ in week $w$, for $i \in \mathbb{P},j \in \mathbb{D}, t \in \mathbb{T}, w \in \mathbb{E}$.} 
 \end{flalign*}
 
 \textit{Daily shift tour type variables} represent the number of people assigned to each tour type in each start time period and working a shift of a given length on a given day in a given week. 
 
 \begin{flalign*}
-ST_{itkjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
+S_{itkjw} = & \text{ number of tours of tour type $t$ assigned to start time period $i$ and working} \\
 &  \text{ shift length $k$ on day $j$ in week $w$, for $i \in \mathbb{P},t \in \mathbb{T},k \in \mathbb{K},j \in \mathbb{D}, w \in \mathbb{E}$.} 
 \end{flalign*}
 
@@ -353,80 +353,79 @@ T^{L}_{t} \leq \sum_{i \in \mathbb{P}} T_{it} \leq T^{U}_{t} \quad \text{($t \in
 \sum_{x \in \mathbb{X}_{it}}W_{xit} = T_{it} \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:W_T_tot} \\
 %
 % Integrate W and DT
-\sum_{x \in \mathbb{X}_{it}}A_{xjwt}W_{xit} = DT_{itjw} \quad \text{($j \in \{1,7\},w \in \mathbb{E},i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:WW_DT} \\
+\sum_{x \in \mathbb{X}_{it}}A_{xjwt}W_{xit} = D_{itjw} \quad \text{($j \in \{1,7\},w \in \mathbb{E},i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:WW_DT} \\
 %
 % Integrate DT and T - no more than T can work on any given day
-DT_{itjw} \leq T{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:DT_T_dailyub} \\
+D_{itjw} \leq T{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:D_T_dailyub} \\
 %
 %Coordinate DailyShiftWorked and DailyTourType variables for each day of week in each week
-\sum_{k \in L(t)}ST_{itkjw} = DT_{itjw} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:ST_DT_dailyeq} \\
-%
-%
+\sum_{k \in L(t)}S_{itkjw} = D_{itjw} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},j \in \mathbb{D},w \in \mathbb{E}$)} \label{eqn:S_D_dailyeq} 
+\end{gather} 
+
+\begin{gather}
 % ----------------- DT and T, days--------------------------------------------------
 % Weekly lower and upper bounds on daily tour type
-\sum_{d \in \mathbb{D}}DT_{itdw} \geq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklylb} \\
-\sum_{d \in \mathbb{D}}DT_{itdw} \leq \xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklyub} \\
+\sum_{d \in \mathbb{D}}D_{itdw} \geq \lambda(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklylb} \\
+\sum_{d \in \mathbb{D}}D_{itdw} \leq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_weeklyub} \\
 %
 % Weekly cumulative lower and upper bounds on daily tour type
-\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} DT_{itdw} \geq M (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklylb} \\
-\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} DT_{itdw} \leq \Xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklyub} \\
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} D_{itdw} \geq \Lambda (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} D_{itdw} \leq M(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:TT_T_cum_weeklyub} 
 %
-%
+\end{gather} 
+
+\begin{gather}
 % ----------------- ST and T, days--------------------------------------------------
-% Weekly lower and upper bounds on shift tour type
-\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}ST_{itkjw} \geq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_weeklylb} \\
-\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}ST_{itkjw} \leq \xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_weeklyub} \\
+% Weekly lower and upper bounds on shift tour type based on days worked
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}S_{itkjw} \geq \lambda(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklylb} \\
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}S_{itkjw} \leq \mu(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklyub} \\
 %
-% Weekly cumulative lower and upper bounds on shift tour type
-\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} ST_{itkjw} \geq M (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_cum_weeklylb} \\
-\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} ST_{itkjw} \leq \Xi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:ST_T_cum_weeklyub} \\
+% Weekly cumulative lower and upper bounds on shift tour type based on days worked
+\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} S_{itkjw} \geq \Lambda (t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{k \in L(t)} \sum_{z=1}^{w} S_{itkjw} \leq M(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklyub} 
 %
+\end{gather} 
+
+\begin{gather}
 % ----------------- ST and T, days, shiftlen--------------------------------------------------
-% Weekly lower and upper bounds on shift tour type by shiftlen
-\sum_{d \in \mathbb{D}}ST_{itkjw} \geq \mu_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_shiftlen_weeklylb} \\
-\sum_{d \in \mathbb{D}}ST_{itkjw} \leq \xi_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_shiftlen_weeklyub} \\
+% Weekly lower and upper bounds on shift tour type by shiftlen based on days worked
+\sum_{d \in \mathbb{D}}S_{itkjw} \geq \lambda_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:S_T_shiftlen_weeklylb} \\
+\sum_{d \in \mathbb{D}}S_{itkjw} \leq \mu_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:S_T_shiftlen_weeklyub} \\
 %
-% Weekly cumulative lower and upper bounds on shift tour type by shiftlen
-\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} ST_{itkjw} \geq M_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_cum_shiftlen_weeklylb} \\
-\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} ST_{itkjw} \leq \Xi_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:ST_T_cum_shiftlen_weeklyub} \\
+% Weekly cumulative lower and upper bounds on shift tour type by shiftlen based on days worked
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} S_{itkjw} \geq \Lambda_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:S_T_cum_shiftlen_weeklylb} \\
+\sum_{d \in \mathbb{D}} \sum_{z=1}^{w} S_{itkjw} \leq M_{s}(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:S_T_cum_shiftlen_weeklyub} 
 %
+\end{gather} 
+
+\begin{gather}
+% ----------------- ST and T, periods --------------------------------------------------
+% Weekly lower and upper bounds on shift tour type based on periods worked
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}l_k S_{itkjw} \geq \psi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklylb_periods} \\
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}l_k S_{itkjw} \leq \omega(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklyub_periods} \\
 %
+% Weekly cumulative lower and upper bounds on shift tour type based on periods worked
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}\sum_{z=1}^{w}l_k S_{itkjw} \geq \Psi(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklylb_periods} \\
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}\sum_{z=1}^{w}l_k S_{itkjw} \leq \Omega(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklyub_periods} 
+%
+\end{gather} 
+
+\begin{gather}
+% ----------------- ST and T, periods, shiftlen --------------------------------------------------
+% Weekly lower and upper bounds on shift tour type based on periods worked
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}l_k S_{itkjw} \geq \psi_s(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklylb_periods} \\
+\sum_{d \in \mathbb{D}}\sum_{k \in L(t)}l_k S_{itkjw} \leq \omega_s(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},w \in \mathbb{E}$)} \label{eqn:S_T_weeklyub_periods} \\
+%
+% Weekly cumulative lower and upper bounds on shift tour type based on periods worked
+\sum_{d \in \mathbb{D}}\sum_{z=1}^{w}l_k S_{itkjw} \geq \Psi_s(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t), w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklylb_periods} \\
+\sum_{d \in \mathbb{D}}\sum_{z=1}^{w}l_k S_{itkjw} \leq \Omega_s(t,w)T_{it} \quad \text{($i \in \mathbb{P},t \in \mathbb{T},k \in L(t),w \in \mathbb{E}$)} \label{eqn:S_T_cum_weeklyub_periods} 
 % Non-negativity and integer
 T_{it} \geq 0 \text{ and integer}, \quad \text{($i \in \mathbb{P}, t \in \mathbb{T}$)} \label{eqn:TT_int}
 \end{gather} 
 
 
 
-\begin{verbatim}
-def DSW_TT_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyShiftWorked[i,t,k,d,w] for d in M.DAYS for k in M.tt_length_x[t] if (i,t,k,d,w) in M.DailyShiftWorked_index) \
-    >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
 
-\end{verbatim}
-
-
-
-\newpage
-\nipar {\bf Model:} OBSCHED
-\nipar
-\nipar Minimize
-\begin{gather}
-M^{U} - M^{L} \label{eqn:obj} 
-\end{gather}
-Subject to
-\begin{gather}
-0 \leq M^{L} \leq \mu_{i,j}^{4} \leq M^{U} \quad \text{($i=1,2,\ldots P$, $j=1,2,\ldots 7$)} \label{eqn:sandwich} \\ 
-L_{i,j}^{a} \leq \Lambda_{i,j}^{a} \leq U_{i,j}^{a} \quad \text{($a=5,6, i=1,2,\ldots P$, $j=1,2,\ldots 7$)} \label{eqn:schedbin} \\
-L_{.,j}^{a} \leq \sum_{i=1}^{P}\Lambda_{i,j}^{a} \leq U_{.,j}^{a} \quad \text{($a=5,6$, $j=1,2,\ldots 7$)} \label{eqn:schedday} \\
-L^{a} \leq \sum_{i=1}^{P}\sum_{j=1}^{7}\Lambda_{i,j}^{a} \leq U^{a} \quad \text{($a=5,6$)} \label{eqn:schedweek} \\ 
-\text{Equations \eqref{eqn:arrrate1}-\eqref{eqn:arrrate11} for arrival rates }  \\
-\text{Equation \eqref{eqn:discharge} for discharge rates}  \\
-\text{Equation \eqref{eqn:flowcons} for conservation of flow}  \\
-\text{Equation \eqref{eqn:meanocc} for mean occupancy} \\
-\text{Equations \eqref{eqn:varocc2}-\eqref{eqn:varocc1} for variance of occupancy }  \\
-\Lambda_{i,j}^{a} \geq 0 \text{ and integer}, \quad \text{($a=5,6, i=1,2,\ldots P$, $j=1,2,\ldots 7)$} \label{eqn:schedint}
-\end{gather} 
-Equation \eqref{eqn:schedbin} sets upper and lower bounds on the number of scheduled inductions and scheduled cesareans by time period of day and day of week. Equations \eqref{eqn:schedday} and \eqref{eqn:schedweek} set upper and lower bounds on the number of scheduled inductions and scheduled cesareans by day of week and for the entire week, respectively. The remaining constraints constitute the patient flow portion of the model. Note that the only decision variables are $\Lambda_{i,j}^{5}$, the number of scheduled inductions, and $\Lambda_{i,j}^{6}$, the number of scheduled cesareans. The model OB-SMOOTH is a standard mixed integer linear program. 
 
 
 \subsection{Computational experiments}
