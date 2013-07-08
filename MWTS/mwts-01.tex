@@ -76,9 +76,13 @@
 
 \section{Introduction}
 \label{sec-intro}
-Staff scheduling in healthcare continues to be a vexing problem that consumes valuable managerial resources and whose complexity can impact the quality of care delivered and the job satisfaction of its highly skilled labor force. \cite{}
+Staff scheduling in healthcare continues to be a vexing problem that consumes valuable managerial resources and whose complexity can impact the quality of care delivered and the job satisfaction of its highly skilled labor force \cite{}. Complicating matters is the fact that there are a wide range of staff scheduling problems whose details depend on the specific healthcare delivery subsystem being considered as well as on the decision making and temporal context of the problem at hand. For example, the ongoing task of creating four week schedules for a pool of nurses working in a set of nursing units is quite different than trying to determine if a mix of eight and ten-hour shifts provides a better match of staffing levels to highly variable demand in an emergency department or post-anaesthesia care unit. The former problem is an example of \textit{operational staff scheduling} while the latter is better described as \textit{tactical staff scheduling} \cite{isken:aor2004}.
 
-Wide range of staff scheduling problems whose details depend on the specific healthcare delivery subsystem we are talking about. Examples: recovery room nurses, floor nurses, lab technicians, pharmacists and pharmacy technicians, surgical techs, ED nurses and techs, transporters.
+From a modeling perspective, in an operational staff scheduling model there would be decision variables representing specific employees whereas in a tactical model it would be more common to find decision variables representing the number of employees working different types of schedules.
+
+Commercial staff scheduling software state of art overview. Many systems are essentially shift based ``schedulators''. While schedulators are useful, they avoid the toughest part of the problem. Imagine using Google Maps for finding the shortest driving route between two locations and having to manually input the route so that Google Maps can tell how you the length of your route.
+
+Examples: recovery room nurses, floor nurses, lab technicians, pharmacists and pharmacy technicians, surgical techs, ED nurses and techs, transporters.
 
 Introduce motivation for tactical tour scheduling problems via real projects. Value of being able to produce realistic multi-week schedules to illustrate how new scheduling practices might actually work.
 
@@ -253,7 +257,7 @@ is the set of \textit{allowable shift start times}.
 
 \subsubsection*{Shift and tour type variables}
 
-Instead of explicitly representing tours with one variable per tour, we implicitly represent tours using a number of building block variables whose values are coordinated by numerous control constraints to ensure that valid tours can be constructed from these variables.
+Instead of explicitly representing tours with one variable per tour, they are implicitly represented using a number of building block variables whose values are coordinated by numerous control constraints to ensure that valid tours can be constructed from these variables.
 
 \textit{Shift variables} represent a single shift with a start day and time, shift length, in a specific week and corresponding to a certain tour type.
 
