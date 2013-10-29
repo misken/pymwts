@@ -44,7 +44,7 @@ According to the output database:
 optimal	optimal	3420
 optimal	unknown	69
 
-According Excel pivot table supposedly based on same database:
+According to Excel pivot table supposedly based on same database:
 
 optimal:optimal	3420
 optimal:unknown	69
