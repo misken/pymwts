@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 
 import StringIO
-#from numpy import *
+
 
 def g_period_init(M, i, j, w):
     return ((w-1)*M.n_days_per_week()*M.n_prds_per_day() + 

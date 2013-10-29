@@ -12,7 +12,7 @@ the ability to read a YAML formatted input config file - not implemented yet.
 import sys
 import argparse
 
-import solvemwts
+import pymwts.solvemwts as solve
 
 def process_command_line(argv):
     """
@@ -75,7 +75,7 @@ def main(argv=None):
     print args
     # application code here, like:
     # run(settings, args)
-    solvemwts.solvemwts(args.scenario,args.phase1dat,args.path,
+    solve.solvemwts(args.scenario,args.phase1dat,args.path,
                         args.solver,args.timelimit,args.mipGap,
                         args.windebug)
     return 0        # success

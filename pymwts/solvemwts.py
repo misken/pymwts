@@ -22,6 +22,10 @@ from pyutilib.misc import import_file
 # Need to edit the __init__.py for the package to do the detailed imports
 #from .mwts_phase1 import model_phase1
 #from .mwts_phase2 import model_phase2
+
+import mwts_phase1
+import mwts_phase2
+
 from mwts_utils import *
 from pymwtsio.mwts_process_out_tour import create_mwt
 
@@ -29,6 +33,8 @@ from pymwtsio.mwts_process_out_tour import create_mwt
 
 # scenario - Required 
 # phase 1 dat file - Required
+
+
 # solver Required
 # timelimit Required
 # mipgap Required
@@ -95,7 +101,8 @@ def solvemwts(scenario,phase1_dat_file,path,
         solver.options.mipgap = mipgap
     
     # Import phase 1 model and create phase 1 model instance
-    phase1_mdl = import_file(phase1_mod_file).model_phase1
+    #phase1_mdl = import_file(phase1_mod_file).model_phase1
+    phase1_mdl = mwts_phase1.model_phase1
     # Trying to get all this working as a package of modules so will try to avoid
     # using import_file (since it's really just emulating a module import anyway - pyutilib.misc)
     #phase1_mdl = mwts_phase1.model_phase1
@@ -103,7 +110,10 @@ def solvemwts(scenario,phase1_dat_file,path,
     phase1_inst.name = 'mwts_phase1_inst'
     logger(f_log,'Phase 1 instance created',time.clock())
     
-    # Activate/deactivate constraints
+    
+
+
+# Activate/deactivate constraints
     
     b_weekend_subsets_5_4_con_active = True
     b_weekend_subsets_5_5_con_active = False # Feels redundant, see comments in constraint
@@ -389,8 +399,8 @@ def solvemwts(scenario,phase1_dat_file,path,
         
         # Initialize the phase 2 instance
         
-        phase2_mdl = import_file(phase2_mod_file).model_phase2
-        #phase2_mdl = mwts_phase2.model_phase2
+        #phase2_mdl = import_file(phase2_mod_file).model_phase2
+        phase2_mdl = mwts_phase2.model_phase2
         phase2_inst = phase2_mdl.create(filename = phase2_dat_file)
         phase2_inst.name = 'mwts_phase2_inst'
         logger(f_log,'Phase 2 instance created',time.clock())
@@ -651,8 +661,11 @@ def solvemwts(scenario,phase1_dat_file,path,
         sys.stdout = old_stdout 
     
         create_mwt(tour_file, scenario, path)
-        logger(f_log,'Tour related output files created',time.clock())        
-        
+        logger(f_log,'Tour related output files created',time.clock())
+        now = datetime.datetime.now()
+        vtuple = (scenario,phase1_solution_value,tot_cap,
+              str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))        
+        logger(f_log,'Solution log record',str(vtuple))
     f_log.close()  
 
     # Connect to the problem solution log database.
