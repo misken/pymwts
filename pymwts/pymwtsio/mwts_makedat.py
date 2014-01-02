@@ -89,7 +89,7 @@ def filterpatterns(pattern,ttnum,wkendtype,wkdspec):
           (1) Type 1, work every other weekend
             pattern = [(0,1),(1,0),(0,1),(1,0)], type = 1
 
-          (2) Type 1, work every other weekend
+          (2) Type 2, work every other weekend
             pattern = [(1,1),(0,0),(1,1),(0,0)], type = 2
 
         Output: True --> keep pattern

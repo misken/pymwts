@@ -61,6 +61,7 @@ def solvemwts(scenario,phase1_dat_file,path,
     log_file = path + scenario + '.log'
     f_log = open(log_file,"w")
     logger(f_log,'Scenario ' + scenario,time.clock())
+    logger(f_log,'DAT ' + phase1_dat_file,time.clock())
     
     
     phase1_summary_file = path + scenario + '_phase1_summary.txt'

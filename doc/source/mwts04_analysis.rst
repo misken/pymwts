@@ -164,11 +164,111 @@ found? Is it a phase1 problem or a phase2 problem?
 
 It's only 
 
-* mwts04_d02_t46_a01_ptub_moderate
-* mwts04_d02_t46_a01_ptub_loose
+* mwts04_d02_t46_a01_ptub_moderate      
+  - success after resolving
+* mwts04_d02_t46_a01_ptub_loose         
+  - infeasible after resolving
 * mwts04_d02_t46_a01_noptub_moderate
+  - success after resolving
 * mwts04_d02_t46_a01_noptub_loose
+  - infeasible after resolving
 
+So, both of the _moderate problems solved, but the _loose did not. What exactly
+do these entail?
+
+Loose
+^^^^^
+
+# YAML version of new WKD file, v0.01
+
+wkd_scenario: loose
+description: all possible weekend patterns allowed
+
+wkd_global:
+
+    # Weekend related parameters
+    midnight_thresh: 100
+    
+    # max_days_worked - max # of weekend days worked over horizon
+    max_days_worked: 6
+    
+    # max_wkends_worked - max # of weekends in which >= 1 day worked
+    max_wkends_worked: 3
+    
+    # half_weekends_ok - 1 (True) or 0 (False)
+    half_weekends_ok: 1
+    
+    # max_consec_wkends - max consecutive weeks with >= 1 day worked
+    max_consec_wkends: 2              
+
+
+.. note::
+
+    The "loose" weekend scenario is described above as being all possible
+    weekend patterns. However, max_days_worked=6 doesn't seem consistent with
+    this. What's the relationship between parameters above and how the actual
+    actual patterns are generated? 
+
+    ANSWER: Looks like the mwts_makedat.py program uses the parameters above
+    to create the allowable patterns.
+
+
+
+Moderate
+^^^^^^^^
+
+# YAML version of new WKD file, v0.01
+
+wkd_scenario: moderate
+description: some restrictions on weekends worked
+
+wkd_global:
+
+    # Weekend related parameters
+    midnight_thresh: 100
+    
+    # max_days_worked - max # of weekend days worked over horizon
+    max_days_worked: 4
+    
+    # max_wkends_worked - max # of weekends in which >= 1 day worked
+    max_wkends_worked: 2
+    
+    # half_weekends_ok - 1 (True) or 0 (False)
+    half_weekends_ok: 1
+    
+    # max_consec_wkends - max consecutive weeks with >= 1 day worked
+    max_consec_wkends: 1      
+
+Tight is like moderate except no half-weekends allowed
+
+.. note::
+
+    Are any tight problems unsolved? --> NO. It's only moderate and loose.
+    Does that mean it's something related to half-weekends?
+
+    Review the following phase1 constraint:
+
+    # For case where two weekend days worked and min days worked per week = 2, we do a heuristic
+    # adjustment to the max of DailyTourType each day to avoid infeasibility due to forcing
+    # a two weekend day person to work a third day and perhaps leading to some other tour not
+    # getting >= 2 shifts over the week
+
+    def dailyconservation_wkendadj_index_rule(M):    
+        return [(i,j,w,t) for i in M.WINDOWS 
+                          for j in M.DAYS   
+                          for w in M.WEEKS                    
+                          for t in M.activeTT
+                          if (i,t,j) in M.okDailyTourType and M.tt_min_dys_weeks[t,w].value == 2]
+                             
+
+
+    model_phase1.dailyconservation_wkendadj_index = Set(dimen=4,initialize=dailyconservation_wkendadj_index_rule) 
+
+
+    def DTT_TT_UB_wkendadj_rule(M,i,j,w,t):
+        return M.DailyTourType[i,t,j,w] <= M.TourType[i,t] - sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,M.weekend_type[i,t].value])
+        
+    model_phase1.DTT_TT_UB_wkendadj_con = Constraint(model_phase1.dailyconservation_wkendadj_index,rule=DTT_TT_UB_wkendadj_rule)   
 
 
 Mix 7 debugging

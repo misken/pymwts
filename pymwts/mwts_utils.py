@@ -10,6 +10,7 @@
 #-------------------------------------------------------------------------------
 
 import StringIO
+from coopr.pyomo import *
 
 
 def g_period_init(M, i, j, w):
@@ -21,23 +22,23 @@ def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
         (j-1)*n_prds_per_day + i)
 
 def period_increment(M, i, j, w, incr):
-    p = M.g_period[i,j,w].value
-    if (p + incr <= M.n_prds_per_cycle.value):
+    p = M.g_period[i,j,w]
+    if (p + incr <= M.n_prds_per_cycle):
         return p + incr
     else:
-        return p + incr - M.n_prds_per_cycle.value
+        return p + incr - M.n_prds_per_cycle
 
 def g_period_increment(M, p, incr):
-    if (p + incr <= M.n_prds_per_cycle.value):
+    if (p + incr <= M.n_prds_per_cycle):
         return p + incr
     else:
-        return p + incr - M.n_prds_per_cycle.value 
+        return p + incr - M.n_prds_per_cycle 
     
 def g_period_difference(M, b_prd, e_prd):
     if (e_prd >= b_prd):
         return e_prd - b_prd + 1
     else:
-        return M.n_prds_per_cycle.value + e_prd - b_prd + 1 
+        return M.n_prds_per_cycle + e_prd - b_prd + 1 
     
 def g_prd_to_tuple(M, p):
 #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
@@ -47,13 +48,13 @@ def g_prd_to_tuple(M, p):
 #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
     
     n_week = ((p-1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (n_week-1) * M.n_prds_per_week.value
+    prds_remainder = p - (n_week-1) * M.n_prds_per_week
     if (prds_remainder == 0):
         n_day = 1
     else:
         n_day = ((prds_remainder-1) // M.n_prds_per_day.value) + 1
                  
-    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day.value 
+    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day 
     if (prds_remainder == 0):
         n_period = 1
     else:
@@ -119,9 +120,9 @@ def shift_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,j,w,k,t) in inst.okShifts:
         try:
-            val = int(round(inst.Shift[i,j,w,k,t].value))
+            val = int(round(inst.Shift[i,j,w,k,t]))
         except:
-            val = inst.Shift[i,j,w,k,t].value
+            val = inst.Shift[i,j,w,k,t]
             
         if val > 0:
             poslist = [str(p) for p in (i,j,w,k,t)]
@@ -168,11 +169,11 @@ def tourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
     
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i,t) in inst.TourType_index:
+    for (i,t) in inst.TourType_idx:
         try:
-            val = int(round(inst.TourType[i,t].value))
+            val = int(round(inst.TourType[i,t]))
         except:
-            val = inst.TourType[i,t].value
+            val = inst.TourType[i,t]
             
         if val > 0:
             poslist = [str(p) for p in (i,t)]
@@ -220,11 +221,11 @@ def dailytourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
     
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i,t,j,w) in inst.DailyTourType_index:
+    for (i,t,j,w) in inst.DailyTourType_idx:
         try:
-            val = int(round(inst.DailyTourType[i,t,j,w].value))
+            val = int(round(inst.DailyTourType[i,t,j,w]))
         except:
-            val = inst.DailyTourType[i,t,j,w].value
+            val = inst.DailyTourType[i,t,j,w]
             
         if val > 0:
             poslist = [str(p) for p in (i,t,j,w)]
@@ -272,11 +273,11 @@ def dailyshiftworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
     
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i,t,k,j,w) in inst.DailyShiftWorked_index:
+    for (i,t,k,j,w) in inst.DailyShiftWorked_idx:
         try:
-            val = int(round(inst.DailyShiftWorked[i,t,k,j,w].value))
+            val = int(round(inst.DailyShiftWorked[i,t,k,j,w]))
         except:
-            val = inst.DailyShiftWorked[i,t,k,j,w].value
+            val = inst.DailyShiftWorked[i,t,k,j,w]
             
         if val > 0:
             poslist = [str(p) for p in (i,t,k,j,w)]
@@ -324,11 +325,11 @@ def weekenddaysworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
     
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i,t,d) in inst.ok_weekenddaysworked_index:
+    for (i,t,d) in inst.ok_weekenddaysworked_idx:
         try:
-            val = int(round(inst.WeekendDaysWorked[i,t,d].value))
+            val = int(round(inst.WeekendDaysWorked[i,t,d]))
         except:
-            val = inst.WeekendDaysWorked[i,t,d].value
+            val = inst.WeekendDaysWorked[i,t,d]
             
         if val > 0:
             poslist = [str(p) for p in (i,t,d)]
@@ -360,19 +361,19 @@ def weekenddaysworked_to_tourskeleton(inst,isStringIO=True):
         
     # build the header
     headerlist = ['n','i','t','p']
-    for w in range(1,inst.n_weeks.value+1):
-        for d in range(1,inst.n_days_per_week.value+1):
+    for w in range(1,inst.n_weeks+1):
+        for d in range(1,inst.n_days_per_week+1):
             headerlist.append(str(w)+'_'+str(d))
                         
     param = ','.join(headerlist) + '\n'
     
     
     tnum = 0
-    for (i,t,pattern) in inst.ok_weekenddaysworked_index:
+    for (i,t,pattern) in inst.ok_weekenddaysworked_idx:
         try:
-            val = int(round(inst.WeekendDaysWorked[i,t,pattern].value))
+            val = int(round(inst.WeekendDaysWorked[i,t,pattern]))
         except:
-            val = inst.WeekendDaysWorked[i,t,pattern].value
+            val = inst.WeekendDaysWorked[i,t,pattern]
             
         if val > 0:
             poslist = [str(p) for p in (i,t,pattern)]
@@ -381,11 +382,11 @@ def weekenddaysworked_to_tourskeleton(inst,isStringIO=True):
                 tnum += 1
                         
                 datarow = str(tnum) + ',' + ','.join(poslist) + ','
-                e = inst.weekend_type[i,t].value
+                e = inst.weekend_type[i,t]
                 daylist = []
-                for w in range(1,inst.n_weeks.value+1): 
-                    for d in range(1,inst.n_days_per_week.value+1):
-                        daylist.append(str(inst.A[pattern,d,w,t,e].value))
+                for w in range(1,inst.n_weeks+1): 
+                    for d in range(1,inst.n_days_per_week+1):
+                        daylist.append(str(inst.A[pattern,d,w,t,e]))
                         
                 datarow += ','.join(daylist) + '\n'
                 param += datarow
@@ -409,8 +410,8 @@ def dailytourtype_to_tourskeleton(inst,isStringIO=True):
         
     # build the header
     headerlist = ['n','i','t']
-    for w in range(1,inst.n_weeks.value+1):
-        for d in range(1,inst.n_days_per_week.value+1):
+    for w in range(1,inst.n_weeks+1):
+        for d in range(1,inst.n_days_per_week+1):
             headerlist.append(str(w)+'_'+str(d))
                         
     param = ','.join(headerlist) + '\n'
@@ -418,14 +419,14 @@ def dailytourtype_to_tourskeleton(inst,isStringIO=True):
     
     tnum = 0
     for (i,t) in inst.okTourType:
-        if inst.TourType[i,t].value > 0:
+        if inst.TourType[i,t] > 0:
             poslist = [str(p) for p in (i,t)]
             tnum += 1
             datarow = str(tnum) + ',' + ','.join(poslist) + ','
             daylist = []
-            for w in range(1,inst.n_weeks.value+1): 
-                for d in range(1,inst.n_days_per_week.value+1):                
-                    daylist.append(str(inst.DailyTourType[i,t,d,w].value))
+            for w in range(1,inst.n_weeks+1): 
+                for d in range(1,inst.n_days_per_week+1):                
+                    daylist.append(str(inst.DailyTourType[i,t,d,w]))
                                     
             datarow += ','.join(daylist) + '\n'
             param += datarow
@@ -463,22 +464,22 @@ def tour_WIN_TT_to_param(inst,isStringIO=True):
 
     """
     
-    n_tours = int(round((sum(inst.TourType[i,t].value for (i,t) in inst.okTourType))))
+    n_tours = int(round((sum(inst.TourType[i,t] for (i,t) in inst.okTourType))))
     tour_num = 0
     
     WIN_x = [0 for i in range(n_tours+1)]
     TT_x = [0 for i in range(n_tours+1)]
     for (i,t) in inst.okTourType:
         try:
-            val = int(round(inst.TourType[i,t].value))
+            val = int(round(inst.TourType[i,t]))
         except:
-            val = inst.TourType[i,t].value
+            val = inst.TourType[i,t]
             
         if val > 0:
             tnum_lower = tour_num + 1
             tnum_upper = tour_num + val
            # print tnum_lower, tnum_upper
-           # touridxs = range(tour_num+1,tour_num+int(M.TourType[i,t].value))
+           # touridxs = range(tour_num+1,tour_num+int(M.TourType[i,t]))
             tour_num = tnum_upper
         
             for idx in range(tnum_lower, tnum_upper+1):
@@ -542,14 +543,14 @@ def write_phase1_shiftsummary(inst,isStringIO=True):
         for i in inst.PERIODS:
             if (i,t) in inst.okTourType:
                 for k in inst.tt_length_x[t]:
-                    datarow = '{},{},{},{}'.format(t,i,k,inst.TourType[i,t].value)
+                    datarow = '{},{},{},{}'.format(t,i,k,inst.TourType[i,t])
                     for w in inst.WEEKS:
                         for j in inst.DAYS:
-                            if (i,t,k,j,w) in inst.DailyShiftWorked_index:
-                                datarow += ',{}'.format(inst.DailyShiftWorked[i,t,k,j,w].value)
+                            if (i,t,k,j,w) in inst.DailyShiftWorked_idx:
+                                datarow += ',{}'.format(inst.DailyShiftWorked[i,t,k,j,w])
                             else:
                                 datarow += ',{}'.format(0)
-                    if inst.TourType[i,t].value > 0:
+                    if inst.TourType[i,t] > 0:
                         datarow += '\n'
                         param += datarow
 
