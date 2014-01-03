@@ -419,7 +419,7 @@ def dailytourtype_to_tourskeleton(inst,isStringIO=True):
     
     tnum = 0
     for (i,t) in inst.okTourType:
-        if inst.TourType[i,t] > 0:
+        if inst.TourType[i,t].value > 0:
             poslist = [str(p) for p in (i,t)]
             tnum += 1
             datarow = str(tnum) + ',' + ','.join(poslist) + ','
@@ -467,8 +467,8 @@ def tour_WIN_TT_to_param(inst,isStringIO=True):
     n_tours = int(round((sum(inst.TourType[i,t] for (i,t) in inst.okTourType))))
     tour_num = 0
     
-    WIN_x = [0 for i in range(n_tours+1)]
-    TT_x = [0 for i in range(n_tours+1)]
+    WIN_x = [0 for j in range(n_tours+1)]
+    TT_x = [0 for j in range(n_tours+1)]
     for (i,t) in inst.okTourType:
         try:
             val = int(round(inst.TourType[i,t]))
@@ -550,7 +550,7 @@ def write_phase1_shiftsummary(inst,isStringIO=True):
                                 datarow += ',{}'.format(inst.DailyShiftWorked[i,t,k,j,w])
                             else:
                                 datarow += ',{}'.format(0)
-                    if inst.TourType[i,t] > 0:
+                    if inst.TourType[i,t].value > 0:
                         datarow += '\n'
                         param += datarow
 

@@ -652,11 +652,11 @@ def solvemwts(scenario,phase1_dat_file,path,
         for index in indexsorted:
             if phase2_inst.TourShifts[index].value > 0:
         #        print index, index[0], phase2_inst.TourShifts[index], phase2_inst.TourShifts[index].value
-                print index[0],index[5],index[3],index[1],index[2],phase2_inst.lengths[index[4]].value,phase2_inst.WIN_x[index[0]].value
+                print index[0],index[5],index[3],index[1],index[2],phase2_inst.lengths[index[4]],phase2_inst.WIN_x[index[0]]
         
         print 'TTS'
         for s in phase2_inst.TOURS:
-            print phase2_inst.TT_x[s].value
+            print phase2_inst.TT_x[s]
                 
         f2_tour.close()
         sys.stdout = old_stdout 

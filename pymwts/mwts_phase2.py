@@ -551,10 +551,11 @@ model_phase2.okStartWindowRoots = Set(model_phase2.okStartWindowRoots_idx,dimen=
 ##
 def bchain_init(M,t,k):
     window_list =[]
-    for (i,j,w) in M.okStartWindowRoots[t,k]:
-        for (p,q,r) in (M.okStartWindowRoots[t,k] - Set(initialize=[(i,j,w)])):
-            if (i,j,w) not in M.PotentialStartWindow[p,q,r,k,t]:
-                window_list.append((i,j,w))
+    if M.g_start_window_width>0:
+        for (i,j,w) in M.okStartWindowRoots[t,k]:
+            for (p,q,r) in (M.okStartWindowRoots[t,k] - Set(initialize=[(i,j,w)])):
+                if (i,j,w) not in M.PotentialStartWindow[p,q,r,k,t]:
+                    window_list.append((i,j,w))
          
     return window_list
 #    
@@ -933,14 +934,18 @@ def Tour_WkendDof_conservation_idx_rule(M):
         for t in M.activeTT: 
             for pattern in sequence(M.max_weekend_patterns):
                 if (i,t) in M.okTourType and pattern <= M.num_weekend_patterns[M.weekend_type[i,t],t]:
-                    index_list.append((pattern,i,t))
+                    for s in M.TOURS:
+                        if i == M.WIN_x[s] and t == M.TT_x[s]:
+                            index_list.append((pattern,i,t))
+                            break
     return index_list   
     
 model_phase2.Tour_WkendDof_conservation_idx = Set(dimen=3,initialize=Tour_WkendDof_conservation_idx_rule)
 
 def Tour_WkendDof_conservation_rule(M,pattern,i,t):
-    return sum(M.TourWkendDof[s,pattern,i,t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) == \
-        M.WeekendDaysWorked[i,t,pattern]
+    return (sum(M.TourWkendDof[s,pattern,i,t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) == M.WeekendDaysWorked[i,t,pattern])
+    
+    
                               
 model_phase2.Tour_WkendDof_conservation = Constraint(model_phase2.Tour_WkendDof_conservation_idx,rule=Tour_WkendDof_conservation_rule)
 
@@ -1053,7 +1058,10 @@ def Tours_Daily_conservation_idx_rule(M):
                 for t in M.activeTT:
                     for k in M.tt_length_x[t]:
                         if (p,d,w) in M.okStartWindowRoots[t,k]:
-                            index_list.append((p,d,w,k,t))
+                            for s in M.TOURS:
+                                if (p == M.WIN_x[s] and t == M.TT_x[s]):
+                                    index_list.append((p,d,w,k,t))
+                                    break
     return index_list
 
 model_phase2.Tours_Daily_conservation_idx = Set(dimen=5,initialize=Tours_Daily_conservation_idx_rule)
