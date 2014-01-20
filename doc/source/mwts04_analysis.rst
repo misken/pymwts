@@ -241,6 +241,18 @@ wkd_global:
 
 Tight is like moderate except no half-weekends allowed
 
+Mix 7 debugging
+---------------
+
+Mix 7: 1/2 time 8hr shifts (either a 2-3 or a 3-2)
+
+
+Mix 8 debugging
+---------------
+
+Mix 8: 3334 12-hr FT
+
+
 .. note::
 
     Are any tight problems unsolved? --> NO. It's only moderate and loose.
@@ -248,41 +260,51 @@ Tight is like moderate except no half-weekends allowed
 
     Review the following phase1 constraint:
 
-    # For case where two weekend days worked and min days worked per week = 2, we do a heuristic
-    # adjustment to the max of DailyTourType each day to avoid infeasibility due to forcing
-    # a two weekend day person to work a third day and perhaps leading to some other tour not
-    # getting >= 2 shifts over the week
+    ::
 
-    def dailyconservation_wkendadj_index_rule(M):    
-        return [(i,j,w,t) for i in M.WINDOWS 
-                          for j in M.DAYS   
-                          for w in M.WEEKS                    
-                          for t in M.activeTT
-                          if (i,t,j) in M.okDailyTourType and M.tt_min_dys_weeks[t,w].value == 2]
-                             
+        # For case where two weekend days worked and min days worked per week = 2, we do a heuristic
+        # adjustment to the max of DailyTourType each day to avoid infeasibility due to forcing
+        # a two weekend day person to work a third day and perhaps leading to some other tour not
+        # getting >= 2 shifts over the week
 
-
-    model_phase1.dailyconservation_wkendadj_index = Set(dimen=4,initialize=dailyconservation_wkendadj_index_rule) 
-
-
-    def DTT_TT_UB_wkendadj_rule(M,i,j,w,t):
-        return M.DailyTourType[i,t,j,w] <= M.TourType[i,t] - sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,M.weekend_type[i,t].value])
-        
-    model_phase1.DTT_TT_UB_wkendadj_con = Constraint(model_phase1.dailyconservation_wkendadj_index,rule=DTT_TT_UB_wkendadj_rule)   
+        def dailyconservation_wkendadj_index_rule(M):    
+            return [(i,j,w,t) for i in M.WINDOWS 
+                              for j in M.DAYS   
+                              for w in M.WEEKS                    
+                              for t in M.activeTT
+                              if (i,t,j) in M.okDailyTourType and M.tt_min_dys_weeks[t,w].value == 2]
+                                 
 
 
-Mix 7 debugging
----------------
-
-Mix 7: 1/2 time 8hr shifts (either a 2-3 or a 3-2)
+        model_phase1.dailyconservation_wkendadj_index = Set(dimen=4,initialize=dailyconservation_wkendadj_index_rule) 
 
 
+        def DTT_TT_UB_wkendadj_rule(M,i,j,w,t):
+            return M.DailyTourType[i,t,j,w] <= M.TourType[i,t] - sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,M.weekend_type[i,t].value])
+            
+        model_phase1.DTT_TT_UB_wkendadj_con = Constraint(model_phase1.dailyconservation_wkendadj_index,rule=DTT_TT_UB_wkendadj_rule)   
+
+Is the above constraint also needed for 1/2 weekends (i.e. just one day worked)?
+
+Weekend adjustement DTT_TT_UB_wkendadj_rule(M,i,j,w,t) exploration
+==================================================================
+
+Test 1 - Generalize to 1/2 weekends or Add 1/2 weekend version
 
 
-Mix 8 debugging
----------------
+Modification of weekend_subsets_5_4_idx_rule
+============================================
 
-Mix 8: 3334 12-hr FT
+This was set to only include tt's with min days worked per
+week of 5. I think it should be max days of 5. Otherwise,
+a part timer who could work 2-5 days would not have this
+constraint enforced.
+
+
+
+
+
+
 
 
 

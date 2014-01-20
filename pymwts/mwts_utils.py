@@ -11,7 +11,7 @@
 
 import StringIO
 from coopr.pyomo import *
-
+from numpy import *
 
 def g_period_init(M, i, j, w):
     return ((w-1)*M.n_days_per_week()*M.n_prds_per_day() + 
@@ -89,7 +89,48 @@ def scalar_to_param(pname,pvalue,isStringIO=True):
     else:
         return param
     
+def list_to_param(pname,plist,reverseidx=False,isStringIO=True):
+    """
+    Convert a list to a GMPL representation of a parameter.
+    Inputs:
+        pname - string name of paramter in GMPL file
+        plist - list containing parameter (could be N-Dimen list)
+        reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
+        isStringIO - True to return StringIO object, False to return string
 
+    Output:
+        GMPL dat code for list parameter either as a StringIO
+        object or a string.
+
+        Example:
+            param midnight_thresh:=
+             1 100
+             2 100
+             3 100
+            ; 
+
+    """
+    # Convert parameter as list to an ndarray
+    parray = array(plist)
+
+    # Denumerate the array to get at the index tuple and array value
+    paramrows = ndenumerate(parray)
+    param = 'param ' + pname + ':=\n'
+    for pos, val in paramrows:
+        poslist = [str(p + 1) for p in pos]
+        if reverseidx:
+            poslist.reverse()
+        datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
+        param += datarow
+
+    param += ";\n"
+    if isStringIO:
+        paramout = StringIO.StringIO()
+        paramout.write(param)
+        return paramout.getvalue()
+    else:
+        return param
+        
 def shift_to_param(pname,inst,reverseidx=False,isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.

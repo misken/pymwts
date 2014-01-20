@@ -496,6 +496,7 @@ def solvemwts(scenario,phase1_dat_file,path,
                 f2_inst.close()
         
         # Write out phase 2 problem size summary info
+        old_stdout = sys.stdout
         try:
             f2_sum = open(phase2_summary_file,'w')
             sys.stdout = f2_sum

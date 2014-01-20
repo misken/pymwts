@@ -44,7 +44,7 @@ def process_command_line(argv):
                         default='./',
         help='Relative path to output file directory. Terminate with /')
     
-    parser.add_argument('-s', '--solver', choices=['cbc','glpk'], 
+    parser.add_argument('-s', '--solver', choices=['cbc','glpk','gurobi'], 
                         default='cbc',
                         help='cbc or glpk for now')    
                         

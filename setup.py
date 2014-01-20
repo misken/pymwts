@@ -11,7 +11,7 @@ setup(name='pymwts',
       packages=['pymwts', 'pymwts.pymwtsio'],
       entry_points = {
         'console_scripts': [
-            'mwts = pymwts.mwts:main']}
+            'mwts = pymwts.mwts:main', 'mwts_phase2 = pymwts.solvemwts_phase2:main']}
       
      )
 
