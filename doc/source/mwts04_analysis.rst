@@ -176,6 +176,9 @@ It's only
 So, both of the _moderate problems solved, but the _loose did not. What exactly
 do these entail?
 
+Doesn't make sense for ttype6 to be infeasible since no multi-week issue. Could be
+ttype4 which the FT 12's 3-3-1.
+
 Loose
 ^^^^^
 

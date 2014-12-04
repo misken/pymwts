@@ -123,6 +123,10 @@ def solvemwts(scenario,phase1_dat_file,path,
     b_weekend_subsets_5_5sat_con_active = False
     b_weekend_subsets_5_4sun_con_active = False
     b_weekend_subsets_5_4sat_con_active = False
+    
+    b_DTT_TT_fullwkendadj_UB_active = True
+    
+    b_ad_hoc_weekend_subsets_ttype7_active = True
    
     if not b_weekend_subsets_5_4_con_active:
         phase1_inst.weekend_subsets_5_4_con.deactivate()
@@ -144,7 +148,12 @@ def solvemwts(scenario,phase1_dat_file,path,
         
     if not b_weekend_subsets_5_4sat_con_active:
         phase1_inst.weekend_subsets_5_4sat_con.deactivate()
-    
+
+    if not b_DTT_TT_fullwkendadj_UB_active:
+        phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()   
+        
+    if not b_ad_hoc_weekend_subsets_ttype7_active:
+        phase1_inst.ad_hoc_weekend_subsets_ttype7.deactivate()  
     
     # Optionally write out out phase 1 instance    
     if bWritePhase1Instance:

@@ -1828,48 +1828,7 @@ def weekend_subsets_5_4_rule(M,i,t,w,e,d1,d2,d3,d4):
     
 model_phase1.weekend_subsets_5_4_con = Constraint(model_phase1.weekend_subsets_5_4_idx,rule=weekend_subsets_5_4_rule)    
     
-def ad_hoc_weekend_subsets_ttype7_idx_rule(M):
-    index_list = []
-    
-    x=itertools.combinations(range(2,7),2)
-    y=itertools.combinations(range(9,14),2)
-    z = itertools.product(x,y)
-    daypairs = [list(p) for p in z]
-    
-    for (i,t) in M.okTourType:
-      if t==7:
-        for w in [1,3]:
-            for e in M.WEEKENDS:
-                #if M.tt_max_dys_weeks[t,w] ==  5:
-                for d in daypairs:
-                    d1 = d[0][0]
-                    d2 = d[0][1]
-                    d3 = d[1][0]-7
-                    d4 = d[1][1]-7
-                    index_list.append((i,t,w,e,d1,d2,d3,d4))
-                    
-        
-    return index_list
-        
-model_phase1.ad_hoc_weekend_subsets_ttype7_idx = Set(dimen=8,initialize=ad_hoc_weekend_subsets_ttype7_idx_rule)    
-    
-def ad_hoc_weekend_subsets_ttype7_rule(M,i,t,w,e,w1d1,w1d2,w2d1,w2d2):
-    
-    ## ttype 7 is a half-time 8 (3-2 or 2-3)
-    # Trying to avoid a forced 3-3 pattern due to weekend pattern
-    # .
-    
-    wk1_days = [w1d1,w1d2]
-    wk2_days = [w2d1,w2d2]
-    
-    subset_len = len(wk1_days) + len(wk2_days)
-    
-    return sum(M.DailyTourType[i,t,d,w] for d in wk1_days) + sum(M.DailyTourType[i,t,d,w+1] for d in wk2_days) <= \
-      subset_len*sum(M.WeekendDaysWorked[i,t,p] for p in M.zero_wkend_day[w,t,e]) \
-      + (subset_len-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.one_wkend_day[w,t,e]) \
-      + (subset_len-2)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
-    
-model_phase1.ad_hoc_weekend_subsets_ttype7_con = Constraint(model_phase1.ad_hoc_weekend_subsets_ttype7_idx,rule=ad_hoc_weekend_subsets_ttype7_rule)
+
 # weekend_subsets_5_5 - put UB on number of M-F shifts based on number of weekend patterns used with 0, 1, 2 weekend days worked.
 # On second thought, this seems totally redundant in that the total number of shifts per week bounds in conjunction with the 
 # integration of weekends off variables and daily tour type variables should totally determine the number of M-F shifts.
@@ -2238,6 +2197,111 @@ def weekend_subsets_2_1_rule(M,i,t,w,e,d1):
                                                           + (len(days)-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
     
 model_phase1.weekend_subsets_2_1_con = Constraint(model_phase1.weekend_subsets_2_1_idx,rule=weekend_subsets_2_1_rule)
+
+def ad_hoc_weekend_subsets_ttype7_idx_rule(M):
+    index_list = []
+    
+    x=itertools.combinations(range(2,7),2)
+    y=itertools.combinations(range(9,14),2)
+    z = itertools.product(x,y)
+    daypairs = [list(p) for p in z]
+    
+    for (i,t) in M.okTourType:
+      if t==6 or t==7:
+        for w in [1,3]:
+            for e in M.WEEKENDS:
+                #if M.tt_max_dys_weeks[t,w] ==  5:
+                for d in daypairs:
+                    d1 = d[0][0]
+                    d2 = d[0][1]
+                    d3 = d[1][0]-7
+                    d4 = d[1][1]-7
+                    index_list.append((i,t,w,e,d1,d2,d3,d4))
+                    
+        
+    return index_list
+        
+model_phase1.ad_hoc_weekend_subsets_ttype7_idx = Set(dimen=8,initialize=ad_hoc_weekend_subsets_ttype7_idx_rule)    
+    
+def ad_hoc_weekend_subsets_ttype7_rule(M,i,t,w,e,w1d1,w1d2,w2d1,w2d2):
+    
+    ## ttype 7 is a half-time 8 (3-2 or 2-3)
+    # Trying to avoid a forced 3-3 pattern due to weekend pattern
+    # .
+    
+    wk1_days = [w1d1,w1d2]
+    wk2_days = [w2d1,w2d2]
+    
+    subset_len = len(wk1_days) + len(wk2_days)
+    
+    return sum(M.DailyTourType[i,t,d,w] for d in wk1_days) + sum(M.DailyTourType[i,t,d,w+1] for d in wk2_days) <= \
+      subset_len*sum(M.WeekendDaysWorked[i,t,p] for p in M.zero_wkend_day[w,t,e]) \
+      + (subset_len-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.one_wkend_day[w,t,e]) \
+      + (subset_len-2)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
+    
+model_phase1.ad_hoc_weekend_subsets_ttype7_con = Constraint(model_phase1.ad_hoc_weekend_subsets_ttype7_idx,rule=ad_hoc_weekend_subsets_ttype7_rule)
+
+######################
+
+def ad_hoc_weekend_subsets_ttype8_idx_rule(M):
+    index_list = []
+    
+    w1=itertools.combinations(range(2,7),3)
+    w2=itertools.combinations(range(9,14),3)
+    w3=itertools.combinations(range(16,21),3)
+    w4=itertools.combinations(range(23,28),3)
+    z = itertools.product(w1,w2,w3,w4)
+    daytrips = [list(p) for p in z]
+    
+    for (i,t) in M.okTourType:
+      if t==8:
+        for w in [1]:
+            for e in M.WEEKENDS:
+                #if M.tt_max_dys_weeks[t,w] ==  5:
+                for d in daytrips:
+                    d1 = d[0][0]
+                    d2 = d[0][1]
+                    d3 = d[0][2]
+                    d4 = d[1][0]-7
+                    d5 = d[1][1]-7
+                    d6 = d[1][2]-7
+                    d7 = d[2][0]-14
+                    d8 = d[2][1]-14
+                    d9 = d[2][2]-14
+                    d10 = d[3][0]-21
+                    d11 = d[3][1]-21
+                    d12 = d[3][2]-21
+                    index_list.append((i,t,w,e,d1,d2,d3,
+                                               d4,d5,d6,
+                                               d7,d8,d9,
+                                               d10,d11,d12))
+                    
+        
+    return index_list
+        
+model_phase1.ad_hoc_weekend_subsets_ttype8_idx = Set(dimen=16,initialize=ad_hoc_weekend_subsets_ttype8_idx_rule)    
+    
+def ad_hoc_weekend_subsets_ttype8_rule(M,i,t,w,e,w1d1,w1d2,w1d3,w2d1,w2d2,w2d3,w3d1,w3d2,w3d3,w4d1,w4d2,w4d3):
+    
+    ## ttype 7 is a half-time 8 (3-2 or 2-3)
+    # Trying to avoid a forced 3-3 pattern due to weekend pattern
+    # .
+    
+    wk1_days = [w1d1,w1d2,w1d3]
+    wk2_days = [w2d1,w2d2,w2d3]
+    wk3_days = [w3d1,w3d2,w3d3]
+    wk4_days = [w4d1,w4d2,w4d3]
+    
+    subset_len = len(wk1_days) + len(wk2_days) + len(wk3_days) + len(wk4_days)
+    
+    return sum(M.DailyTourType[i,t,d,w] for d in wk1_days) + sum(M.DailyTourType[i,t,d,w+1] for d in wk2_days) \
+            + sum(M.DailyTourType[i,t,d,w+2] for d in wk3_days) + sum(M.DailyTourType[i,t,d,w+3] for d in wk4_days) <= \
+      subset_len*sum(M.WeekendDaysWorked[i,t,p] for p in M.zero_wkend_day[w,t,e]) \
+      + (subset_len-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.one_wkend_day[w,t,e]) \
+      + (subset_len-2)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
+    
+model_phase1.ad_hoc_weekend_subsets_ttype8_con = Constraint(model_phase1.ad_hoc_weekend_subsets_ttype8_idx,rule=ad_hoc_weekend_subsets_ttype8_rule)
+
 
 
 
