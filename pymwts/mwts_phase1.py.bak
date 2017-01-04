@@ -11,10 +11,11 @@
 #!/usr/bin/env python
 
 
-from pyomo.environ import *
 
+from coopr.pyomo import *
 #from pyutilib.misc import import_file
-#from pymwts.mwts_utils import *
+
+from mwts_utils import *
 
 import itertools
 
@@ -55,64 +56,8 @@ def n_prds_per_cycle_init(M):
 
 model_phase1.n_prds_per_cycle = Param(within=PositiveIntegers, initialize=n_prds_per_cycle_init)
 
-
-def g_period_init(M, i, j, w):
-    return ((w - 1) * M.n_days_per_week() * M.n_prds_per_day() +
-            (j - 1) * M.n_prds_per_day() + i)
-
-
-def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
-    return ((w - 1) * n_days_per_week * n_prds_per_day +
-            (j - 1) * n_prds_per_day + i)
-
-
-def period_increment(M, i, j, w, incr):
-    p = M.g_period[i, j, w]
-    if (p + incr <= M.n_prds_per_cycle):
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_increment(M, p, incr):
-    if (p + incr <= M.n_prds_per_cycle):
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_difference(M, b_prd, e_prd):
-    if (e_prd >= b_prd):
-        return e_prd - b_prd + 1
-    else:
-        return M.n_prds_per_cycle + e_prd - b_prd + 1
-
-
-def g_prd_to_tuple(M, p):
-    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
-    #
-    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
-
-    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
-    if (prds_remainder == 0):
-        n_day = 1
-    else:
-        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-
-    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
-    if (prds_remainder == 0):
-        n_period = 1
-    else:
-        n_period = prds_remainder
-
-    return (n_period, n_day, n_week)
-
 # For range sets, if start omitted, assumed range is 1..args[0]
 model_phase1.PERIODS = RangeSet(1,model_phase1.n_prds_per_day)  # P
-model_phase1.CYCLEPERIODS = RangeSet(1,model_phase1.n_prds_per_cycle)  # P
 model_phase1.WINDOWS = RangeSet(1,model_phase1.n_prds_per_day)  
 model_phase1.DAYS = RangeSet(1,model_phase1.n_days_per_week)    # D
 model_phase1.WEEKS = RangeSet(1,model_phase1.n_weeks)           # W
@@ -146,9 +91,6 @@ model_phase1.n_tts = Param(within=PositiveIntegers)  # Number of different tour 
 model_phase1.TTYPES = RangeSet(1,model_phase1.n_tts)
 model_phase1.tt_length_x = Set(model_phase1.TTYPES,ordered=True,)  # Set of allowable length indices by tour type
 
-### Bounds on tour type variables
-model_phase1.tt_lb =  Param(model_phase1.TTYPES)       # RHS from .MIX
-model_phase1.tt_ub =  Param(model_phase1.TTYPES,  default=infinity)
 
 #-- Weekend patterns
 
@@ -182,12 +124,6 @@ def A_wkend_days_idx_rule(M):
 
 model_phase1.A_wkend_days_idx = Set(dimen=4,ordered=True,initialize=A_wkend_days_idx_rule)
 
-
-def activeTT_init(M):
-    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
-
-
-model_phase1.activeTT = Set(dimen=1, ordered=True, initialize=activeTT_init)
 
 def A_num_wkend_days_init(M,i,w,t,e):
     """
@@ -289,6 +225,8 @@ def A_is_Saturday_init(M,i,w,t,e):
 model_phase1.A_is_Saturday = Param(model_phase1.A_wkend_days_idx,initialize=A_is_Saturday_init)
 
 
+
+
 # Weekends consisting of a Fri and Sat imply updated lower bounds on some of the daily tour type variables. 
 # These were the key to modeling weekends worked patterns.
 
@@ -343,8 +281,14 @@ model_phase1.tt_shiftlen_min_cumul_prds_weeks = Param(model_phase1.TTYPES, model
 model_phase1.tt_shiftlen_max_cumul_prds_weeks = Param(model_phase1.TTYPES, model_phase1.LENGTHS, model_phase1.WEEKS, default=1e+6)        
 
 
+### Bounds on tour type variables
+model_phase1.tt_lb =  Param(model_phase1.TTYPES)       # RHS from .MIX
+model_phase1.tt_ub =  Param(model_phase1.TTYPES,  default=infinity)
 
-
+def activeTT_init(M):
+    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
+    
+model_phase1.activeTT = Set(dimen=1,ordered=True,initialize=activeTT_init)
 
 ### To the above, we'll add params and sets to allow direct modeling of side constraints
 ### of the form sum{subset of tour types} =, >=, <= some bound
@@ -860,7 +804,7 @@ def link_idx_rule(M):
                           for i in M.PERIODS
                           for j in M.DAYS
                           for w in M.WEEKS
-                          for m in M.CYCLEPERIODS
+                          for m in range(1,M.n_prds_per_cycle)
                           if (t,k) in M.okStartWindowRoots_idx and (i,j,w) in M.bchain[t,k]
                               and m <= M.n_links[t,k,i,j,w]]
                           
@@ -1672,17 +1616,10 @@ def max_ptfrac_rule(M):
     
 model_phase1.max_ptfrac_con = Constraint(rule=max_ptfrac_rule)
 
-# Following throws exception:
-# RuntimeError: Cannot iterate over abstract Set 'activeTT' before it has been constructed (initialized).
+tot_parttime_ttypes = sum(model_phase1.tt_parttime[t] for t in model_phase1.activeTT)
 
-# Supposedly should have been fixed according to:
-
-# https://groups.google.com/forum/?hl=en#!topic/pyomo-forum/RjhnL_csZB4
-
-# tot_parttime_ttypes = sum(model_phase1.tt_parttime[t] for t in model_phase1.activeTT)
-#
-# if tot_parttime_ttypes == len(model_phase1.activeTT):
-#              model_phase1.max_ptfrac_con.deactivate()
+if tot_parttime_ttypes == len(model_phase1.activeTT):
+            model_phase1.max_ptfrac_con.deactivate()
 
 
     
@@ -2264,8 +2201,8 @@ model_phase1.weekend_subsets_2_1_con = Constraint(model_phase1.weekend_subsets_2
 def ad_hoc_weekend_subsets_ttype7_idx_rule(M):
     index_list = []
     
-    x=itertools.combinations(list(range(2,7)),2)
-    y=itertools.combinations(list(range(9,14)),2)
+    x=itertools.combinations(range(2,7),2)
+    y=itertools.combinations(range(9,14),2)
     z = itertools.product(x,y)
     daypairs = [list(p) for p in z]
     
@@ -2309,10 +2246,10 @@ model_phase1.ad_hoc_weekend_subsets_ttype7_con = Constraint(model_phase1.ad_hoc_
 def ad_hoc_weekend_subsets_ttype8_idx_rule(M):
     index_list = []
     
-    w1=itertools.combinations(list(range(2,7)),3)
-    w2=itertools.combinations(list(range(9,14)),3)
-    w3=itertools.combinations(list(range(16,21)),3)
-    w4=itertools.combinations(list(range(23,28)),3)
+    w1=itertools.combinations(range(2,7),3)
+    w2=itertools.combinations(range(9,14),3)
+    w3=itertools.combinations(range(16,21),3)
+    w4=itertools.combinations(range(23,28),3)
     z = itertools.product(w1,w2,w3,w4)
     daytrips = [list(p) for p in z]
     

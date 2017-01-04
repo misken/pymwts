@@ -72,7 +72,7 @@ def process_command_line(argv):
 
 def main(argv=None):
     args = process_command_line(argv)
-    print(args)
+    print args
     # application code here, like:
     # run(settings, args)
     solve.solvemwts(args.scenario,args.phase1dat,args.path,

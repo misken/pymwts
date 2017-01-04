@@ -12,10 +12,10 @@
 
 import sys
 
-from pyomo.environ import *
-#from pyutilib.misc import import_file
+from coopr.pyomo import *
+from pyutilib.misc import import_file
 
-#from .mwts_utils import *
+from mwts_utils import *
 
 
 #model_phase2 = import_file('mwts_baseparams.py').model
@@ -42,61 +42,6 @@ def n_prds_per_cycle_init(M):
     return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
 
 model_phase2.n_prds_per_cycle = Param(within=PositiveIntegers, initialize=n_prds_per_cycle_init)
-
-
-def g_period_init(M, i, j, w):
-    return ((w - 1) * M.n_days_per_week() * M.n_prds_per_day() +
-            (j - 1) * M.n_prds_per_day() + i)
-
-
-def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
-    return ((w - 1) * n_days_per_week * n_prds_per_day +
-            (j - 1) * n_prds_per_day + i)
-
-
-def period_increment(M, i, j, w, incr):
-    p = M.g_period[i, j, w]
-    if (p + incr <= M.n_prds_per_cycle):
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_increment(M, p, incr):
-    if (p + incr <= M.n_prds_per_cycle):
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_difference(M, b_prd, e_prd):
-    if (e_prd >= b_prd):
-        return e_prd - b_prd + 1
-    else:
-        return M.n_prds_per_cycle + e_prd - b_prd + 1
-
-
-def g_prd_to_tuple(M, p):
-    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
-    #
-    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
-
-    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
-    if (prds_remainder == 0):
-        n_day = 1
-    else:
-        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-
-    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
-    if (prds_remainder == 0):
-        n_period = 1
-    else:
-        n_period = prds_remainder
-
-    return (n_period, n_day, n_week)
 
 # For range sets, if start omitted, assumed range is 1..args[0]
 model_phase2.PERIODS = RangeSet(1,model_phase2.n_prds_per_day)
@@ -1014,7 +959,7 @@ def action_check_WeekendDaysWorked_DailyTourType_rule(M,j,w,i,t):
 
     msg = '({},{},{},{}) w={} d={} --> {}'.format(i,j,w,t,val_w,val_d,check)
     if check == 'BAD':
-        print(msg)
+        print msg
     
 model_phase2.action_check_WeekendDaysWorked_DailyTourType = \
     BuildAction(model_phase2.weekend_integration_1_SS_idx,rule=action_check_WeekendDaysWorked_DailyTourType_rule)

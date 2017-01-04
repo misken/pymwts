@@ -136,7 +136,7 @@ def create_mwt(filenameInput,stubOutput,output_path):
 
 
     for t in range(1,num_tours+1):
-        print mwtours[t-1]
+        print (mwtours[t-1])
         #outFiles['MWT'].write(mwtours[t])
         outFiles['MWT'].write(str(tourtypes[t-1]))
         json.dump(mwtours[t-1],outFiles['MWT'])
@@ -151,8 +151,10 @@ def create_mwt(filenameInput,stubOutput,output_path):
 
 
 def main():
-    extract_outfiles(sys.argv[1],sys.argv[2])
+    #extract_outfiles(sys.argv[1],sys.argv[2])
+    pass
 
 if __name__ == '__main__':
-    extract_outfiles(sys.argv[1],sys.argv[2])
+    #extract_outfiles(sys.argv[1],sys.argv[2])
+    pass
 
