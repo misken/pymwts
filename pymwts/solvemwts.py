@@ -121,10 +121,18 @@ def solvemwts(scenario,phase1_dat_file,path,
     b_weekend_subsets_5_5sat_con_active = False
     b_weekend_subsets_5_4sun_con_active = False
     b_weekend_subsets_5_4sat_con_active = False
+
+    b_weekend_subsets_4_3_con_active = True
+    b_weekend_subsets_4_4_con_active = False
+
+    b_weekend_subsets_3_2_con_active = True
+
+    b_weekend_subsets_2_1_con_active = True
     
     b_DTT_TT_fullwkendadj_UB_active = True
     
     b_ad_hoc_weekend_subsets_ttype7_active = True
+
    
     if not b_weekend_subsets_5_4_con_active:
         phase1_inst.weekend_subsets_5_4_con.deactivate()
@@ -146,6 +154,18 @@ def solvemwts(scenario,phase1_dat_file,path,
         
     if not b_weekend_subsets_5_4sat_con_active:
         phase1_inst.weekend_subsets_5_4sat_con.deactivate()
+
+    if not b_weekend_subsets_4_3_con_active:
+        phase1_inst.weekend_subsets_4_3_con.deactivate()
+
+    if not b_weekend_subsets_4_4_con_active:
+        phase1_inst.weekend_subsets_4_4_con.deactivate()
+
+    if not b_weekend_subsets_3_2_con_active:
+        phase1_inst.weekend_subsets_3_2_con.deactivate()
+
+    if not b_weekend_subsets_2_1_con_active:
+        phase1_inst.weekend_subsets_2_1_con.deactivate()
 
     if not b_DTT_TT_fullwkendadj_UB_active:
         phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()   
@@ -176,14 +196,14 @@ def solvemwts(scenario,phase1_dat_file,path,
         tot_vars = 0
         print("\n\nConstraint summary \n------------------")
         for c in phase1_inst.component_objects(Constraint, active=True):
-            conobj = getattr(phase1_inst,str(c))
-            print(c + " --> " + str(len(conobj)))
-            tot_cons += len(conobj)
+            #conobj = getattr(phase1_inst,str(c))
+            print(c.name + " --> " + str(len(c)))
+            tot_cons += len(c)
         print("\n\nVariable summary \n------------------")
         for v in phase1_inst.component_objects(Var):
-            vobj = getattr(phase1_inst,str(v))
-            print(v + " --> " + str(len(vobj)))
-            tot_vars += len(vobj)
+            #vobj = getattr(phase1_inst,str(v))
+            print(v.name + " --> " + str(len(v)))
+            tot_vars += len(v)
                 
         msg = "\ntotal cons = " + str(tot_cons)
         print(msg)
@@ -307,14 +327,14 @@ def solvemwts(scenario,phase1_dat_file,path,
             tot_vars = 0
             print("\n\nConstraint summary \n------------------")
             for c in phase1_inst.component_objects(Constraint, active=True):
-                conobj = getattr(phase1_inst, str(c))
-                print(c + " --> " + str(len(conobj)))
-                tot_cons += len(conobj)
+                #conobj = getattr(phase1_inst, str(c))
+                print(c.name + " --> " + str(len(c)))
+                tot_cons += len(c)
             print("\n\nVariable summary \n------------------")
             for v in phase1_inst.component_objects(Var):
-                vobj = getattr(phase1_inst, str(v))
-                print(v + " --> " + str(len(vobj)))
-                tot_vars += len(vobj)
+                #vobj = getattr(phase1_inst, str(v))
+                print(v.name + " --> " + str(len(v)))
+                tot_vars += len(v)
                 
             msg = "\ntotal cons = " + str(tot_cons)
             print(msg)

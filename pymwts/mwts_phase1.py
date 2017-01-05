@@ -545,7 +545,7 @@ model_phase1.g_start_window_width = Param()                            # Width o
 ##    (n_prds_per_day*(j-1)+i+width )-n_prds_per_day*n_days);
 
 
-
+# if model_phase1.g_start_window_width > 0:
 # This version spans multiple weeks
 def b_window_epoch_init(M, i, j, w):
     return M.n_days_per_week.value*M.n_prds_per_day.value*(w-1) + M.n_prds_per_day.value*(j-1)+i
@@ -561,7 +561,7 @@ def e_window_epoch_init(M,i,j,w):
         e_window = epoch
     else:
         e_window = epoch-M.n_prds_per_cycle.value
-    
+
     return e_window
 
 model_phase1.e_window_epoch = Param(model_phase1.bins,initialize=e_window_epoch_init)
@@ -570,7 +570,7 @@ model_phase1.e_window_epoch = Param(model_phase1.bins,initialize=e_window_epoch_
 
 ###### PotentialGlobalStartWindow ######
 
-# Index: PotentialGlobalStartWindow is defined for all (period,day,week) bins. 
+# Index: PotentialGlobalStartWindow is defined for all (period,day,week) bins.
 # Defn:  PotentialGlobalStartWindow[i,j,w] contains all the bin triplets within g_start_window_width periods of
 #    bin (i,j,w). The "Potential" indicates that many of these will be eliminated because [i,j,w] may
 #    not be an allowable shift start time. Notice that these windows are NOT yet shift length and tour
@@ -583,32 +583,32 @@ model_phase1.e_window_epoch = Param(model_phase1.bins,initialize=e_window_epoch_
 def PotentialGlobalStartWindow_init(M,i,j,w):
     window_list =[]
     for (l,m,n) in M.bins:
-        
+
         test_epoch = M.g_period[l,m,n]
-                                                                                
+
         test1 = (test_epoch >= M.b_window_epoch[i,j,w])
-        
+
         if M.b_window_epoch[i,j,w] <= M.e_window_epoch[i,j,w]:
             test2rhs = M.e_window_epoch[i,j,w]
-        else:            
+        else:
             test2rhs = M.n_prds_per_cycle
-        
+
         test2 = (test_epoch <= test2rhs)
-        
+
         if M.b_window_epoch[i,j,w] <= M.e_window_epoch[i,j,w]:
             test3rhs = M.b_window_epoch[i,j,w]
         else:
             test3rhs = 1
-            
+
         test3 = (test_epoch >= test3rhs)
-        
+
         test4 = (test_epoch <= M.e_window_epoch[i,j,w])
 
         if (test1 and test2) or (test3 and test4):
             window_list.append((l,m,n))
 
     return window_list
-   
+
 model_phase1.PotentialGlobalStartWindow = Set(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,dimen=3,ordered=True,initialize=PotentialGlobalStartWindow_init)
 
 
@@ -626,9 +626,9 @@ model_phase1.PotentialGlobalStartWindow = Set(model_phase1.PERIODS,model_phase1.
 
 ###### PotentialStartWindow ######
 
-# Index: PotentialStartWindow is defined for all (period,day,week,shift length,tour type). 
+# Index: PotentialStartWindow is defined for all (period,day,week,shift length,tour type).
 # Defn:  PotentialStartWindow[i,j,k,t] contains all the bin triplets within g_start_window_width periods of
-#    bin (i,j,w) and having (i,j,k,t) be an allowable start time and all of its elements being allowable start times. 
+#    bin (i,j,w) and having (i,j,k,t) be an allowable start time and all of its elements being allowable start times.
 #    The "Potential" indicates that some of these will be eliminated because they may
 #    be subsets of other, nearby, start windows.
 
@@ -650,14 +650,14 @@ model_phase1.PotentialStartWindow_idx = Set(dimen=5,ordered=True,initialize=Pote
 def PotentialStartWindow_init(M,i,j,w,k,t):
     return [(l,m,n) for (l,m,n) in M.PotentialGlobalStartWindow[i,j,w]
                   if M.allow_start[i,j,k,t] > 0 and M.allow_start[l,m,k,t] > 0]
-    
+
 model_phase1.PotentialStartWindow = Set(model_phase1.PotentialStartWindow_idx,ordered=True,initialize=PotentialStartWindow_init,dimen=3)
 #
 #
 ###### okStartWindowRoots ######
 
 # Index: okStartWindowRoots is defined for all (tour type,shift length) pairs such that the shift length
-#        is allowed for the tour type. 
+#        is allowed for the tour type.
 
 # Defn:  okStartWindowRoots[t,k] contains all the bin triplets in PotentialStartWindow
 
@@ -677,23 +677,23 @@ model_phase1.okStartWindowRoots_idx = Set(dimen=2,ordered=True,initialize=okStar
 #
 ###/**** ok_window_beginnings is the set of start windows in which there is
 ###at least one period in which a shift of length k can start
-###and which are not subsets of some other window. 
+###and which are not subsets of some other window.
 ###
 ###*/
 ##
 ###set okWindowBeginnings{t in okTTYPES, k in tt_length_x[t]} :=
 ###  setof{(p,q) in {PERIODS,DAYS}: (p,q,k,t) in ok_shifts and
 ###   forall{(i,j) in {PERIODS,DAYS} diff {(p,q)}:allow_start[i,j,k,t]>0 }
-###    (not 
-###     ({(l,m) in okWindowWepochs[p,q,k,t]} 
+###    (not
+###     ({(l,m) in okWindowWepochs[p,q,k,t]}
 ###      within {(n,o) in okWindowWepochs[i,j,k,t]}))  } (p,q);
-##      
+##
 def okStartWindowRoots_init(M,t,k):
     window_list =[]
     for (p,q,w) in M.bins:
         test1 = False
-        
-        
+
+
         # Create a list of all possible window beginnings and then eliminate those that
         # have window wepochs that are subsets of other window wepochs
         test1 = ((p,q,k,t) in M.okShiftTypes)
@@ -702,16 +702,16 @@ def okStartWindowRoots_init(M,t,k):
             for (i,j,m) in M.PotentialStartWindow[p,q,w,k,t]:
                 window.append((i,j,m))
             window_list.append(window)
-#    
-#    # Get rid of subsets        
-    window_list_copy = window_list[:]        
-#    
+#
+#    # Get rid of subsets
+    window_list_copy = window_list[:]
+#
     for s1 in window_list:
         for s2 in window_list:
             if set(s1) < set(s2) and s1!=s2:
                 window_list_copy.remove(s1)
-                break 
-                       
+                break
+
 #   Now find the earliest bin in each element (list) of the list
     windowroot_list = []
     for w in window_list_copy:
@@ -725,7 +725,7 @@ def okStartWindowRoots_init(M,t,k):
                 onSaturday = True
             if btup[1] == 1:
                 onSunday = True
-                
+
             binofweek = M.g_period[btup[0],btup[1],btup[2]]
             if binofweek < early:
                 early = binofweek
@@ -733,16 +733,16 @@ def okStartWindowRoots_init(M,t,k):
                 late = binofweek
             if btup[1] == 7 and binofweek < satearly:
                 satearly = binofweek
-                
+
         if (onSaturday and onSunday):
             early = satearly
-            
+
         earlybin = g_prd_to_tuple(M,early)
         windowroot_list.append(earlybin)
         #print earlybin
-              
+
     return windowroot_list
-    
+
 
 model_phase1.okStartWindowRoots = Set(model_phase1.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=okStartWindowRoots_init)
 
@@ -767,22 +767,22 @@ def bchain_init(M,t,k):
             for (p,q,r) in (M.okStartWindowRoots[t,k] - Set(initialize=[(i,j,w)])):
                 if (i,j,w) not in M.PotentialStartWindow[p,q,r,k,t]:
                     window_list.append((i,j,w))
-         
+
     return window_list
-#    
+#
 #
 model_phase1.bchain = Set(model_phase1.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=bchain_init)
 #
 ##set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
-## (i,j) in bchain[t,k]} 
+## (i,j) in bchain[t,k]}
 ## := setof{(w,x) in {PERIODS,DAYS}: (w,x) not in (bchain[t,k] diff {(i,j)}) and
 ## (w,x) in okWindowBeginnings[t,k] and
 ## forall{(p,q) in (okWindowBeginnings[t,k] diff {(w,x)})} (p,q) not in (okWindowWepochs[w,x,k,t]) and
-##     (period[w,x]>=period[i,j] and 
+##     (period[w,x]>=period[i,j] and
 ##     forall{(n,o) in bchain[t,k]: period[n,o]>period[i,j]} period[w,x]<
-##  period[n,o] or 
-##  (period[w,x]<period[i,j] and 
-##  forall{(n,o) in bchain[t,k]} (period[w,x]< 
+##  period[n,o] or
+##  (period[w,x]<period[i,j] and
+##  forall{(n,o) in bchain[t,k]} (period[w,x]<
 ##   period[n,o] and period[n,o]<=period[i,j]) ) )
 ##  } (w,x) ;
 #
@@ -804,7 +804,7 @@ def echain_init(M,t,k,i,j,w):
     g_prd = M.g_period[i, j, w]
     prd = g_prd_to_tuple(M, g_prd)
     #done = False
-    
+
     steps = 1
     while steps <= M.g_start_window_width:
         g_prd_next = g_period_increment(M,g_prd,steps)
@@ -815,13 +815,13 @@ def echain_init(M,t,k,i,j,w):
             steps = 1
         else:
             steps = steps + 1
-                
-        
+
+
     # Once we leave the while loop, g_prd should correspond to echain. Need
     # to convert it back to a tuple from a global period number.
-    
-                    
-    window_list.append(prd)      
+
+
+    window_list.append(prd)
     return window_list
 
 
@@ -829,12 +829,12 @@ model_phase1.echain = Set(model_phase1.chain_idx,ordered=True,dimen=3,initialize
 
 
 def n_links_init(M,t,k,i,j,w):
-    
+
     # Compute global period of (i,j,w)
     b_g_prd = M.g_period[i, j, w]
     e_prd = M.echain[t, k, i, j, w][1]
     e_g_prd = M.g_period[e_prd[0], e_prd[1], e_prd[2]]
-        
+
     return g_period_difference(M,b_g_prd,e_g_prd)
 
 
@@ -846,7 +846,7 @@ def chain_init(M,t,k,i,j,w):
     # Compute global period of (i,j,w)
     g_prd = M.g_period[i, j, w]
     #done = False
-    
+
     steps = 1
     while steps <= M.n_links[t,k,i,j,w]:
         g_prd_next = g_period_increment(M,g_prd,steps)
@@ -854,8 +854,8 @@ def chain_init(M,t,k,i,j,w):
         if prd_next in M.okStartWindowRoots[t,k]:
             window_list.append(prd_next)
         steps = steps + 1
-                
-        
+
+
     return window_list
 
 
@@ -864,7 +864,7 @@ model_phase1.chain = Set(model_phase1.chain_idx,ordered=True,dimen=3,initialize=
 
 def link_idx_rule(M):
 
-# TODO Check the m index to see what the upper index limit should be      
+# TODO Check the m index to see what the upper index limit should be
     return [(t,k,i,j,w,m) for t in M.activeTT
                           for k in M.LENGTHS
                           for i in M.PERIODS
@@ -873,7 +873,7 @@ def link_idx_rule(M):
                           for m in M.CYCLEPERIODS
                           if (t,k) in M.okStartWindowRoots_idx and (i,j,w) in M.bchain[t,k]
                               and m <= M.n_links[t,k,i,j,w]]
-                          
+
 
 
 model_phase1.link_idx = Set(dimen=6, ordered=True, initialize=link_idx_rule)
@@ -888,7 +888,7 @@ def link_init(M,t,k,i,j,w,m):
     g_prd_next = g_period_increment(M,g_prd,m-1)
     prd_next = g_prd_to_tuple(M, g_prd_next)
     window_list.append(prd_next)
-                       
+
     return window_list
 
 
@@ -897,7 +897,7 @@ model_phase1.link = Set(model_phase1.link_idx,ordered=True,dimen=3,initialize=li
 
 def linkspan_init(M,t,k,i,j,w,m):
     """
-    Returns the start windows spanned by the m'th link (a (period,day,week) tuple) of the chain 
+    Returns the start windows spanned by the m'th link (a (period,day,week) tuple) of the chain
     starting in period (i,j,w)
     """
     window_list =[]
@@ -906,8 +906,8 @@ def linkspan_init(M,t,k,i,j,w,m):
             window_list.append((a,b,c))
         if m > 1:
             for (a,b,c) in M.linkspan[t,k,i,j,w,m-1]:
-                window_list.append((a,b,c)) 
-                       
+                window_list.append((a,b,c))
+
     return window_list
 
 
@@ -2167,7 +2167,6 @@ def weekend_subsets_5_4sun_rule(M,i,t,w,e,d1,d2,d3,d4):
 model_phase1.weekend_subsets_5_4sun_con = Constraint(model_phase1.weekend_subsets_5_4sun_idx,rule=weekend_subsets_5_4sun_rule)
    
 
-
 def weekend_subsets_4_3_idx_rule(M):
     index_list = []
     for (i,t) in M.okTourType:
@@ -2191,6 +2190,7 @@ def weekend_subsets_4_3_idx_rule(M):
         
 model_phase1.weekend_subsets_4_3_idx = Set(dimen=7,initialize=weekend_subsets_4_3_idx_rule)    
     
+
 def weekend_subsets_4_3_rule(M,i,t,w,e,d1,d2,d3):
     
     # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
@@ -2201,6 +2201,7 @@ def weekend_subsets_4_3_rule(M,i,t,w,e,d1,d2,d3):
                                                           + (len(days)-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
     
 model_phase1.weekend_subsets_4_3_con = Constraint(model_phase1.weekend_subsets_4_3_idx,rule=weekend_subsets_4_3_rule)    
+
 
 def weekend_subsets_4_4_idx_rule(M):
     index_list = []
@@ -2268,7 +2269,6 @@ def weekend_subsets_3_2_rule(M,i,t,w,e,d1,d2):
 model_phase1.weekend_subsets_3_2_con = Constraint(model_phase1.weekend_subsets_3_2_idx,rule=weekend_subsets_3_2_rule)
 
 
-
 def weekend_subsets_2_1_idx_rule(M):
     index_list = []
     
@@ -2281,10 +2281,7 @@ def weekend_subsets_2_1_idx_rule(M):
                     index_list.append((i,t,w,e,4))
                     index_list.append((i,t,w,e,5))
                     index_list.append((i,t,w,e,6))
-                    
-                    
-                                        
-        
+
     return index_list
         
 model_phase1.weekend_subsets_2_1_idx = Set(dimen=5,initialize=weekend_subsets_2_1_idx_rule)    
@@ -2299,6 +2296,7 @@ def weekend_subsets_2_1_rule(M,i,t,w,e,d1):
                                                           + (len(days)-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
     
 model_phase1.weekend_subsets_2_1_con = Constraint(model_phase1.weekend_subsets_2_1_idx,rule=weekend_subsets_2_1_rule)
+
 
 def ad_hoc_weekend_subsets_ttype7_idx_rule(M):
     index_list = []
