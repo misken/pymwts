@@ -79,25 +79,7 @@ def solvemwts(scenario,phase1_dat_file,path,
     phase2_solution_value = 0.0
     
     
-    #TODO - add status messages during overall model generation and solution process
-    
-    # Setup the solver
-    solver = None
-    if which_solver == 'cbc':
-        solver = pyomo.opt.SolverFactory("cbc")
-        solver.options.seconds = timelimit
-        solver.options.ratioGap = mipgap
-    #    solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
-        
-    if which_solver == 'glpk':
-        solver = pyomo.opt.SolverFactory("glpk")
-        solver.options.tmlim = timelimit
-        solver.options.mipgap = mipgap
-    
-    if which_solver == 'gurobi':
-        solver = pyomo.opt.SolverFactory("gurobi")
-        solver.options.timelimit = timelimit
-        solver.options.mipgap = mipgap
+
     
     # Import phase 1 model and create phase 1 model instance
     #phase1_mdl = import_file(phase1_mod_file).model_phase1
@@ -283,8 +265,31 @@ def solvemwts(scenario,phase1_dat_file,path,
         sys.stdout = old_stdout
         logger(f_log,'Windows debug info written',time.clock())
 
-    
-    
+    # solver = pyomo.opt.SolverFactory('cplex')
+    # results = solver.solve(self.m, tee=True, keepfiles=False,
+    #                        options_string="mip_tolerances_integrality=1e-9 mip_tolerances_mipgap=0")
+    #
+
+    # TODO - add status messages during overall model generation and solution process
+
+    # Setup the solver
+    solver = None
+    if which_solver == 'cbc':
+        solver = pyomo.opt.SolverFactory('cbc')
+        solver.options.seconds = timelimit
+        solver.options.ratioGap = mipgap
+    # solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
+
+    if which_solver == 'glpk':
+        solver = pyomo.opt.SolverFactory('glpk')
+        solver.options.tmlim = timelimit
+        solver.options.mipgap = mipgap
+
+    if which_solver == 'gurobi':
+        solver = pyomo.opt.SolverFactory('gurobi')
+        solver.options.timelimit = timelimit
+        solver.options.mipgap = mipgap
+
     # Optimize phase 1
     if solver is None:
         print("Could not get solver: " + which_solver)
@@ -295,19 +300,25 @@ def solvemwts(scenario,phase1_dat_file,path,
         phase1_results = solver.solve(phase1_inst, tee=stream_solver)
         
         # TODO - check if phase 1 solved        
-        
+        if (phase1_results.solver.status != pyomo.opt.SolverStatus.ok):
+            #logging.warning('Check solver not ok?')
+            logger(f_log, 'Check solver not ok?', phase1_results.solver.status)
+        if (phase1_results.solver.termination_condition != pyomo.opt.TerminationCondition.optimal):
+            #logging.warning('Check solver optimality?')
+            logger(f_log, 'Check solver optimality?', phase1_results.solver.termination_condition)
         
         logger(f_log,'Phase 1 solution status=' + str(phase1_results.Solution.Status),time.clock())
         
         logger(f_log,'Phase 1 solved',time.clock())
 
-        # phase1_inst.solutions.load_from(phase1_results)  # Put results in model instance
+        phase1_inst.solutions.load_from(phase1_results)  # Put results in model instance
 
         logger(f_log,'Phase 1 results loaded',time.clock())
 
         
         
         try:
+            #instance.solutions.load_from(results)
             phase1_solution_value = phase1_results['Solution'][0]['Objective'][1]['Value']
             print(phase1_solution_value)
         except:
