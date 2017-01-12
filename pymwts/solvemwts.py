@@ -13,6 +13,8 @@ import os
 import time
 import sqlite3
 import datetime
+import io
+
 
 import pyomo.opt
 from pyomo.environ import *
@@ -307,23 +309,18 @@ def solvemwts(scenario,phase1_dat_file,path,
             #logging.warning('Check solver optimality?')
             logger(f_log, 'Check solver optimality?', phase1_results.solver.termination_condition)
         
-        logger(f_log,'Phase 1 solution status=' + str(phase1_results.Solution.Status),time.clock())
-        
+        logger(f_log,'Phase 1 solution status=' + str(phase1_results.solver.status),time.clock())
         logger(f_log,'Phase 1 solved',time.clock())
 
-        phase1_inst.solutions.load_from(phase1_results)  # Put results in model instance
-
-        logger(f_log,'Phase 1 results loaded',time.clock())
-
-        
+        # By default, results are automatically loaded into model instance
         
         try:
-            #instance.solutions.load_from(results)
-            phase1_solution_value = phase1_results['Solution'][0]['Objective'][1]['Value']
+            phase1_solution_value = phase1_inst.total_cost()
+                #phase1_inst['Solution'][0]['Objective'][1]['Value']
             print(phase1_solution_value)
         except:
             print('Phase 1 problem not solved successfully.')
-            phase1_solution_status = phase1_results['Solution'][0]['Status']
+            phase1_solution_status = phase1_results.solver.status
             print('Status: ' + str(phase1_solution_status))
             sys.exit(1)
      
@@ -352,7 +349,7 @@ def solvemwts(scenario,phase1_dat_file,path,
             msg = "total vars = " + str(tot_vars)
             print(msg)
             
-            phase1_solution_status = phase1_results['Solution'][0]['Status']
+            phase1_solution_status = phase1_results.solver.status
             print(phase1_solution_status)
             
             
@@ -420,7 +417,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         f2_out.close()
         
         # Put the pieces together
-        dat = StringIO.StringIO()
+        dat = io.StringIO()
     
         print(param_n_tours, file=dat)
         print(param_Shift, file=dat)  
@@ -545,14 +542,14 @@ def solvemwts(scenario,phase1_dat_file,path,
             tot_vars = 0
             print("\n\nConstraint summary \n------------------")
             for c in phase2_inst.component_objects(Constraint, active=True):
-                conobj = getattr(phase2_inst, str(c))
-                print(c + " --> " + str(len(conobj)))
-                tot_cons += len(conobj)
+                #conobj = getattr(phase2_inst, str(c))
+                print(c.name + " --> " + str(len(c)))
+                tot_cons += len(c)
             print("\n\nVariable summary \n------------------")
             for v in phase2_inst.component_objects(Var):
-                vobj = getattr(phase2_inst, str(v))
-                print(v + " --> " + str(len(vobj)))
-                tot_vars += len(vobj)
+                #vobj = getattr(phase2_inst, str(v))
+                print(v.name + " --> " + str(len(v)))
+                tot_vars += len(v)
                 
             msg = "\ntotal cons = " + str(tot_cons)
             print(msg)
@@ -565,8 +562,8 @@ def solvemwts(scenario,phase1_dat_file,path,
         # Solve phase 2
         stream_solver = True
         phase2_results = solver.solve(phase2_inst, tee=stream_solver)
-        phase2_solution_status = str(phase2_results.Solution.Status)
-        logger(f_log,'Phase 2 solution status=' + str(phase2_results.Solution.Status),time.clock())
+        phase2_solution_status = str(phase2_results.solver.status)
+        logger(f_log,'Phase 2 solution status=' + str(phase2_solution_status),time.clock())
         
         if str(phase2_results.Solution.Status) != 'unknown':
             logger(f_log,'Phase 2 solved',time.clock())
@@ -587,24 +584,24 @@ def solvemwts(scenario,phase1_dat_file,path,
                 tot_vars = 0
                 print("\n\nConstraint summary \n------------------")
                 for c in phase2_inst.component_objects(Constraint, active=True):
-                    conobj = getattr(phase2_inst, str(c))
-                    print(c + " --> " + str(len(conobj)))
-                    tot_cons += len(conobj)
+                    #conobj = getattr(phase2_inst, str(c))
+                    print(c.name + " --> " + str(len(c)))
+                    tot_cons += len(c)
                 print("\n\nVariable summary \n------------------")
                 for v in phase2_inst.component_objects(Var):
-                    vobj = getattr(phase2_inst, str(v))
-                    print(v + " --> " + str(len(vobj)))
-                    tot_vars += len(vobj)
+                    #vobj = getattr(phase2_inst, str(v))
+                    print(v.name + " --> " + str(len(v)))
+                    tot_vars += len(v)
                     
                 msg = "\ntotal cons = " + str(tot_cons)
                 print(msg)
                 msg = "total vars = " + str(tot_vars)
                 print(msg)
                 
-                phase2_solution_status = phase2_results['Solution'][0]['Status']
+                phase2_solution_status = phase2_results.solver.status
                 print(phase2_solution_status)
                 print(str(value(phase2_inst.total_num_tours)))
-                phase2_solution_value = value(phase2_inst.total_num_tours)
+                phase2_solution_value = value(phase2_inst.total_num_tours())
                 
                 f2_sum.close()
                 f2_res = open(phase2_results_file,"w")

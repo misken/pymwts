@@ -100,6 +100,7 @@ def g_prd_to_tuple(M, p):
 
 # For range sets, if start omitted, assumed range is 1..args[0]
 model_phase2.PERIODS = RangeSet(1,model_phase2.n_prds_per_day)
+model_phase2.CYCLEPERIODS = RangeSet(1,model_phase2.n_prds_per_cycle)  # P
 model_phase2.WINDOWS = RangeSet(1,model_phase2.n_prds_per_day)
 model_phase2.DAYS = RangeSet(1,model_phase2.n_days_per_week)
 model_phase2.WEEKS = RangeSet(1,model_phase2.n_weeks)
@@ -157,6 +158,16 @@ model_phase2.A_idx = Set(dimen=5,ordered=True,initialize=A_idx_rule)
 model_phase2.A = Param(model_phase2.A_idx, default=0.0)
 #model_phase2.A.deactivate()
 
+### Bounds on tour type variables
+model_phase2.tt_lb = Param(model_phase2.TTYPES)  # RHS from .MIX
+model_phase2.tt_ub = Param(model_phase2.TTYPES, default=infinity)
+
+
+def activeTT_init(M):
+    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
+
+
+model_phase2.activeTT = Set(dimen=1, ordered=True, initialize=activeTT_init)
 
 ### Bounds on days and shifts worked over the week
 
@@ -207,14 +218,7 @@ model_phase2.tt_shiftlen_min_cumul_prds_weeks = Param(model_phase2.TTYPES, model
 model_phase2.tt_shiftlen_max_cumul_prds_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)        # Minimum number of periods worked by cumulative weeks by tour type by shift length
 
 
-### Bounds on tour type variables
-model_phase2.tt_lb =  Param(model_phase2.TTYPES)       # RHS from .MIX
-model_phase2.tt_ub =  Param(model_phase2.TTYPES,  default=infinity)
 
-def activeTT_init(M):
-    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
-    
-model_phase2.activeTT = Set(dimen=1,ordered=True,initialize=activeTT_init)
     
 def activeWIN_init(M):
     return [i for i in M.WINDOWS]
@@ -668,13 +672,14 @@ model_phase2.chain = Set(model_phase2.chain_idx,ordered=True,dimen=3,initialize=
 
 
 def link_idx_rule(M):
-      
+
+# TODO Check the m index to see what the upper index limit should be
     return [(t,k,i,j,w,m) for t in M.activeTT
                           for k in M.LENGTHS
                           for i in M.PERIODS
                           for j in M.DAYS
                           for w in M.WEEKS
-                          for m in range(1,M.n_prds_per_cycle)
+                          for m in M.CYCLEPERIODS
                           if (t,k) in M.okStartWindowRoots_idx and (i,j,w) in M.bchain[t,k]
                               and m <= M.n_links[t,k,i,j,w]]
                           

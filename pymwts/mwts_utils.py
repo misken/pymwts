@@ -114,9 +114,9 @@ def shift_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,j,w,k,t) in inst.okShifts:
         try:
-            val = int(round(inst.Shift[i,j,w,k,t]))
+            val = int(round(inst.Shift[i,j,w,k,t]()))
         except:
-            val = inst.Shift[i,j,w,k,t]
+            val = inst.Shift[i,j,w,k,t]()
             
         if val > 0:
             poslist = [str(p) for p in (i,j,w,k,t)]
@@ -165,9 +165,9 @@ def tourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,t) in inst.TourType_idx:
         try:
-            val = int(round(inst.TourType[i,t]))
+            val = int(round(inst.TourType[i,t]()))
         except:
-            val = inst.TourType[i,t]
+            val = inst.TourType[i,t]()
             
         if val > 0:
             poslist = [str(p) for p in (i,t)]
@@ -217,9 +217,9 @@ def dailytourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,t,j,w) in inst.DailyTourType_idx:
         try:
-            val = int(round(inst.DailyTourType[i,t,j,w]))
+            val = int(round(inst.DailyTourType[i,t,j,w]()))
         except:
-            val = inst.DailyTourType[i,t,j,w]
+            val = inst.DailyTourType[i,t,j,w]()
             
         if val > 0:
             poslist = [str(p) for p in (i,t,j,w)]
@@ -269,9 +269,9 @@ def dailyshiftworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,t,k,j,w) in inst.DailyShiftWorked_idx:
         try:
-            val = int(round(inst.DailyShiftWorked[i,t,k,j,w]))
+            val = int(round(inst.DailyShiftWorked[i,t,k,j,w]()))
         except:
-            val = inst.DailyShiftWorked[i,t,k,j,w]
+            val = inst.DailyShiftWorked[i,t,k,j,w]()
             
         if val > 0:
             poslist = [str(p) for p in (i,t,k,j,w)]
@@ -321,9 +321,9 @@ def weekenddaysworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,t,d) in inst.ok_weekenddaysworked_idx:
         try:
-            val = int(round(inst.WeekendDaysWorked[i,t,d]))
+            val = int(round(inst.WeekendDaysWorked[i,t,d]()))
         except:
-            val = inst.WeekendDaysWorked[i,t,d]
+            val = inst.WeekendDaysWorked[i,t,d]()
             
         if val > 0:
             poslist = [str(p) for p in (i,t,d)]
@@ -365,9 +365,9 @@ def weekenddaysworked_to_tourskeleton(inst,isStringIO=True):
     tnum = 0
     for (i,t,pattern) in inst.ok_weekenddaysworked_idx:
         try:
-            val = int(round(inst.WeekendDaysWorked[i,t,pattern]))
+            val = int(round(inst.WeekendDaysWorked[i,t,pattern]()))
         except:
-            val = inst.WeekendDaysWorked[i,t,pattern]
+            val = inst.WeekendDaysWorked[i,t,pattern]()
             
         if val > 0:
             poslist = [str(p) for p in (i,t,pattern)]
@@ -420,7 +420,7 @@ def dailytourtype_to_tourskeleton(inst,isStringIO=True):
             daylist = []
             for w in range(1,inst.n_weeks+1): 
                 for d in range(1,inst.n_days_per_week+1):                
-                    daylist.append(str(inst.DailyTourType[i,t,d,w]))
+                    daylist.append(str(inst.DailyTourType[i,t,d,w]()))
                                     
             datarow += ','.join(daylist) + '\n'
             param += datarow
@@ -458,14 +458,14 @@ def tour_WIN_TT_to_param(inst,isStringIO=True):
 
     """
     
-    n_tours = int(round((sum(inst.TourType[i,t] for (i,t) in inst.okTourType))))
+    n_tours = int(round((sum(inst.TourType[i,t]() for (i,t) in inst.okTourType))))
     tour_num = 0
     
     WIN_x = [0 for j in range(n_tours+1)]
     TT_x = [0 for j in range(n_tours+1)]
     for (i,t) in inst.okTourType:
         try:
-            val = int(round(inst.TourType[i,t]))
+            val = int(round(inst.TourType[i,t]()))
         except:
             val = inst.TourType[i,t]
             
