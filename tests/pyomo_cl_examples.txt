@@ -1,0 +1,1 @@
+pyomo solve --solver=cbc ../mwts_phase1.py inputs/mwts04_d02_t1_a01_ptub_moderate.dat
