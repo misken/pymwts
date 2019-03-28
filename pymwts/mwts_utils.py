@@ -11,7 +11,7 @@
 
 import io
 from pyomo import *
-from numpy import *
+import numpy as np
 
 
 
@@ -67,7 +67,7 @@ def list_to_param(pname,plist,reverseidx=False,isStringIO=True):
     parray = array(plist)
 
     # Denumerate the array to get at the index tuple and array value
-    paramrows = ndenumerate(parray)
+    paramrows = np.ndenumerate(parray)
     param = 'param ' + pname + ':=\n'
     for pos, val in paramrows:
         poslist = [str(p + 1) for p in pos]
@@ -135,7 +135,7 @@ def shift_to_param(pname,inst,reverseidx=False,isStringIO=True):
     else:
         return param
     
-def tourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
+def tourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -187,7 +187,7 @@ def tourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     else:
         return param
     
-def dailytourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
+def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -217,16 +217,15 @@ def dailytourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     param = 'param ' + pname + ' default 0 :=\n'
     for (i,t,j,w) in inst.DailyTourType_idx:
         try:
-            val = int(round(inst.DailyTourType[i,t,j,w]()))
+            val = int(round(inst.DailyTourType[i,t,j,w].value))
         except:
-            val = inst.DailyTourType[i,t,j,w]()
+            val = inst.DailyTourType[i,t,j,w].value
             
         if val > 0:
             poslist = [str(p) for p in (i,t,j,w)]
             
             if reverseidx:
                 poslist.reverse()
-            
             
             datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
             param += datarow
@@ -239,7 +238,7 @@ def dailytourtype_to_param(pname,inst,reverseidx=False,isStringIO=True):
     else:
         return param
     
-def dailyshiftworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
+def dailyshiftworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -278,8 +277,7 @@ def dailyshiftworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
             
             if reverseidx:
                 poslist.reverse()
-            
-            
+
             datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
             param += datarow
 
@@ -291,7 +289,7 @@ def dailyshiftworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
     else:
         return param
     
-def weekenddaysworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
+def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -330,7 +328,6 @@ def weekenddaysworked_to_param(pname,inst,reverseidx=False,isStringIO=True):
             
             if reverseidx:
                 poslist.reverse()
-            
             
             datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
             param += datarow
@@ -435,7 +432,7 @@ def dailytourtype_to_tourskeleton(inst,isStringIO=True):
 
     
     
-def tour_WIN_TT_to_param(inst,isStringIO=True):
+def tour_WIN_TT_to_param(inst, isStringIO=True):
     """
     Convert certain Pyomo indexed variables to a GMPL representation of a parameter.
     
@@ -514,7 +511,7 @@ def logger(f,msg,ts):
     f.write(msgts)
         
 
-def write_phase1_shiftsummary(inst,isStringIO=True):
+def write_phase1_shiftsummary(inst, isStringIO=True):
     """
     Write out a multiweek summary of daily shift worked variables 
     in multi-week format. Hopefully useful for debugging.

@@ -19,15 +19,11 @@ import io
 import pyomo.opt
 from pyomo.environ import *
 
-# Need to edit the __init__.py for the package to do the detailed imports
-#from .mwts_phase1 import model_phase1
-#from .mwts_phase2 import model_phase2
+import mwts_phase1
+import mwts_phase2
 
-from pymwts import mwts_phase1
-from pymwts import mwts_phase2
-
-from pymwts.mwts_utils import *
-from pymwts.pymwtsio.mwts_process_out_tour import create_mwt
+from mwts_utils import *
+from pymwtsio.mwts_process_out_tour import create_mwt
 
 # Possible input parameters
 
@@ -60,8 +56,8 @@ def solvemwts(scenario,phase1_dat_file,path,
     
     log_file = path + scenario + '.log'
     f_log = open(log_file,"w")
-    logger(f_log,'Scenario ' + scenario,time.clock())
-    logger(f_log,'DAT ' + phase1_dat_file,time.clock())
+    logger(f_log,'Scenario ' + scenario, time.time())
+    logger(f_log,'DAT ' + phase1_dat_file, time.time())
     
     
     phase1_summary_file = path + scenario + '_phase1_summary.txt'
@@ -91,7 +87,7 @@ def solvemwts(scenario,phase1_dat_file,path,
     #phase1_mdl = mwts_phase1.model_phase1
     phase1_inst = phase1_mdl.create_instance(filename = phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
-    logger(f_log,'Phase 1 instance created',time.clock())
+    logger(f_log,'Phase 1 instance created', time.time())
     
     
 
@@ -164,7 +160,7 @@ def solvemwts(scenario,phase1_dat_file,path,
             old_stdout = sys.stdout
             sys.stdout = f1_inst
             phase1_inst.pprint()
-            logger(f_log,'Phase 1 instance written',time.clock())
+            logger(f_log,'Phase 1 instance written', time.time())
 
         finally:
             sys.stdout = old_stdout
@@ -265,7 +261,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         
         
         sys.stdout = old_stdout
-        logger(f_log,'Windows debug info written',time.clock())
+        logger(f_log,'Windows debug info written', time.time())
 
     # solver = pyomo.opt.SolverFactory('cplex')
     # results = solver.solve(self.m, tee=True, keepfiles=False,
@@ -309,8 +305,8 @@ def solvemwts(scenario,phase1_dat_file,path,
             #logging.warning('Check solver optimality?')
             logger(f_log, 'Check solver optimality?', phase1_results.solver.termination_condition)
         
-        logger(f_log,'Phase 1 solution status=' + str(phase1_results.solver.status),time.clock())
-        logger(f_log,'Phase 1 solved',time.clock())
+        logger(f_log,'Phase 1 solution status=' + str(phase1_results.solver.status), time.time())
+        logger(f_log,'Phase 1 solved', time.time())
 
         # By default, results are automatically loaded into model instance
         
@@ -358,7 +354,7 @@ def solvemwts(scenario,phase1_dat_file,path,
             sys.stdout = f1_res
             phase1_results.write()
             f1_res.close()
-            logger(f_log,'Phase 1 summary and results written',time.clock())
+            logger(f_log,'Phase 1 summary and results written', time.time())
         
         finally:
             sys.stdout = old_stdout
@@ -397,7 +393,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         us1_cost = value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value for (i,j,w) in phase1_inst.bins))
         us2_cost = value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value for (i,j,w) in phase1_inst.bins))
     
-        n_tours = int(round(sum(phase1_inst.TourType[i,t].value for (i,t) in phase1_inst.okTourType)))
+        n_tours = int(round(sum((phase1_inst.TourType[i,t].value for (i,t) in phase1_inst.okTourType))))
         
         param_n_tours = scalar_to_param('n_tours',n_tours)
     
@@ -430,7 +426,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         f2_dat = open(phase2_dat_file,'a')
         print(dat.getvalue(), file=f2_dat)
         f2_dat.close()
-        logger(f_log,'Phase 2 dat file created',time.clock())
+        logger(f_log,'Phase 2 dat file created', time.time())
 
         
         
@@ -440,7 +436,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         phase2_mdl = mwts_phase2.model_phase2
         phase2_inst = phase2_mdl.create_instance(filename = phase2_dat_file)
         phase2_inst.name = 'mwts_phase2_inst'
-        logger(f_log,'Phase 2 instance created',time.clock())
+        logger(f_log,'Phase 2 instance created', time.time())
         
         # Activate/deactivate constraints
         
@@ -526,7 +522,7 @@ def solvemwts(scenario,phase1_dat_file,path,
                 old_stdout = sys.stdout
                 sys.stdout = f2_inst
                 phase2_inst.pprint()
-                logger(f_log,'Phase 2 instance',time.clock())
+                logger(f_log,'Phase 2 instance', time.time())
             finally:
                 sys.stdout = old_stdout
                 f2_inst.close()
@@ -563,12 +559,12 @@ def solvemwts(scenario,phase1_dat_file,path,
         stream_solver = True
         phase2_results = solver.solve(phase2_inst, tee=stream_solver)
         phase2_solution_status = str(phase2_results.solver.status)
-        logger(f_log,'Phase 2 solution status=' + str(phase2_solution_status),time.clock())
+        logger(f_log,'Phase 2 solution status=' + str(phase2_solution_status), time.time())
         
         if str(phase2_results.Solution.Status) != 'unknown':
-            logger(f_log,'Phase 2 solved',time.clock())
+            logger(f_log,'Phase 2 solved', time.time())
             #phase2_inst.solutions.load_from(phase2_results)  # Put results in model instance
-            logger(f_log,'Phase 2 results loaded',time.clock())
+            logger(f_log,'Phase 2 results loaded', time.time())
             
             
                 
@@ -608,7 +604,7 @@ def solvemwts(scenario,phase1_dat_file,path,
                 sys.stdout = f2_res
                 phase2_results.write()
                 f2_res.close()
-                logger(f_log,'Phase 2 summary and results written',time.clock())
+                logger(f_log,'Phase 2 summary and results written', time.time())
             
             finally:
                 sys.stdout = old_stdout
@@ -699,7 +695,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         sys.stdout = old_stdout 
     
         create_mwt(tour_file, scenario, path)
-        logger(f_log,'Tour related output files created',time.clock())
+        logger(f_log,'Tour related output files created', time.time())
         now = datetime.datetime.now()
         vtuple = (scenario,phase1_solution_value,tot_cap,
               str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))        

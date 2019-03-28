@@ -5,8 +5,7 @@ Overview of pymts src and related files
 To Do
 =====
 
-Currently it seems that I need to run the solvemwts.py from scripts that live in 
-main src directory for the models. 
+
 
 Files
 =====
@@ -27,48 +26,88 @@ mwts_phase1.py
 Main Phase 1 model written in Pyomo
 
 
-Virtual Environment for Coopr
-=============================
+Getting mwts working in 2019
+============================
 
-If I type `coopr`, a virtual environment is activated. I don't recall how I did this. 
-Obviously it uses virtualenv. Found my blogger post:
+Okay, I'm going to get this multiweek model running, fixed, published,
+and released.
 
-While mucking around with the project structure for pymwts, I ended up reinstalling Coopr. I used method 1 which installs Coopr into dist-utils. Chaos ensued with all kinds of bizarre errors. Coopr forum hunting led to the suspicion that some of the errors were bugs that had been fixed in newer versions of Coopr. However, the only way to get these newer versions use to use the 2nd install method:
+Pyomo and conda
+---------------------------
 
-Option 2: Install a Coopr Release with the coopr_install Scrip
+According to http://www.pyomo.org/about, Pyomo is no longer referred
+to as Coopr software library. It's an official COIN-OR project.
 
-The nice thing about this method is that it installs a virtual Python environment. Why is this nice?
+According to installation instructions, Pyomo can be installed using conda:
 
-Gets rid of the annoying errors that you get when Pyomo tries to write to some system folders.
-Gets rid of the crazy errors mentioned above.
-Forces me to learn to use virtualenv which seems to be widely used.
-Allows me to get the latest and greatest versions of Coopr.
+https://pyomo.readthedocs.io/en/latest/installation.html#using-conda
 
-Activating a virtual Python environment is easy. I installed Coopr in ~/Tools/coopr. To activate it:
+    conda install -c conda-forge pyomo
+    
+    conda install -c conda-forge pyomo.extras
+    
+Looks like several open source solvers can also be installed via conda:
 
-source ~/Tools/coopr/bin/activate
+    conda install -c conda-forge ipopt coincbc glpk
+    
+    
+After doing the above three installs in a conda environment I named mwts, 
+I found a link (in the docs) to a gallery of
+Jupyter notebooks which demo Pyomo. 
 
-I created an alias named coopr to run the above command. To deactivate the virtualenv you just type deactivate.
+https://github.com/jckantor/ND-Pyomo-Cookbook
+
+I downloaded the notebooks and started Jupyter lab in my mwts conda
+environment. Upon opening one of the notebooks, Jupyter wanted to
+build some extras and I let it. Then I tried the simple LP production
+model with glpk and, voila, it solved.
+
+Retried it with cbc and, voila, it solved even faster. :)
+
+The job shop scheduling notebook is awesome! Uses pandas and makes
+gantt charts. Super cool.
+
+
 
 Running test problems
 =====================
 
+I installed pytest on 2019-03-27
+
+https://docs.pytest.org/en/latest/goodpractices.html#choosing-a-test-layout-import-rules
+
+
+Put test scripts inside /tests folder. Name them to start with 'test_'
+so that they can be discovered by pytest if desired.
+
+To run a specific test, run from main source directory - in this case,
+from pymtws/pymwts.
+
+    $ python -m pytest ../tests/test_mwts04_d02_t12_a01_ptub_moderate.py
+    
+Fixed the imports to get rid of `from pymwts import BLAH` and everything just works.
+
+
+
 Method 1 - calling solvemwts from a Python script
 -------------------------------------------------
 
-Here's a simple script called basictest.py::
+Here's a simple script::
 
     """
     basictest.py - Created on Wed May 21 11:12:49 2013
 
     @author: mark
     """
-    import pymwts.solvemwts as solve
-
-    solve.solvemwts('mwts02_d01_t01_tight',
-                        'mwts02_d01_t01_tight.dat',
-                        './',
-                        'cbc',1200,0.05)
+    
+    import solvemwts
+    solvemwts.solvemwts("mwts04_d02_t1_a01_ptub_moderate",
+                    "../tests/inputs/mwts04_d02_t1_a01_ptub_moderate_nous.dat",
+                    "../tests/outputs/",
+                    "cbc",
+                    1200.0,
+                    0.02,
+                    results_db="../tests/mwts04_d2456_cbc_testing.db")
 
 You can run it like any Python script::
 
