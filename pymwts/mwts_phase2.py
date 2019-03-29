@@ -12,14 +12,14 @@
 
 import sys
 
-from pyomo.environ import *
+import pyomo.environ as pyo
 #from pyutilib.misc import import_file
 
 #from .mwts_utils import *
 
 
 #model_phase2 = import_file('mwts_baseparams.py').model
-model_phase2 = AbstractModel()
+model_phase2 = pyo.AbstractModel()
 model_phase2.name = "mwts_phase2"
 
 #### General parameters
@@ -27,21 +27,21 @@ model_phase2.name = "mwts_phase2"
 infinity = float('inf')
 
 
-model_phase2.n_prds_per_day = Param(within=PositiveIntegers)
-model_phase2.n_days_per_week = Param(within=PositiveIntegers)
-model_phase2.n_weeks = Param(within=PositiveIntegers)
+model_phase2.n_prds_per_day = pyo.Param(within=pyo.PositiveIntegers)
+model_phase2.n_days_per_week = pyo.Param(within=pyo.PositiveIntegers)
+model_phase2.n_weeks = pyo.Param(within=pyo.PositiveIntegers)
 
 
 
 def n_prds_per_week_init(M):
     return M.n_days_per_week()*M.n_prds_per_day()
 
-model_phase2.n_prds_per_week = Param(within=PositiveIntegers, initialize=n_prds_per_week_init)
+model_phase2.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers, initialize=n_prds_per_week_init)
 
 def n_prds_per_cycle_init(M):
     return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
 
-model_phase2.n_prds_per_cycle = Param(within=PositiveIntegers, initialize=n_prds_per_cycle_init)
+model_phase2.n_prds_per_cycle = pyo.Param(within=pyo.PositiveIntegers, initialize=n_prds_per_cycle_init)
 
 
 def g_period_init(M, i, j, w):
@@ -99,34 +99,34 @@ def g_prd_to_tuple(M, p):
     return (n_period, n_day, n_week)
 
 # For range sets, if start omitted, assumed range is 1..args[0]
-model_phase2.PERIODS = RangeSet(1,model_phase2.n_prds_per_day)
-model_phase2.CYCLEPERIODS = RangeSet(1,model_phase2.n_prds_per_cycle)  # P
-model_phase2.WINDOWS = RangeSet(1,model_phase2.n_prds_per_day)
-model_phase2.DAYS = RangeSet(1,model_phase2.n_days_per_week)
-model_phase2.WEEKS = RangeSet(1,model_phase2.n_weeks)
-model_phase2.WEEKENDS = RangeSet(1,2)
+model_phase2.PERIODS = pyo.RangeSet(1,model_phase2.n_prds_per_day)
+model_phase2.CYCLEPERIODS = pyo.RangeSet(1,model_phase2.n_prds_per_cycle)  # P
+model_phase2.WINDOWS = pyo.RangeSet(1,model_phase2.n_prds_per_day)
+model_phase2.DAYS = pyo.RangeSet(1,model_phase2.n_days_per_week)
+model_phase2.WEEKS = pyo.RangeSet(1,model_phase2.n_weeks)
+model_phase2.WEEKENDS = pyo.RangeSet(1,2)
 
-model_phase2.g_period = Param(model_phase2.PERIODS, model_phase2.DAYS, model_phase2.WEEKS, initialize=g_period_init)      
+model_phase2.g_period = pyo.Param(model_phase2.PERIODS, model_phase2.DAYS, model_phase2.WEEKS, initialize=g_period_init)      
 model_phase2.bins = model_phase2.PERIODS * model_phase2.DAYS * model_phase2.WEEKS
 
 def oneweek_bins_init(M):
     return [(i,j) for i in M.PERIODS
                   for j in M.DAYS]
     
-model_phase2.oneweek_bins = Set(dimen=2, ordered=True, initialize=oneweek_bins_init)
+model_phase2.oneweek_bins = pyo.Set(dimen=2, ordered=True, initialize=oneweek_bins_init)
 
 
 #### Tour type related parameters
 
 #-- Shift Lengths
-model_phase2.n_lengths = Param(within=PositiveIntegers)    # Number of shift lengths
-model_phase2.LENGTHS = RangeSet(1,model_phase2.n_lengths)
-model_phase2.lengths = Param(model_phase2.LENGTHS)  # Vector of shift lengths
+model_phase2.n_lengths = pyo.Param(within=pyo.PositiveIntegers)    # Number of shift lengths
+model_phase2.LENGTHS = pyo.RangeSet(1,model_phase2.n_lengths)
+model_phase2.lengths = pyo.Param(model_phase2.LENGTHS)  # Vector of shift lengths
 
 #-- Tour Types
-model_phase2.n_tts = Param(within=PositiveIntegers)  # Number of different tour types
-model_phase2.TTYPES = RangeSet(1,model_phase2.n_tts)
-model_phase2.tt_length_x = Set(model_phase2.TTYPES,ordered=True,)  # Set of allowable length indices by tour type
+model_phase2.n_tts = pyo.Param(within=pyo.PositiveIntegers)  # Number of different tour types
+model_phase2.TTYPES = pyo.RangeSet(1,model_phase2.n_tts)
+model_phase2.tt_length_x = pyo.Set(model_phase2.TTYPES,ordered=True,)  # Set of allowable length indices by tour type
 
 
 #-- Weekend patterns
@@ -135,9 +135,9 @@ def maxwkend_init(M):
     maxpats = 2**(2*M.n_weeks)
     return maxpats
 
-model_phase2.max_weekend_patterns = Param(initialize=maxwkend_init)
+model_phase2.max_weekend_patterns = pyo.Param(initialize=maxwkend_init)
 
-model_phase2.num_weekend_patterns = Param(model_phase2.WEEKENDS,model_phase2.TTYPES)       # Number of weekends worked patterns
+model_phase2.num_weekend_patterns = pyo.Param(model_phase2.WEEKENDS,model_phase2.TTYPES)       # Number of weekends worked patterns
 
 
 
@@ -154,28 +154,28 @@ def A_idx_rule(M):
                  for t in range(1,M.n_tts + 1)
                  for e in range(1,3) if i <= M.num_weekend_patterns[e,t]]
 
-model_phase2.A_idx = Set(dimen=5,ordered=True,initialize=A_idx_rule)
-model_phase2.A = Param(model_phase2.A_idx, default=0.0)
+model_phase2.A_idx = pyo.Set(dimen=5,ordered=True,initialize=A_idx_rule)
+model_phase2.A = pyo.Param(model_phase2.A_idx, default=0.0)
 #model_phase2.A.deactivate()
 
 ### Bounds on tour type variables
-model_phase2.tt_lb = Param(model_phase2.TTYPES)  # RHS from .MIX
-model_phase2.tt_ub = Param(model_phase2.TTYPES, default=infinity)
+model_phase2.tt_lb = pyo.Param(model_phase2.TTYPES)  # RHS from .MIX
+model_phase2.tt_ub = pyo.Param(model_phase2.TTYPES, default=infinity)
 
 
 def activeTT_init(M):
     return [t for t in M.TTYPES if M.tt_ub[t] > 0]
 
 
-model_phase2.activeTT = Set(dimen=1, ordered=True, initialize=activeTT_init)
+model_phase2.activeTT = pyo.Set(dimen=1, ordered=True, initialize=activeTT_init)
 
 ### Bounds on days and shifts worked over the week
 
-model_phase2.tt_min_dys_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0.0)        # Minimum number of days worked by week by tour type
-model_phase2.tt_max_dys_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)       # Maximum number of days worked by week by tour type
+model_phase2.tt_min_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0.0)        # Minimum number of days worked by week by tour type
+model_phase2.tt_max_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)       # Maximum number of days worked by week by tour type
 
-model_phase2.tt_min_cumul_dys_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0.0)  # Minimum number of days worked by cumulative weeks by tour type
-model_phase2.tt_max_cumul_dys_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6) # Maximum number of days worked by cumulative weeks by tour type
+model_phase2.tt_min_cumul_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0.0)  # Minimum number of days worked by cumulative weeks by tour type
+model_phase2.tt_max_cumul_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6) # Maximum number of days worked by cumulative weeks by tour type
 
 
 # Weekends consisting of a Fri and Sat imply updated lower bounds on some of the daily tour type variables. 
@@ -192,30 +192,30 @@ def FriSat_idx_rule(M):
                     
     return index_list
 
-model_phase2.FriSat_idx = Set(dimen=3,ordered=True,initialize=FriSat_idx_rule)
+model_phase2.FriSat_idx = pyo.Set(dimen=3,ordered=True,initialize=FriSat_idx_rule)
 
-model_phase2.FriSat_min_dys_weeks = Param(model_phase2.FriSat_idx, default=0)
-model_phase2.FriSat_min_cumul_dys_weeks = Param(model_phase2.FriSat_idx, default=0)
+model_phase2.FriSat_min_dys_weeks = pyo.Param(model_phase2.FriSat_idx, default=0)
+model_phase2.FriSat_min_cumul_dys_weeks = pyo.Param(model_phase2.FriSat_idx, default=0)
 
 
 
-model_phase2.tt_shiftlen_min_dys_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)        # Minimum number of days worked by week by shiftlen by tour type
-model_phase2.tt_shiftlen_max_dys_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)         # Maximum number of days worked by week by shiftlen by tour type
+model_phase2.tt_shiftlen_min_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)        # Minimum number of days worked by week by shiftlen by tour type
+model_phase2.tt_shiftlen_max_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)         # Maximum number of days worked by week by shiftlen by tour type
 
-model_phase2.tt_shiftlen_min_cumul_dys_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)         # Minimum number of days worked by cumulative weeks by shiftlen by tour type
-model_phase2.tt_shiftlen_max_cumul_dys_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)         # Maximum number of days worked by cumulative weeks by shiftlen by tour type
+model_phase2.tt_shiftlen_min_cumul_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)         # Minimum number of days worked by cumulative weeks by shiftlen by tour type
+model_phase2.tt_shiftlen_max_cumul_dys_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)         # Maximum number of days worked by cumulative weeks by shiftlen by tour type
 
-model_phase2.tt_min_prds_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0)        # Minimum number of periods worked by week by tour type
-model_phase2.tt_max_prds_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)         # Maximum number of periods worked by week by tour type
+model_phase2.tt_min_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0)        # Minimum number of periods worked by week by tour type
+model_phase2.tt_max_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)         # Maximum number of periods worked by week by tour type
 
-model_phase2.tt_min_cumul_prds_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0)         # Minimum number of periods worked by cumulative weeks by tour type
-model_phase2.tt_max_cumul_prds_weeks = Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)         # Minimum number of periods worked by cumulative weeks by tour type
+model_phase2.tt_min_cumul_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=0)         # Minimum number of periods worked by cumulative weeks by tour type
+model_phase2.tt_max_cumul_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.WEEKS, default=1e+6)         # Minimum number of periods worked by cumulative weeks by tour type
 
-model_phase2.tt_shiftlen_min_prds_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)        # Minimum number of periods worked by week by tour type by shift length
-model_phase2.tt_shiftlen_max_prds_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)       # Minimum number of periods worked by week by tour type by shift length
+model_phase2.tt_shiftlen_min_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)        # Minimum number of periods worked by week by tour type by shift length
+model_phase2.tt_shiftlen_max_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)       # Minimum number of periods worked by week by tour type by shift length
 
-model_phase2.tt_shiftlen_min_cumul_prds_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)         # Minimum number of periods worked by cumulative weeks by tour type by shift length
-model_phase2.tt_shiftlen_max_cumul_prds_weeks = Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)        # Minimum number of periods worked by cumulative weeks by tour type by shift length
+model_phase2.tt_shiftlen_min_cumul_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=0)         # Minimum number of periods worked by cumulative weeks by tour type by shift length
+model_phase2.tt_shiftlen_max_cumul_prds_weeks = pyo.Param(model_phase2.TTYPES, model_phase2.LENGTHS, model_phase2.WEEKS, default=1e+6)        # Minimum number of periods worked by cumulative weeks by tour type by shift length
 
 
 
@@ -223,16 +223,16 @@ model_phase2.tt_shiftlen_max_cumul_prds_weeks = Param(model_phase2.TTYPES, model
 def activeWIN_init(M):
     return [i for i in M.WINDOWS]
     
-model_phase2.activeWIN = Set(dimen=1,ordered=True,initialize=activeWIN_init)
+model_phase2.activeWIN = pyo.Set(dimen=1,ordered=True,initialize=activeWIN_init)
 
 ### To the above, we'll add params and sets to allow direct modeling of side constraints
 ### of the form sum{subset of tour types} =, >=, <= some bound
 
-model_phase2.tt_parttime = Param(model_phase2.TTYPES)     # 1 for part-time, 0 for full-time
+model_phase2.tt_parttime = pyo.Param(model_phase2.TTYPES)     # 1 for part-time, 0 for full-time
 
 
 # Allowable shift start times  - note that these are tour type specific
-model_phase2.allow_start = Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.LENGTHS,model_phase2.TTYPES,default=0.0)
+model_phase2.allow_start = pyo.Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.LENGTHS,model_phase2.TTYPES,default=0.0)
 
 def okShifts_rule(M):
     return [(i,j,w,k,t) for i in M.PERIODS
@@ -243,7 +243,7 @@ def okShifts_rule(M):
                         if M.allow_start[i,j,k,t] > 0 and k in M.tt_length_x[t]]
 
 
-model_phase2.okShifts = Set(dimen=5,ordered=True,initialize=okShifts_rule)
+model_phase2.okShifts = pyo.Set(dimen=5,ordered=True,initialize=okShifts_rule)
 
 
 def okShiftTypes_rule(M):
@@ -254,29 +254,29 @@ def okShiftTypes_rule(M):
                         if M.allow_start[i,j,k,t] > 0 and k in M.tt_length_x[t]]
 
 
-model_phase2.okShiftTypes = Set(dimen=4,ordered=True,initialize=okShiftTypes_rule)
+model_phase2.okShiftTypes = pyo.Set(dimen=4,ordered=True,initialize=okShiftTypes_rule)
 
 
 # Limits on part time labor and limits on total labor
 
-model_phase2.max_parttime_frac = Param()                   # Maximum fraction of labor hours covered by part-time employees
-model_phase2.labor_budget = Param()                   # Maximum labor expenditure
+model_phase2.max_parttime_frac = pyo.Param()                   # Maximum fraction of labor hours covered by part-time employees
+model_phase2.labor_budget = pyo.Param()                   # Maximum labor expenditure
 
 # -----------------------------------------------------------------------
 # COST RELATED PARAMETERS
 # -----------------------------------------------------------------------
 
-model_phase2.tt_cost_multiplier = Param(model_phase2.TTYPES)           # Tour type differential
+model_phase2.tt_cost_multiplier = pyo.Param(model_phase2.TTYPES)           # Tour type differential
 
-model_phase2.cu1 = Param()
-model_phase2.cu2 = Param()        
-model_phase2.usb = Param()
+model_phase2.cu1 = pyo.Param()
+model_phase2.cu2 = pyo.Param()        
+model_phase2.usb = pyo.Param()
 
 # -----------------------------------------------------------------------
 # Weekend RELATED PARAMETERS
 # -----------------------------------------------------------------------
 
-model_phase2.midnight_thresh = Param(model_phase2.TTYPES, default=1e+6) # Need to generalize for any number of periods per day
+model_phase2.midnight_thresh = pyo.Param(model_phase2.TTYPES, default=1e+6) # Need to generalize for any number of periods per day
 
 def weekend_init(M,i,t):
 
@@ -290,7 +290,7 @@ def weekend_init(M,i,t):
     result.append(7)
     return result
 
-model_phase2.weekend = Set(model_phase2.WINDOWS, model_phase2.TTYPES, ordered=True, initialize=weekend_init)
+model_phase2.weekend = pyo.Set(model_phase2.WINDOWS, model_phase2.TTYPES, ordered=True, initialize=weekend_init)
  
 def weekend_type_init(M,i,t):
 
@@ -303,7 +303,7 @@ def weekend_type_init(M,i,t):
     return result
         
           
-model_phase2.weekend_type = Param(model_phase2.WINDOWS, model_phase2.TTYPES, initialize=weekend_type_init)
+model_phase2.weekend_type = pyo.Param(model_phase2.WINDOWS, model_phase2.TTYPES, initialize=weekend_type_init)
   
 # -----------------------------------------------------------------------
 # Coverage related PARAMETERS
@@ -312,8 +312,8 @@ model_phase2.weekend_type = Param(model_phase2.WINDOWS, model_phase2.TTYPES, ini
 # Target and minimum staffing levels - this is week specific. We can always allow user to input
 # a single week and then repeat it for the other weeks.
 
-model_phase2.dmd_staff = Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS)
-model_phase2.min_staff = Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS)
+model_phase2.dmd_staff = pyo.Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS)
+model_phase2.min_staff = pyo.Param(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS)
 
 # -----------------------------------------------------------------------
 # START WINDOWS - should these be tour type specific since allow start is tour type specific?
@@ -325,7 +325,7 @@ model_phase2.min_staff = Param(model_phase2.PERIODS,model_phase2.DAYS,model_phas
 # define windows appropriately.
 # -----------------------------------------------------------------------
 
-model_phase2.g_start_window_width = Param()                            # Width of start-time windows
+model_phase2.g_start_window_width = pyo.Param()                            # Width of start-time windows
 
 
 
@@ -345,7 +345,7 @@ model_phase2.g_start_window_width = Param()                            # Width o
 def b_window_epoch_init(M, i, j, w):
     return M.n_days_per_week*M.n_prds_per_day*(w-1) + M.n_prds_per_day*(j-1)+i
 
-model_phase2.b_window_epoch = Param(model_phase2.bins,initialize=b_window_epoch_init)
+model_phase2.b_window_epoch = pyo.Param(model_phase2.bins,initialize=b_window_epoch_init)
 
 
 def e_window_epoch_init(M,i,j,w):
@@ -357,7 +357,7 @@ def e_window_epoch_init(M,i,j,w):
     
     return e_window
 
-model_phase2.e_window_epoch = Param(model_phase2.bins,initialize=e_window_epoch_init)
+model_phase2.e_window_epoch = pyo.Param(model_phase2.bins,initialize=e_window_epoch_init)
 
 ###/**** The set WindowWepochs{(i,j) in {PERIODS,DAYS}} contains all pairs 
 ###   (l=period,m=day) within the start window which begins in period (i,j). ****/
@@ -418,7 +418,7 @@ def PotentialGlobalStartWindow_init(M,i,j,w):
 
     return window_list
    
-model_phase2.PotentialGlobalStartWindow = Set(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS,dimen=3,ordered=True,initialize=PotentialGlobalStartWindow_init)
+model_phase2.PotentialGlobalStartWindow = pyo.Set(model_phase2.PERIODS,model_phase2.DAYS,model_phase2.WEEKS,dimen=3,ordered=True,initialize=PotentialGlobalStartWindow_init)
 
 
 
@@ -454,13 +454,13 @@ def PotentialStartWindow_idx_rule(M):
                         for t in M.activeTT]
 
 
-model_phase2.PotentialStartWindow_idx = Set(dimen=5,ordered=True,initialize=PotentialStartWindow_idx_rule)
+model_phase2.PotentialStartWindow_idx = pyo.Set(dimen=5,ordered=True,initialize=PotentialStartWindow_idx_rule)
 
 def PotentialStartWindow_init(M,i,j,w,k,t):
     return [(l,m,n) for (l,m,n) in M.PotentialGlobalStartWindow[i,j,w]
                   if M.allow_start[i,j,k,t] > 0 and M.allow_start[l,m,k,t] > 0]
     
-model_phase2.PotentialStartWindow = Set(model_phase2.PotentialStartWindow_idx,ordered=True,initialize=PotentialStartWindow_init,dimen=3)
+model_phase2.PotentialStartWindow = pyo.Set(model_phase2.PotentialStartWindow_idx,ordered=True,initialize=PotentialStartWindow_init,dimen=3)
 #
 #
 ###### okStartWindowRoots ######
@@ -482,7 +482,7 @@ def okStartWindowRoots_idx_rule(M):
                          if k in M.tt_length_x[t]]
 
 
-model_phase2.okStartWindowRoots_idx = Set(dimen=2,ordered=True,initialize=okStartWindowRoots_idx_rule)
+model_phase2.okStartWindowRoots_idx = pyo.Set(dimen=2,ordered=True,initialize=okStartWindowRoots_idx_rule)
 #
 ###/**** ok_window_beginnings is the set of start windows in which there is
 ###at least one period in which a shift of length k can start
@@ -553,7 +553,7 @@ def okStartWindowRoots_init(M,t,k):
     return windowroot_list
     
 
-model_phase2.okStartWindowRoots = Set(model_phase2.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=okStartWindowRoots_init)
+model_phase2.okStartWindowRoots = pyo.Set(model_phase2.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=okStartWindowRoots_init)
 
 ##
 ##
@@ -573,14 +573,14 @@ def bchain_init(M,t,k):
     window_list =[]
     if M.g_start_window_width>0:
         for (i,j,w) in M.okStartWindowRoots[t,k]:
-            for (p,q,r) in (M.okStartWindowRoots[t,k] - Set(initialize=[(i,j,w)])):
+            for (p,q,r) in (M.okStartWindowRoots[t,k] - pyo.Set(initialize=[(i,j,w)])):
                 if (i,j,w) not in M.PotentialStartWindow[p,q,r,k,t]:
                     window_list.append((i,j,w))
          
     return window_list
 #    
 #
-model_phase2.bchain = Set(model_phase2.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=bchain_init)
+model_phase2.bchain = pyo.Set(model_phase2.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=bchain_init)
 #
 ##set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
 ## (i,j) in bchain[t,k]} 
@@ -605,7 +605,7 @@ def chain_idx_rule(M):
                       if (t,k) in M.okStartWindowRoots_idx and (i,j,w) in M.bchain[t,k]]
 
 
-model_phase2.chain_idx = Set(dimen=5, ordered=True, initialize=chain_idx_rule)
+model_phase2.chain_idx = pyo.Set(dimen=5, ordered=True, initialize=chain_idx_rule)
 #
 def echain_init(M,t,k,i,j,w):
     window_list =[]
@@ -634,7 +634,7 @@ def echain_init(M,t,k,i,j,w):
     return window_list
 
 
-model_phase2.echain = Set(model_phase2.chain_idx,ordered=True,dimen=3,initialize=echain_init)
+model_phase2.echain = pyo.Set(model_phase2.chain_idx,ordered=True,dimen=3,initialize=echain_init)
 
 
 def n_links_init(M,t,k,i,j,w):
@@ -647,7 +647,7 @@ def n_links_init(M,t,k,i,j,w):
     return g_period_difference(M,b_g_prd,e_g_prd)
 
 
-model_phase2.n_links = Param(model_phase2.chain_idx,initialize=n_links_init)
+model_phase2.n_links = pyo.Param(model_phase2.chain_idx,initialize=n_links_init)
 
 
 def chain_init(M,t,k,i,j,w):
@@ -668,7 +668,7 @@ def chain_init(M,t,k,i,j,w):
     return window_list
 
 
-model_phase2.chain = Set(model_phase2.chain_idx,ordered=True,dimen=3,initialize=chain_init)
+model_phase2.chain = pyo.Set(model_phase2.chain_idx,ordered=True,dimen=3,initialize=chain_init)
 
 
 def link_idx_rule(M):
@@ -685,7 +685,7 @@ def link_idx_rule(M):
                           
 
 
-model_phase2.link_idx = Set(dimen=6, ordered=True, initialize=link_idx_rule)
+model_phase2.link_idx = pyo.Set(dimen=6, ordered=True, initialize=link_idx_rule)
 
 def link_init(M,t,k,i,j,w,m):
     """
@@ -700,7 +700,7 @@ def link_init(M,t,k,i,j,w,m):
     return window_list
 
 
-model_phase2.link = Set(model_phase2.link_idx,ordered=True,dimen=3,initialize=link_init)
+model_phase2.link = pyo.Set(model_phase2.link_idx,ordered=True,dimen=3,initialize=link_init)
 
 #set linkspan{t in okTTYPES, k in tt_length_x[t], (i,j) in bchain[t,k], m in 1..numlinks[t,k,i,j] } dimen 2 := 
 #    {(n,o) in {PERIODS,DAYS}: forall{(p,d) in link[t,k,i,j,m]} (n,o) in WindowWepochs[p,d] union
@@ -722,14 +722,14 @@ def linkspan_init(M,t,k,i,j,w,m):
     return window_list
 
 
-model_phase2.linkspan = Set(model_phase2.link_idx,dimen=3,ordered=True,initialize=linkspan_init)
+model_phase2.linkspan = pyo.Set(model_phase2.link_idx,dimen=3,ordered=True,initialize=linkspan_init)
 
 
 ##### Phase 1 Shift variables --> Phase 2 parameters
 
 
 
-model_phase2.Shift = Param(model_phase2.okShifts, default=0)
+model_phase2.Shift = pyo.Param(model_phase2.okShifts, default=0)
 
 # Shift[i,j,w,k,t] = Number of shifts of length k starting in period i
 # of day j in week w for a tour of type t
@@ -744,8 +744,8 @@ def TourType_idx_rule(M):
                         
 
 
-model_phase2.TourType_idx = Set(dimen=2,initialize=TourType_idx_rule)
-model_phase2.TourType = Param(model_phase2.TourType_idx, default=0)
+model_phase2.TourType_idx = pyo.Set(dimen=2,initialize=TourType_idx_rule)
+model_phase2.TourType = pyo.Param(model_phase2.TourType_idx, default=0)
 
 
     
@@ -765,8 +765,8 @@ def DailyTourType_idx_rule(M):
                       if (i,t,j) in M.okDailyTourType]
                         
 
-model_phase2.DailyTourType_idx = Set(dimen=4,initialize=DailyTourType_idx_rule)
-model_phase2.DailyTourType = Param(model_phase2.DailyTourType_idx)
+model_phase2.DailyTourType_idx = pyo.Set(dimen=4,initialize=DailyTourType_idx_rule)
+model_phase2.DailyTourType = pyo.Param(model_phase2.DailyTourType_idx)
 
 
 
@@ -785,8 +785,8 @@ def DailyShiftWorked_idx_rule(M):
                         for w in M.WEEKS
                         if (i,t,j) in M.okDailyTourType]
                         
-model_phase2.DailyShiftWorked_idx = Set(dimen=5,initialize=DailyShiftWorked_idx_rule)
-model_phase2.DailyShiftWorked = Param(model_phase2.DailyShiftWorked_idx, default=0)
+model_phase2.DailyShiftWorked_idx = pyo.Set(dimen=5,initialize=DailyShiftWorked_idx_rule)
+model_phase2.DailyShiftWorked = pyo.Param(model_phase2.DailyShiftWorked_idx, default=0)
 
 ##### Weekend Days off variables   
 
@@ -797,7 +797,7 @@ model_phase2.DailyShiftWorked = Param(model_phase2.DailyShiftWorked_idx, default
 def ok_weekenddaysworked_idx_rule(M):
     index_list =[]
     for (i,t) in M.okTourType:
-        for pattern in sequence(M.max_weekend_patterns):
+        for pattern in pyo.sequence(M.max_weekend_patterns):
             weekendtype = M.weekend_type[i,t]
             if pattern <= M.num_weekend_patterns[weekendtype,t]:
                 index_list.append((i,t,pattern))
@@ -805,11 +805,11 @@ def ok_weekenddaysworked_idx_rule(M):
     return index_list
                         
 model_phase2.ok_weekenddaysworked_idx = \
-    Set(dimen=3,initialize=ok_weekenddaysworked_idx_rule)
+    pyo.Set(dimen=3,initialize=ok_weekenddaysworked_idx_rule)
 
 
 
-model_phase2.WeekendDaysWorked = Param(model_phase2.ok_weekenddaysworked_idx, default=0)  
+model_phase2.WeekendDaysWorked = pyo.Param(model_phase2.ok_weekenddaysworked_idx, default=0)  
     
     # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
     # in start window i and of tour type t
@@ -817,8 +817,8 @@ model_phase2.WeekendDaysWorked = Param(model_phase2.ok_weekenddaysworked_idx, de
     
 #param n_tours:=sum{i in 1..n_windows,t in okTTYPES :(i,t) in okTourType } TourType[i,t];
 
-model_phase2.n_tours = Param(within=PositiveIntegers)
-model_phase2.TOURS = RangeSet(1,model_phase2.n_tours)
+model_phase2.n_tours = pyo.Param(within=pyo.PositiveIntegers)
+model_phase2.TOURS = pyo.RangeSet(1,model_phase2.n_tours)
 
 ###set index_tours{i in 1..n_windows,t in okTTYPES:(i,t) in okTourType }  :=
 ### { (sum{k in 1..i, j in 1..(if k<i then n_tts else t):
@@ -839,8 +839,8 @@ model_phase2.TOURS = RangeSet(1,model_phase2.n_tours)
 
 
 
-model_phase2.WIN_x = Param(model_phase2.TOURS)
-model_phase2.TT_x = Param(model_phase2.TOURS)
+model_phase2.WIN_x = pyo.Param(model_phase2.TOURS)
+model_phase2.TT_x = pyo.Param(model_phase2.TOURS)
 
 
 
@@ -871,8 +871,8 @@ def TourShifts_idx_rule(M):
                         
     return index_list
 
-model_phase2.TourShifts_idx = Set(dimen=6,initialize=TourShifts_idx_rule)
-model_phase2.TourShifts = Var(model_phase2.TourShifts_idx, within=Boolean)
+model_phase2.TourShifts_idx = pyo.Set(dimen=6,initialize=TourShifts_idx_rule)
+model_phase2.TourShifts = pyo.Var(model_phase2.TourShifts_idx, within=pyo.Boolean)
 
 
 
@@ -890,14 +890,14 @@ def TourWkendDof_idx_rule(M):
     for s in M.TOURS:
       for i in [a for a in M.activeWIN if a == M.WIN_x[s]]:
         for t in [a for a in M.activeTT if a == M.TT_x[s]]: 
-          for pattern in sequence(M.num_weekend_patterns[M.weekend_type[i,t],t]):
+          for pattern in pyo.sequence(M.num_weekend_patterns[M.weekend_type[i,t],t]):
             if (i,t) in M.okTourType:
               index_list.append((s,pattern,i,t))
                                        
     return index_list
                 
-model_phase2.TourWkendDof_idx = Set(dimen=4,initialize=TourWkendDof_idx_rule)
-model_phase2.TourWkendDof = Var(model_phase2.TourWkendDof_idx, within=Boolean)
+model_phase2.TourWkendDof_idx = pyo.Set(dimen=4,initialize=TourWkendDof_idx_rule)
+model_phase2.TourWkendDof = pyo.Var(model_phase2.TourWkendDof_idx, within=pyo.Boolean)
 
 #.......................................................Obj. Function
 
@@ -914,7 +914,7 @@ def objective_rule(M):
     obj1 = sum(M.TourShifts[s,i,j,w,k,t] for (s,i,j,w,k,t) in M.TourShifts_idx)
     return obj1
 
-model_phase2.total_num_tours = Objective(rule=objective_rule, sense=minimize)
+model_phase2.total_num_tours = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
 
 # One days off pattern for each tour 
 
@@ -925,7 +925,7 @@ def Tour_WkendDof_conservation_idx_rule(M):
     index_list = []
     for i in M.activeWIN:
         for t in M.activeTT: 
-            for pattern in sequence(M.max_weekend_patterns):
+            for pattern in pyo.sequence(M.max_weekend_patterns):
                 if (i,t) in M.okTourType and pattern <= M.num_weekend_patterns[M.weekend_type[i,t],t]:
                     for s in M.TOURS:
                         if i == M.WIN_x[s] and t == M.TT_x[s]:
@@ -933,7 +933,7 @@ def Tour_WkendDof_conservation_idx_rule(M):
                             break
     return index_list   
     
-model_phase2.Tour_WkendDof_conservation_idx = Set(dimen=3,initialize=Tour_WkendDof_conservation_idx_rule)
+model_phase2.Tour_WkendDof_conservation_idx = pyo.Set(dimen=3,initialize=Tour_WkendDof_conservation_idx_rule)
 
 def Tour_WkendDof_conservation_rule(M,pattern,i,t):
     """
@@ -941,7 +941,7 @@ def Tour_WkendDof_conservation_rule(M,pattern,i,t):
     """
     return (sum(M.TourWkendDof[s,pattern,i,t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) == M.WeekendDaysWorked[i,t,pattern])
     
-model_phase2.Tour_WkendDof_conservation = Constraint(model_phase2.Tour_WkendDof_conservation_idx,rule=Tour_WkendDof_conservation_rule)
+model_phase2.Tour_WkendDof_conservation = pyo.Constraint(model_phase2.Tour_WkendDof_conservation_idx,rule=Tour_WkendDof_conservation_rule)
 
 def OnePatternPerTourShift_idx_rule(M):
     """
@@ -955,14 +955,14 @@ def OnePatternPerTourShift_idx_rule(M):
 
     return index_list   
 
-model_phase2.OnePatternPerTourShift_idx = Set(dimen=1,initialize=OnePatternPerTourShift_idx_rule)
+model_phase2.OnePatternPerTourShift_idx = pyo.Set(dimen=1,initialize=OnePatternPerTourShift_idx_rule)
     
 def OnePatternPerTourShift_rule(M,s):
     
     return sum(M.TourWkendDof[s,pattern,M.WIN_x[s],M.TT_x[s]] 
-        for pattern in sequence(M.num_weekend_patterns[M.weekend_type[M.WIN_x[s],M.TT_x[s]],M.TT_x[s]])) == 1
+        for pattern in pyo.sequence(M.num_weekend_patterns[M.weekend_type[M.WIN_x[s],M.TT_x[s]],M.TT_x[s]])) == 1
 
-model_phase2.OnePatternPerTourShift = Constraint(model_phase2.OnePatternPerTourShift_idx,rule=OnePatternPerTourShift_rule)
+model_phase2.OnePatternPerTourShift = pyo.Constraint(model_phase2.OnePatternPerTourShift_idx,rule=OnePatternPerTourShift_rule)
 
 # All days off patterns assigned 
 
@@ -996,7 +996,7 @@ def Tour_ShiftWkendDof_integration1_idx_rule(M):
     return index_list
         
 model_phase2.Tour_ShiftWkendDof_integration1_idx = \
-    Set(dimen=5,initialize=Tour_ShiftWkendDof_integration1_idx_rule)
+    pyo.Set(dimen=5,initialize=Tour_ShiftWkendDof_integration1_idx_rule)
 
 def weekend_integration_1_SS_idx_rule(M):
     return [(j,w,i,t) for j in M.DAYS
@@ -1006,10 +1006,10 @@ def weekend_integration_1_SS_idx_rule(M):
                     if j in M.weekend[i,t] and 1 in M.weekend[i,t] and 7 in M.weekend[i,t] \
                       and (i,t,j) in M.okDailyTourType]
                       
-model_phase2.weekend_integration_1_SS_idx = Set(dimen=4,initialize=weekend_integration_1_SS_idx_rule) 
+model_phase2.weekend_integration_1_SS_idx = pyo.Set(dimen=4,initialize=weekend_integration_1_SS_idx_rule) 
                      
 def action_check_WeekendDaysWorked_DailyTourType_rule(M,j,w,i,t):
-    val_w = value(sum(M.A[p,j,w,t,1] * M.WeekendDaysWorked[i,t,p] for p in sequence(M.num_weekend_patterns[1,t])))
+    val_w = pyo.value(sum(M.A[p,j,w,t,1] * M.WeekendDaysWorked[i,t,p] for p in pyo.sequence(M.num_weekend_patterns[1,t])))
     val_d = M.DailyTourType[i,t,j,w]
     
     if val_w == val_d:
@@ -1022,14 +1022,16 @@ def action_check_WeekendDaysWorked_DailyTourType_rule(M,j,w,i,t):
         print(msg)
     
 model_phase2.action_check_WeekendDaysWorked_DailyTourType = \
-    BuildAction(model_phase2.weekend_integration_1_SS_idx,rule=action_check_WeekendDaysWorked_DailyTourType_rule)
+    pyo.BuildAction(model_phase2.weekend_integration_1_SS_idx,
+                    rule=action_check_WeekendDaysWorked_DailyTourType_rule)
 
 def Tour_ShiftWkendDof_integration1_rule(M,s,i,j,w,t):
     return sum(M.TourShifts[s,p,d,q,k,t] for k in M.tt_length_x[t] for (p,d,q) in M.PotentialStartWindow[i,j,w,k,t]) == \
-           sum(M.A[pattern,j,w,t,M.weekend_type[i,t]] * M.TourWkendDof[s,pattern,i,t] for pattern in sequence(M.num_weekend_patterns[M.weekend_type[i,t],t]))
+           sum(M.A[pattern,j,w,t,M.weekend_type[i,t]] * M.TourWkendDof[s,pattern,i,t] for pattern in pyo.sequence(M.num_weekend_patterns[M.weekend_type[i,t],t]))
                  
 model_phase2.Tour_ShiftWkendDof_integration1 = \
-    Constraint(model_phase2.Tour_ShiftWkendDof_integration1_idx,rule=Tour_ShiftWkendDof_integration1_rule)
+    pyo.Constraint(model_phase2.Tour_ShiftWkendDof_integration1_idx,
+                   rule=Tour_ShiftWkendDof_integration1_rule)
 
 
 
@@ -1050,14 +1052,15 @@ def Tours_Daily_idx_rule(M):
                     if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
     
-model_phase2.Tours_Daily_idx = Set(dimen=3,initialize=Tours_Daily_idx_rule)
+model_phase2.Tours_Daily_idx = pyo.Set(dimen=3,initialize=Tours_Daily_idx_rule)
 
 def Tours_Daily_rule(M,s,j,w):
     
     return sum(M.TourShifts[s,p,d,q,k,M.TT_x[s]] 
                  for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) <= 1
                                     
-model_phase2.Tours_Daily = Constraint(model_phase2.Tours_Daily_idx,rule=Tours_Daily_rule)
+model_phase2.Tours_Daily = pyo.Constraint(model_phase2.Tours_Daily_idx,
+                                          rule=Tours_Daily_rule)
 
 
 ## Needs to be generalized for start windows
@@ -1089,7 +1092,8 @@ def Tours_Daily_conservation_idx_rule(M):
                                     break
     return index_list
 
-model_phase2.Tours_Daily_conservation_idx = Set(dimen=5,initialize=Tours_Daily_conservation_idx_rule)
+model_phase2.Tours_Daily_conservation_idx = \
+    pyo.Set(dimen=5, initialize=Tours_Daily_conservation_idx_rule)
 
 def Tours_Daily_conservation_rule(M,p,d,q,k,t):
     
@@ -1097,7 +1101,9 @@ def Tours_Daily_conservation_rule(M,p,d,q,k,t):
                  for s in M.TOURS for (i,j,w) in M.PotentialStartWindow[p,d,q,k,t] if p == M.WIN_x[s] and t == M.TT_x[s]) \
                  == sum(M.Shift[i,j,w,k,t] for (i,j,w) in M.PotentialStartWindow[p,d,q,k,t])
                                     
-model_phase2.Tours_Daily_conservation = Constraint(model_phase2.Tours_Daily_conservation_idx,rule=Tours_Daily_conservation_rule)
+model_phase2.Tours_Daily_conservation = \
+    pyo.Constraint(model_phase2.Tours_Daily_conservation_idx,
+                   rule=Tours_Daily_conservation_rule)
 
 #=============== Tours_Weekly Lower and Upper Bounds on Days Worked ==================================================
 
@@ -1116,7 +1122,8 @@ model_phase2.Tours_Daily_conservation = Constraint(model_phase2.Tours_Daily_cons
 def Tours_Weekly_LB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Weekly_LB_idx = Set(dimen=2,initialize=Tours_Weekly_LB_idx_rule)
+model_phase2.Tours_Weekly_LB_idx = pyo.Set(dimen=2,
+                                           initialize=Tours_Weekly_LB_idx_rule)
 
 def Tours_Weekly_LB_rule(M,s,w):
     
@@ -1125,12 +1132,14 @@ def Tours_Weekly_LB_rule(M,s,w):
       for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) >= M.tt_min_dys_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Weekly_LB = Constraint(model_phase2.Tours_Weekly_LB_idx,rule=Tours_Weekly_LB_rule)
+model_phase2.Tours_Weekly_LB = pyo.Constraint(model_phase2.Tours_Weekly_LB_idx,
+                                              rule=Tours_Weekly_LB_rule)
 
 def Tours_Weekly_UB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Weekly_UB_idx = Set(dimen=2,initialize=Tours_Weekly_UB_idx_rule)
+model_phase2.Tours_Weekly_UB_idx = pyo.Set(dimen=2,
+                                           initialize=Tours_Weekly_UB_idx_rule)
 
 def Tours_Weekly_UB_rule(M,s,w):
     
@@ -1138,7 +1147,8 @@ def Tours_Weekly_UB_rule(M,s,w):
                  for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) <= M.tt_max_dys_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Weekly_UB = Constraint(model_phase2.Tours_Weekly_UB_idx,rule=Tours_Weekly_UB_rule)
+model_phase2.Tours_Weekly_UB = pyo.Constraint(model_phase2.Tours_Weekly_UB_idx,
+                                              rule=Tours_Weekly_UB_rule)
 
 #=============== Tours_Total Lower and Upper Bounds on Days Worked ======================================================
 
@@ -1159,31 +1169,35 @@ model_phase2.Tours_Weekly_UB = Constraint(model_phase2.Tours_Weekly_UB_idx,rule=
 def Tours_Total_LB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Total_LB_idx = Set(dimen=2,initialize=Tours_Total_LB_idx_rule)
+model_phase2.Tours_Total_LB_idx = pyo.Set(dimen=2,
+                                          initialize=Tours_Total_LB_idx_rule)
 
 def Tours_Total_LB_rule(M,s,w):
     
     return sum(M.TourShifts[s,p,d,q,k,M.TT_x[s]] 
-                 for W in sequence(w) for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) >= M.tt_min_cumul_dys_weeks[M.TT_x[s],w]
+                 for W in pyo.sequence(w) for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) >= M.tt_min_cumul_dys_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Total_LB = Constraint(model_phase2.Tours_Total_LB_idx,rule=Tours_Total_LB_rule)
+model_phase2.Tours_Total_LB = pyo.Constraint(model_phase2.Tours_Total_LB_idx,
+                                             rule=Tours_Total_LB_rule)
 
 
 def Tours_Total_UB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Total_UB_idx = Set(dimen=2,initialize=Tours_Total_UB_idx_rule)
+model_phase2.Tours_Total_UB_idx = pyo.Set(dimen=2,
+                                          initialize=Tours_Total_UB_idx_rule)
 
 def Tours_Total_UB_rule(M,s,w):
     
     return sum(M.TourShifts[s,p,d,q,k,M.TT_x[s]] 
-             for W in sequence(w) 
+             for W in pyo.sequence(w) 
                for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] 
                  for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) <= M.tt_max_cumul_dys_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Total_UB = Constraint(model_phase2.Tours_Total_UB_idx,rule=Tours_Total_UB_rule)
+model_phase2.Tours_Total_UB = pyo.Constraint(model_phase2.Tours_Total_UB_idx,
+                                             rule=Tours_Total_UB_rule)
 
 
 #=============== Tours_Shiftlen_Weekly Lower and Upper Bounds on Days Worked ================================================
@@ -1205,7 +1219,8 @@ model_phase2.Tours_Total_UB = Constraint(model_phase2.Tours_Total_UB_idx,rule=To
 def Tours_Shiftlen_Weekly_LB_idx_rule(M):
     return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Shiftlen_Weekly_LB_idx = Set(dimen=3,initialize=Tours_Shiftlen_Weekly_LB_idx_rule)
+model_phase2.Tours_Shiftlen_Weekly_LB_idx = pyo.Set(dimen=3,
+                                                    initialize=Tours_Shiftlen_Weekly_LB_idx_rule)
 
 def Tours_Shiftlen_Weekly_LB_rule(M,s,k,w):
     
@@ -1213,12 +1228,15 @@ def Tours_Shiftlen_Weekly_LB_rule(M,s,k,w):
                  for j in M.DAYS for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) >= M.tt_shiftlen_min_dys_weeks[M.TT_x[s],k,w]
 
                                     
-model_phase2.Tours_Shiftlen_Weekly_LB = Constraint(model_phase2.Tours_Shiftlen_Weekly_LB_idx,rule=Tours_Shiftlen_Weekly_LB_rule)
+model_phase2.Tours_Shiftlen_Weekly_LB = \
+    pyo.Constraint(model_phase2.Tours_Shiftlen_Weekly_LB_idx,
+                   rule=Tours_Shiftlen_Weekly_LB_rule)
 
 def Tours_Shiftlen_Weekly_UB_idx_rule(M):
     return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Shiftlen_Weekly_UB_idx = Set(dimen=3,initialize=Tours_Shiftlen_Weekly_UB_idx_rule)
+model_phase2.Tours_Shiftlen_Weekly_UB_idx = \
+    pyo.Set(dimen=3, initialize=Tours_Shiftlen_Weekly_UB_idx_rule)
 
 def Tours_Shiftlen_Weekly_UB_rule(M,s,k,w):
     
@@ -1226,7 +1244,7 @@ def Tours_Shiftlen_Weekly_UB_rule(M,s,k,w):
                  for j in M.DAYS for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) <= M.tt_shiftlen_max_dys_weeks[M.TT_x[s],k,w]
 
                                     
-model_phase2.Tours_Shiftlen_Weekly_UB = Constraint(model_phase2.Tours_Shiftlen_Weekly_UB_idx,rule=Tours_Shiftlen_Weekly_UB_rule)
+model_phase2.Tours_Shiftlen_Weekly_UB = pyo.Constraint(model_phase2.Tours_Shiftlen_Weekly_UB_idx,rule=Tours_Shiftlen_Weekly_UB_rule)
 
 
 #=============== Tours_Shiftlen_Total Lower and Upper Bounds on Days Worked ==============================================
@@ -1246,19 +1264,25 @@ model_phase2.Tours_Shiftlen_Weekly_UB = Constraint(model_phase2.Tours_Shiftlen_W
 def Tours_Shiftlen_Total_LB_idx_rule(M):
     return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Shiftlen_Total_LB_idx = Set(dimen=3,initialize=Tours_Shiftlen_Total_LB_idx_rule)
+model_phase2.Tours_Shiftlen_Total_LB_idx = \
+    pyo.Set(dimen=3,
+            initialize=Tours_Shiftlen_Total_LB_idx_rule)
 
 def Tours_Shiftlen_Total_LB_rule(M,s,k,w):
     
     return sum(M.TourShifts[s,p,d,q,k,M.TT_x[s]] 
                  for W in range(1,w+1) for j in M.DAYS for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) >= M.tt_shiftlen_min_cumul_dys_weeks[M.TT_x[s],k,w]
 
-model_phase2.Tours_Shiftlen_Total_LB = Constraint(model_phase2.Tours_Shiftlen_Total_LB_idx,rule=Tours_Shiftlen_Total_LB_rule)
+model_phase2.Tours_Shiftlen_Total_LB = \
+    pyo.Constraint(model_phase2.Tours_Shiftlen_Total_LB_idx,
+                   rule=Tours_Shiftlen_Total_LB_rule)
 
 def Tours_Shiftlen_Total_UB_idx_rule(M):
     return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Shiftlen_Total_UB_idx = Set(dimen=3,initialize=Tours_Shiftlen_Total_UB_idx_rule)
+model_phase2.Tours_Shiftlen_Total_UB_idx = \
+    pyo.Set(dimen=3,
+            initialize=Tours_Shiftlen_Total_UB_idx_rule)
 
 def Tours_Shiftlen_Total_UB_rule(M,s,k,w):
     
@@ -1266,7 +1290,7 @@ def Tours_Shiftlen_Total_UB_rule(M,s,k,w):
                  for W in range(1,w+1) for j in M.DAYS for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) <= M.tt_shiftlen_max_cumul_dys_weeks[M.TT_x[s],k,w]
 
                                     
-model_phase2.Tours_Shiftlen_Total_UB = Constraint(model_phase2.Tours_Shiftlen_Total_UB_idx,rule=Tours_Shiftlen_Total_UB_rule)
+model_phase2.Tours_Shiftlen_Total_UB = pyo.Constraint(model_phase2.Tours_Shiftlen_Total_UB_idx,rule=Tours_Shiftlen_Total_UB_rule)
 
 
 #=============== Tours_Weekly Lower and Upper Bounds on Periods Worked ===========================================
@@ -1287,7 +1311,9 @@ model_phase2.Tours_Shiftlen_Total_UB = Constraint(model_phase2.Tours_Shiftlen_To
 def Tours_Weekly_Prds_LB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Weekly_Prds_LB_idx = Set(dimen=2,initialize=Tours_Weekly_Prds_LB_idx_rule)
+model_phase2.Tours_Weekly_Prds_LB_idx = \
+    pyo.Set(dimen=2,
+            initialize=Tours_Weekly_Prds_LB_idx_rule)
 
 def Tours_Weekly_Prds_LB_rule(M,s,w):
     
@@ -1295,19 +1321,23 @@ def Tours_Weekly_Prds_LB_rule(M,s,w):
                  for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) >= M.tt_min_prds_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Weekly_Prds_LB = Constraint(model_phase2.Tours_Weekly_Prds_LB_idx,rule=Tours_Weekly_Prds_LB_rule)
+model_phase2.Tours_Weekly_Prds_LB = pyo.Constraint(model_phase2.Tours_Weekly_Prds_LB_idx,rule=Tours_Weekly_Prds_LB_rule)
 
 def Tours_Weekly_Prds_UB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Weekly_Prds_UB_idx = Set(dimen=2,initialize=Tours_Weekly_Prds_UB_idx_rule)
+model_phase2.Tours_Weekly_Prds_UB_idx = \
+    pyo.Set(dimen=2,
+            initialize=Tours_Weekly_Prds_UB_idx_rule)
 
 def Tours_Weekly_Prds_UB_rule(M,s,w):
     
     return sum(M.TourShifts[s,p,d,q,k,M.TT_x[s]]*M.lengths[k] 
                  for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) <= M.tt_max_prds_weeks[M.TT_x[s],w]
 
-model_phase2.Tours_Weekly_Prds_UB = Constraint(model_phase2.Tours_Weekly_Prds_UB_idx,rule=Tours_Weekly_Prds_UB_rule)
+model_phase2.Tours_Weekly_Prds_UB = \
+    pyo.Constraint(model_phase2.Tours_Weekly_Prds_UB_idx,
+                   rule=Tours_Weekly_Prds_UB_rule)
 
 
 #=============== Tours_Total Lower and Upper Bounds on Periods Worked ===========================================
@@ -1326,7 +1356,9 @@ model_phase2.Tours_Weekly_Prds_UB = Constraint(model_phase2.Tours_Weekly_Prds_UB
 def Tours_Total_Prds_LB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Total_Prds_LB_idx = Set(dimen=2,initialize=Tours_Total_Prds_LB_idx_rule)
+model_phase2.Tours_Total_Prds_LB_idx = \
+    pyo.Set(dimen=2,
+            initialize=Tours_Total_Prds_LB_idx_rule)
 
 def Tours_Total_Prds_LB_rule(M,s,w):
     
@@ -1334,13 +1366,15 @@ def Tours_Total_Prds_LB_rule(M,s,w):
                  for W in range(1,w+1) for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) >= M.tt_min_cumul_prds_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Total_Prds_LB = Constraint(model_phase2.Tours_Total_Prds_LB_idx,rule=Tours_Total_Prds_LB_rule)
+model_phase2.Tours_Total_Prds_LB = pyo.Constraint(model_phase2.Tours_Total_Prds_LB_idx,rule=Tours_Total_Prds_LB_rule)
 
 
 def Tours_Total_Prds_UB_idx_rule(M):
     return [(s,w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
-model_phase2.Tours_Total_Prds_UB_idx = Set(dimen=2,initialize=Tours_Total_Prds_UB_idx_rule)
+model_phase2.Tours_Total_Prds_UB_idx = \
+    pyo.Set(dimen=2,
+            initialize=Tours_Total_Prds_UB_idx_rule)
 
 def Tours_Total_Prds_UB_rule(M,s,w):
     
@@ -1348,10 +1382,9 @@ def Tours_Total_Prds_UB_rule(M,s,w):
                  for W in range(1,w+1) for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,W,k,M.TT_x[s]]) <= M.tt_max_cumul_prds_weeks[M.TT_x[s],w]
 
                                     
-model_phase2.Tours_Total_Prds_UB = Constraint(model_phase2.Tours_Total_Prds_UB_idx,rule=Tours_Total_Prds_UB_rule)
-
-
-
+model_phase2.Tours_Total_Prds_UB = \
+    pyo.Constraint(model_phase2.Tours_Total_Prds_UB_idx,
+                   rule=Tours_Total_Prds_UB_rule)
 
  # Ensures that each day worked in tour l is assigned exactly one shift
 # of an appropriate length and from an appropriate start window.
@@ -1365,8 +1398,6 @@ model_phase2.Tours_Total_Prds_UB = Constraint(model_phase2.Tours_Total_Prds_UB_i
 #   sum{m in PERIODS,n in DAYS,z in WEEKS, o in LENGTHS, t in TTYPES : 
 #   (m,n,o,t) in ok_shifts and Shift[m,n,z,o,t]>0} Shift[m,n,z,o,t];
 
-
-
 #def Tours_Total_conservation_rule(M):
 #    
 #    return sum(M.TourShifts[s,i,j,m,k,t,p,d] 
@@ -1379,21 +1410,12 @@ model_phase2.Tours_Total_Prds_UB = Constraint(model_phase2.Tours_Total_Prds_UB_i
 #        for (i,j,m) in M.PotentialStartWindow[p,d,w,k,t] if p == M.WIN_x[s] and t == M.TT_x[s]) \
 #                 <= sum(M.Shift[i,j,w,k,t] for (i,j,m) in M.PotentialStartWindow[p,d,w,k,t] if (i,j,w,k,t) in M.okShifts)
 #                                    
-#model_phase2.Tours_Total_conservation = Constraint(model_phase2.Tours_Total_conservation_idx,rule=Tours_Total_conservation_rule)
+#model_phase2.Tours_Total_conservation = pyo.Constraint(model_phase2.Tours_Total_conservation_idx,rule=Tours_Total_conservation_rule)
 
 
-
-
-
-
-
-
-
-
-#
-#
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
