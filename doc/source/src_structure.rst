@@ -88,6 +88,11 @@ from pymtws/pymwts.
 Fixed the imports to get rid of `from pymwts import BLAH` and everything just works.
 
 
+Running real problems
+=====================
+
+TODO - Update this section after figuring out new way to package
+and install mwts. The stuff below is old
 
 Method 1 - calling solvemwts from a Python script
 -------------------------------------------------

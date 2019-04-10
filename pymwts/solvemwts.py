@@ -9,11 +9,11 @@ phase 1 DAT file and these additional parameters.
 
 #Python imports
 import sys
-import os
-import time
+# import os
 import sqlite3
 import datetime
-import io
+# import io
+import logging
 
 
 import pyomo.opt
@@ -39,71 +39,87 @@ from pymwtsio.mwts_process_out_tour import create_mwt
 # phase 2 model Optional default='mwts_phase2.py'
 # input YAML config file Optional
 
-def solvemwts(scenario,phase1_dat_file,path,
-              which_solver,timelimit,mipgap,
+def solvemwts(scenario, phase1_dat_file, path,
+              which_solver, timelimit, mipgap,
               phase1_mod_file='mwts_phase1.py', 
               phase2_mod_file='mwts_phase2.py',
               results_db='exps/mwts00/mwts00.db',
-              bWriteStartWinDebug=False,
-              bWritePhase1Instance=True,
-              bWritePhase2Instance=False):
-    
-    start_win_debug_file = path + scenario + '_debugwin.txt'
+              bWriteStartWinDebug = False,
+              bWritePhase1Instance = False,
+              bWritePhase2Instance = False):
+    """
+
+    :param scenario:
+    :param phase1_dat_file:
+    :param path:
+    :param which_solver:
+    :param timelimit:
+    :param mipgap:
+    :param phase1_mod_file:
+    :param phase2_mod_file:
+    :param results_db:
+    :param bWriteStartWinDebug:
+    :param bWritePhase1Instance:
+    :param bWritePhase2Instance:
+    :return:
+    """
+    # Create filenames
     phase2_dat_file = path + scenario + '_phase2.dat'
     
     phase1_inst_file = path + scenario + '_phase1_inst.txt'
     phase2_inst_file = path + scenario + '_phase2_inst.txt'
-    
-    log_file = path + scenario + '.log'
-    f_log = open(log_file,"w")
-    logger(f_log,'Scenario ' + scenario, time.time())
-    logger(f_log,'DAT ' + phase1_dat_file, time.time())
-    
-    
+
     phase1_summary_file = path + scenario + '_phase1_summary.txt'
     phase2_summary_file = path + scenario + '_phase2_summary.txt'
-    
+
     phase1_results_file = path + scenario + '_phase1_results.yml'
     phase2_results_file = path + scenario + '_phase2_results.yml'
-    
+
     phase1_shiftsum_file = path + scenario + '_phase1_shiftsum.csv'
     phase1_tourskeleton_file = path + scenario + '_phase1_tourskeleton.csv'
-    
+
     tour_file = path + scenario + '.tur'
-    
+
+    # Setup logging
+    log_file = path + scenario + '.log'
+    logging.basicConfig(filename=log_file,
+                        filemode='w',
+                        format='%(levelname)s:%(message)s %(asctime)s',
+                        level=logging.DEBUG)
+
+    # Initialization
     phase1_solution_status = 'untried'
     phase2_solution_status = 'untried'
     phase1_solution_value = 0.0
     phase2_solution_value = 0.0
-    
-    
 
-    
-    # Import phase 1 model and create phase 1 model instance
-    #phase1_mdl = import_file(phase1_mod_file).model_phase1
+    logging.info('Scenario %s started', scenario)
+    logging.info('DAT %s', phase1_dat_file)
+
+    # Create Phase 1 model instance
     phase1_mdl = mwts_phase1.model_phase1
-    # Trying to get all this working as a package of modules so will try to avoid
-    # using import_file (since it's really just emulating a module import anyway - pyutilib.misc)
-    #phase1_mdl = mwts_phase1.model_phase1
-    phase1_inst = phase1_mdl.create_instance(filename = phase1_dat_file)
+    phase1_inst = phase1_mdl.create_instance(filename=phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
-    logger(f_log,'Phase 1 instance created', time.time())
-    
-    
+    logging.info('Phase 1 instance created')
 
+    # Activate/deactivate constraints
 
-# Activate/deactivate constraints
-    
+    # Deactivate part-time fraction upper bound if all tour types are part-time
+    tot_parttime_ttypes = sum(phase1_inst.tt_parttime[t] for t in phase1_inst.activeTT)
+    if tot_parttime_ttypes == len(phase1_inst.activeTT):
+        phase1_inst.max_ptfrac_con.deactivate()
+
+    # Boolean indicators for debugging weekends related constraints
     b_weekend_subsets_5_4_con_active = True
-    b_weekend_subsets_5_5_con_active = False # Feels redundant, see comments in constraint
-    b_weekend_subsets_5_5lb_con_active = False
-    b_weekend_subsets_5_5sun_con_active = False
-    b_weekend_subsets_5_5sat_con_active = False
-    b_weekend_subsets_5_4sun_con_active = False
-    b_weekend_subsets_5_4sat_con_active = False
+    b_weekend_subsets_5_5_con_active = True # Feels redundant, see comments in constraint
+    b_weekend_subsets_5_5lb_con_active = True
+    b_weekend_subsets_5_5sun_con_active = True
+    b_weekend_subsets_5_5sat_con_active = True
+    b_weekend_subsets_5_4sun_con_active = True
+    b_weekend_subsets_5_4sat_con_active = True
 
     b_weekend_subsets_4_3_con_active = True
-    b_weekend_subsets_4_4_con_active = False
+    b_weekend_subsets_4_4_con_active = True
 
     b_weekend_subsets_3_2_con_active = True
 
@@ -111,9 +127,10 @@ def solvemwts(scenario,phase1_dat_file,path,
     
     b_DTT_TT_fullwkendadj_UB_active = True
     
-    b_ad_hoc_weekend_subsets_ttype7_active = True
+    b_ad_hoc_weekend_subsets_ttype7_active = False
+    b_ad_hoc_weekend_subsets_ttype8_active = False
 
-   
+    # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con_active:
         phase1_inst.weekend_subsets_5_4_con.deactivate()
         
@@ -151,37 +168,39 @@ def solvemwts(scenario,phase1_dat_file,path,
         phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()   
         
     if not b_ad_hoc_weekend_subsets_ttype7_active:
-        phase1_inst.ad_hoc_weekend_subsets_ttype7.deactivate()  
-    
-    # Optionally write out out phase 1 instance    
+        phase1_inst.ad_hoc_weekend_subsets_ttype7_con.deactivate()
+
+    if not b_ad_hoc_weekend_subsets_ttype8_active:
+        phase1_inst.ad_hoc_weekend_subsets_ttype8_con.deactivate()
+
+    # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
         try:          
-            f1_inst = open(phase1_inst_file,'w')
+            f1_inst = open(phase1_inst_file, 'w')
             old_stdout = sys.stdout
             sys.stdout = f1_inst
             phase1_inst.pprint()
-            logger(f_log,'Phase 1 instance written', time.time())
+            logging.info('Phase 1 instance written')
 
         finally:
             sys.stdout = old_stdout
             f1_inst.close()
         
     try:
-        f1_sum = open(phase1_summary_file,'w')
+        f1_sum = open(phase1_summary_file, 'w')
         old_stdout = sys.stdout
         sys.stdout = f1_sum
-        
-            
+
         tot_cons = 0
         tot_vars = 0
         print("\n\nConstraint summary \n------------------")
         for c in phase1_inst.component_objects(Constraint, active=True):
-            #conobj = getattr(phase1_inst,str(c))
+            # conobj = getattr(phase1_inst,str(c))
             print(c.name + " --> " + str(len(c)))
             tot_cons += len(c)
         print("\n\nVariable summary \n------------------")
         for v in phase1_inst.component_objects(Var):
-            #vobj = getattr(phase1_inst,str(v))
+            # vobj = getattr(phase1_inst,str(v))
             print(v.name + " --> " + str(len(v)))
             tot_vars += len(v)
                 
@@ -195,24 +214,33 @@ def solvemwts(scenario,phase1_dat_file,path,
         sys.stdout = old_stdout
     
     if bWriteStartWinDebug:
+        start_win_debug_file = path + scenario + '_debugwin.txt'
         old_stdout = sys.stdout
         sys.stdout = open(start_win_debug_file,"w")
-        
+
         for w in phase1_inst.WEEKS:
             for j in phase1_inst.DAYS:
                 for i in phase1_inst.PERIODS:
-                    print('b_window_epoch[{0},{1},{2}] = {3}, e_window_epoch[{0},{1},{2}] = {4}'.format(i,j,w,phase1_inst.b_window_epoch[i,j,w].value, phase1_inst.e_window_epoch[i,j,w].value))
-                
-        for (i,j,w) in phase1_inst.PotentialGlobalStartWindow_index:     
-            if phase1_inst.PotentialGlobalStartWindow[i,j,w]:
-                print('PotentialGlobalStartWindow[{},{},{}] = {}'.format(i, j, w, phase1_inst.PotentialGlobalStartWindow[i,j,w].value))
-                 
-        for (i,j,w,k,t) in phase1_inst.PotentialStartWindow_index:     
-            if phase1_inst.PotentialStartWindow[i,j,w,k,t]:
-                print('PotentialStartWindow[{},{},{},{},{}] = {}'.format(i, j, w, k, t, phase1_inst.PotentialStartWindow[i,j,w,k,t].value))
-        
-        print('okStartWindowRoots_index = ') 
-        for (t,k) in phase1_inst.okStartWindowRoots_index:
+                    print('b_window_epoch[{0},{1},{2}] = {3}, e_window_epoch[{0},{1},{2}] = {4}'.format(i, j, w,
+                                                                                                        phase1_inst.b_window_epoch[
+                                                                                                            i, j, w].value,
+                                                                                                        phase1_inst.e_window_epoch[
+                                                                                                            i, j, w].value))
+
+        for (i, j, w) in phase1_inst.PotentialGlobalStartWindow_index:
+            if phase1_inst.PotentialGlobalStartWindow[i, j, w]:
+                print('PotentialGlobalStartWindow[{},{},{}] = {}'.format(i, j, w,
+                                                                         phase1_inst.PotentialGlobalStartWindow[
+                                                                             i, j, w].value))
+
+        for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_index:
+            if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
+                print('PotentialStartWindow[{},{},{},{},{}] = {}'.format(i, j, w, k, t,
+                                                                         phase1_inst.PotentialStartWindow[
+                                                                             i, j, w, k, t].value))
+
+        print('okStartWindowRoots_index = ')
+        for (t, k) in phase1_inst.okStartWindowRoots_index:
             print(t, k)
         
           
@@ -237,16 +265,16 @@ def solvemwts(scenario,phase1_dat_file,path,
                 for (x, y, z) in phase1_inst.echain[t, k, i, j, w]:
                     out = out + '({},{},{}) {}\n'.format(x,y,z,phase1_inst.n_links[t, k, i, j, w].value)
                 print(out)
-        
-        for (t,k,i,j,w) in phase1_inst.chain_index:
+
+        for (t, k, i, j, w) in phase1_inst.chain_index:
             out = ''
-            print('chain[{},{},{},{},{}]='.format(t,k,i,j,w))
+            print('chain[{},{},{},{},{}]='.format(t, k, i, j, w))
             for (x, y, z) in phase1_inst.chain[t, k, i, j, w]:
-                out = out + '({},{},{})*'.format(x,y,z,phase1_inst.chain[t, k, i, j, w].value)
+                out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w].value)
             print(out)
-            
-        for (t,k,i,j,w,m) in phase1_inst.link_index:
-            print('link[{},{},{},{},{},{}]='.format(t,k,i,j,w,m))
+
+        for (t, k, i, j, w, m) in phase1_inst.link_index:
+            print('link[{},{},{},{},{},{}]='.format(t, k, i, j, w, m))
             
         
         #chain[1,1,37,1,3]=
@@ -261,7 +289,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         
         
         sys.stdout = old_stdout
-        logger(f_log,'Windows debug info written', time.time())
+        logging.info('Windows debug info written')
 
     # solver = pyomo.opt.SolverFactory('cplex')
     # results = solver.solve(self.m, tee=True, keepfiles=False,
@@ -299,25 +327,24 @@ def solvemwts(scenario,phase1_dat_file,path,
         
         # TODO - check if phase 1 solved        
         if (phase1_results.solver.status != pyomo.opt.SolverStatus.ok):
-            #logging.warning('Check solver not ok?')
-            logger(f_log, 'Check solver not ok?', phase1_results.solver.status)
+            logging.warning('Check solver not ok? Status = %s', phase1_results.solver.status)
+
         if (phase1_results.solver.termination_condition != pyomo.opt.TerminationCondition.optimal):
-            #logging.warning('Check solver optimality?')
-            logger(f_log, 'Check solver optimality?', phase1_results.solver.termination_condition)
-        
-        logger(f_log,'Phase 1 solution status=' + str(phase1_results.solver.status), time.time())
-        logger(f_log,'Phase 1 solved', time.time())
+            logging.warning('Check solver optimality? Term condition = %s',
+                            phase1_results.solver.termination_condition)
+
+        logging.info('Phase 1 solution status = %s', phase1_results.solver.status)
+        logging.info('Phase 1 solved')
 
         # By default, results are automatically loaded into model instance
         
         try:
             phase1_solution_value = phase1_inst.total_cost()
-                #phase1_inst['Solution'][0]['Objective'][1]['Value']
-            print(phase1_solution_value)
+            logging.info('Phase 1 solution = %s', phase1_solution_value)
         except:
-            print('Phase 1 problem not solved successfully.')
+            logging.critical('Phase 1 problem not solved successfully.')
             phase1_solution_status = phase1_results.solver.status
-            print('Status: ' + str(phase1_solution_status))
+            logging.critical('Status: %s', str(phase1_solution_status))
             sys.exit(1)
      
         
@@ -354,7 +381,7 @@ def solvemwts(scenario,phase1_dat_file,path,
             sys.stdout = f1_res
             phase1_results.write()
             f1_res.close()
-            logger(f_log,'Phase 1 summary and results written', time.time())
+            logging.info('Phase 1 summary and results written')
         
         finally:
             sys.stdout = old_stdout
@@ -426,7 +453,7 @@ def solvemwts(scenario,phase1_dat_file,path,
         f2_dat = open(phase2_dat_file,'a')
         print(dat.getvalue(), file=f2_dat)
         f2_dat.close()
-        logger(f_log,'Phase 2 dat file created', time.time())
+        logging.info('Phase 2 dat file created')
 
         
         
@@ -436,7 +463,8 @@ def solvemwts(scenario,phase1_dat_file,path,
         phase2_mdl = mwts_phase2.model_phase2
         phase2_inst = phase2_mdl.create_instance(filename = phase2_dat_file)
         phase2_inst.name = 'mwts_phase2_inst'
-        logger(f_log,'Phase 2 instance created', time.time())
+        logging.info('Phase 2 instance created')
+
         
         # Activate/deactivate constraints
         
@@ -522,7 +550,7 @@ def solvemwts(scenario,phase1_dat_file,path,
                 old_stdout = sys.stdout
                 sys.stdout = f2_inst
                 phase2_inst.pprint()
-                logger(f_log,'Phase 2 instance', time.time())
+                logging.info('Phase 2 instance written')
             finally:
                 sys.stdout = old_stdout
                 f2_inst.close()
@@ -559,16 +587,13 @@ def solvemwts(scenario,phase1_dat_file,path,
         stream_solver = True
         phase2_results = solver.solve(phase2_inst, tee=stream_solver)
         phase2_solution_status = str(phase2_results.solver.status)
-        logger(f_log,'Phase 2 solution status=' + str(phase2_solution_status), time.time())
+        logging.info('Phase 2 solution status = %s', str(phase2_solution_status))
         
         if str(phase2_results.Solution.Status) != 'unknown':
-            logger(f_log,'Phase 2 solved', time.time())
-            #phase2_inst.solutions.load_from(phase2_results)  # Put results in model instance
-            logger(f_log,'Phase 2 results loaded', time.time())
-            
-            
-                
-                
+            logging.info('Phase 2 solved')
+            # phase2_inst.solutions.load_from(phase2_results)  # Put results in model instance
+            # logging.info('Phase 2 results loaded')
+
             # print phase2_results['Solution'][0]['Objective'][1]['Value']
             old_stdout = sys.stdout
             try:
@@ -580,12 +605,12 @@ def solvemwts(scenario,phase1_dat_file,path,
                 tot_vars = 0
                 print("\n\nConstraint summary \n------------------")
                 for c in phase2_inst.component_objects(Constraint, active=True):
-                    #conobj = getattr(phase2_inst, str(c))
+                    # conobj = getattr(phase2_inst, str(c))
                     print(c.name + " --> " + str(len(c)))
                     tot_cons += len(c)
                 print("\n\nVariable summary \n------------------")
                 for v in phase2_inst.component_objects(Var):
-                    #vobj = getattr(phase2_inst, str(v))
+                    # vobj = getattr(phase2_inst, str(v))
                     print(v.name + " --> " + str(len(v)))
                     tot_vars += len(v)
                     
@@ -604,7 +629,7 @@ def solvemwts(scenario,phase1_dat_file,path,
                 sys.stdout = f2_res
                 phase2_results.write()
                 f2_res.close()
-                logger(f_log,'Phase 2 summary and results written', time.time())
+                logging.info('Phase 2 summary and results written')
             
             finally:
                 sys.stdout = old_stdout
@@ -695,12 +720,12 @@ def solvemwts(scenario,phase1_dat_file,path,
         sys.stdout = old_stdout 
     
         create_mwt(tour_file, scenario, path)
-        logger(f_log,'Tour related output files created', time.time())
+        logging.info('Tour related output files created')
         now = datetime.datetime.now()
         vtuple = (scenario,phase1_solution_value,tot_cap,
               str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))        
-        logger(f_log,'Solution log record',str(vtuple))
-    f_log.close()  
+        logging.info('Solution log record %s', str(vtuple))
+
 
     # Connect to the problem solution log database.
     conn = sqlite3.connect(results_db)
@@ -726,11 +751,3 @@ def solvemwts(scenario,phase1_dat_file,path,
     conn.close()      
             
              
-      
-    
-
-    
-    
-    
-    
-    
