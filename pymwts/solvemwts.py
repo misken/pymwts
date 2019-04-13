@@ -41,12 +41,13 @@ from pymwtsio.mwts_process_out_tour import create_mwt
 
 def solvemwts(scenario, phase1_dat_file, path,
               which_solver, timelimit, mipgap,
-              phase1_mod_file='mwts_phase1.py', 
-              phase2_mod_file='mwts_phase2.py',
-              results_db='exps/mwts00/mwts00.db',
+              phase1_mod_file = 'mwts_phase1.py',
+              phase2_mod_file = 'mwts_phase2.py',
+              results_db = None,
               bWriteStartWinDebug = False,
               bWritePhase1Instance = False,
-              bWritePhase2Instance = False):
+              bWritePhase2Instance = False,
+              force_solve = False):
     """
 
     :param scenario:
@@ -63,6 +64,21 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param bWritePhase2Instance:
     :return:
     """
+
+    # Check to see if this problem has already been run
+    # Connect to the problem solution log database.
+    if not force_solve and (results_db is not None):
+        conn = sqlite3.connect(results_db)
+        cur = conn.cursor()
+        row = cur.execute('SELECT Problem, sol_status FROM problem_list WHERE Problem=?', (scenario,))
+
+        result = row.fetchone()
+        if result[1] != 'not run':
+            conn.close()
+            exit(0)
+
+        conn.close()
+
     # Create filenames
     phase2_dat_file = path + scenario + '_phase2.dat'
     
@@ -726,28 +742,26 @@ def solvemwts(scenario, phase1_dat_file, path,
               str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))        
         logging.info('Solution log record %s', str(vtuple))
 
-
     # Connect to the problem solution log database.
-    conn = sqlite3.connect(results_db)
-    cur = conn.cursor()
-    now = datetime.datetime.now()
-    flist = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,us1_cost,us2_cost,phase2_obj,timestamp)'
-    vtuple = (scenario,phase1_solution_value,tot_cap,
-              str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))
-    sql_insert = 'insert into solution_log ' + flist + ' values ' + str(vtuple)
-    print(sql_insert)
-    cur.execute(sql_insert)
-    conn.commit()
-    
+    if results_db is not None:
+        conn = sqlite3.connect(results_db)
+        cur = conn.cursor()
+        now = datetime.datetime.now()
+        flist = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,us1_cost,us2_cost,phase2_obj,timestamp)'
+        vtuple = (scenario,phase1_solution_value,tot_cap,
+                  str(phase1_solution_status),str(phase2_solution_status),us1_cost,us2_cost,phase2_solution_value,str(now))
+        sql_insert = 'insert into solution_log ' + flist + ' values ' + str(vtuple)
+        print(sql_insert)
+        cur.execute(sql_insert)
+        conn.commit()
 
-    # Update the problem list table
-    
-    cur = conn.cursor()
-    conn.row_factory = sqlite3.Row
-    sql_update = 'update problem_list set sol_status="' + str(phase1_solution_status) + ':' + str(phase2_solution_status) + '" where problem="' + scenario + '"'
-    cur.execute(sql_update)    
-    print(sql_update)   
-    conn.commit()
-    conn.close()      
+        # Update the problem list table
+        cur = conn.cursor()
+        conn.row_factory = sqlite3.Row
+        sql_update = 'update problem_list set sol_status="' + str(phase1_solution_status) + ':' + str(phase2_solution_status) + '" where problem="' + scenario + '"'
+        cur.execute(sql_update)
+        print(sql_update)
+        conn.commit()
+        conn.close()
             
              

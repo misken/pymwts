@@ -838,12 +838,8 @@ model_phase2.TOURS = pyo.RangeSet(1,model_phase2.n_tours)
 ###param TT_x{l in 1..n_tours}:=min{i in TT_sx[l]} i;
 
 
-
 model_phase2.WIN_x = pyo.Param(model_phase2.TOURS)
 model_phase2.TT_x = pyo.Param(model_phase2.TOURS)
-
-
-
 
 #......................................................Dec. Variables
 
@@ -868,10 +864,12 @@ def TourShifts_idx_rule(M):
                 for (p,d,q) in [(x,y,z) for (x,y,z) in M.okStartWindowRoots[t,k] if x == M.WIN_x[s] and x in M.activeWIN]:
                   if (i,j,w) in M.PotentialStartWindow[p,d,q,k,t]:
                     index_list.append((s,i,j,w,k,t))
-                        
+
+    # print("TourShift_idx", index_list)
     return index_list
 
-model_phase2.TourShifts_idx = pyo.Set(dimen=6,initialize=TourShifts_idx_rule)
+
+model_phase2.TourShifts_idx = pyo.Set(dimen=6, initialize=TourShifts_idx_rule)
 model_phase2.TourShifts = pyo.Var(model_phase2.TourShifts_idx, within=pyo.Boolean)
 
 
@@ -1052,7 +1050,7 @@ def Tours_Daily_idx_rule(M):
                     if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
     
-model_phase2.Tours_Daily_idx = pyo.Set(dimen=3,initialize=Tours_Daily_idx_rule)
+model_phase2.Tours_Daily_idx = pyo.Set(dimen=3, initialize=Tours_Daily_idx_rule)
 
 def Tours_Daily_rule(M,s,j,w):
     
@@ -1215,9 +1213,20 @@ model_phase2.Tours_Total_UB = pyo.Constraint(model_phase2.Tours_Total_UB_idx,
 #   tourshift[t,i,j,w,k,TT_x[t],WIN_x[t],d] <= tt_shiftlen_max_dys_weeks[TT_x[t],k,w];
 #   
 
-
+# and M.tt_shiftlen_min_dys_weeks[M.TT_x[s],k,w] > 0
 def Tours_Shiftlen_Weekly_LB_idx_rule(M):
-    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    index_list = []
+    for s in M.TOURS:
+        for k in M.tt_length_x[M.TT_x[s]]:
+            for w in M.WEEKS:
+                if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
+                    if any((s, p, d, q, k, M.TT_x[s]) in model_phase2.TourShifts_idx for j in M.DAYS for (p, d, q)
+                           in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
+                        index_list.append((s, k, w))
+
+    return index_list
+
+#    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
 model_phase2.Tours_Shiftlen_Weekly_LB_idx = pyo.Set(dimen=3,
                                                     initialize=Tours_Shiftlen_Weekly_LB_idx_rule)
@@ -1233,7 +1242,16 @@ model_phase2.Tours_Shiftlen_Weekly_LB = \
                    rule=Tours_Shiftlen_Weekly_LB_rule)
 
 def Tours_Shiftlen_Weekly_UB_idx_rule(M):
-    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    #return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    index_list = []
+    for s in M.TOURS:
+        for k in M.tt_length_x[M.TT_x[s]]:
+            for w in M.WEEKS:
+                if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
+                    if any((s, p, d, q, k ,M.TT_x[s]) in model_phase2.TourShifts_idx for j in M.DAYS for (p,d,q) in M.PotentialStartWindow[M.WIN_x[s],j,w,k,M.TT_x[s]]) :
+                        index_list.append((s, k, w))
+
+    return index_list
 
 model_phase2.Tours_Shiftlen_Weekly_UB_idx = \
     pyo.Set(dimen=3, initialize=Tours_Shiftlen_Weekly_UB_idx_rule)
@@ -1262,7 +1280,17 @@ model_phase2.Tours_Shiftlen_Weekly_UB = pyo.Constraint(model_phase2.Tours_Shiftl
 
 
 def Tours_Shiftlen_Total_LB_idx_rule(M):
-    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+
+    index_list = []
+    for s in M.TOURS:
+        for k in M.tt_length_x[M.TT_x[s]]:
+            for w in M.WEEKS:
+                if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
+                    if any((s, p, d, q, k, M.TT_x[s]) in model_phase2.TourShifts_idx for j in M.DAYS for (p, d, q)
+                           in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
+                        index_list.append((s, k, w))
+
+    return index_list
 
 model_phase2.Tours_Shiftlen_Total_LB_idx = \
     pyo.Set(dimen=3,
@@ -1277,8 +1305,18 @@ model_phase2.Tours_Shiftlen_Total_LB = \
     pyo.Constraint(model_phase2.Tours_Shiftlen_Total_LB_idx,
                    rule=Tours_Shiftlen_Total_LB_rule)
 
+
 def Tours_Shiftlen_Total_UB_idx_rule(M):
-    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    index_list = []
+    for s in M.TOURS:
+        for k in M.tt_length_x[M.TT_x[s]]:
+            for w in M.WEEKS:
+                if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
+                    if any((s, p, d, q, k, M.TT_x[s]) in model_phase2.TourShifts_idx for j in M.DAYS for (p, d, q)
+                           in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
+                        index_list.append((s, k, w))
+
+    return index_list
 
 model_phase2.Tours_Shiftlen_Total_UB_idx = \
     pyo.Set(dimen=3,
