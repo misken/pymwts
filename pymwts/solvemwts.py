@@ -75,6 +75,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         result = row.fetchone()
         if result[1] != 'not run':
             conn.close()
+            print('Problem {} already run. sol_status = {}'.format(scenario, result[1]))
             exit(0)
 
         conn.close()
@@ -350,12 +351,13 @@ def solvemwts(scenario, phase1_dat_file, path,
                             phase1_results.solver.termination_condition)
 
         logging.info('Phase 1 solution status = %s', phase1_results.solver.status)
-        logging.info('Phase 1 solved')
+
 
         # By default, results are automatically loaded into model instance
         
         try:
             phase1_solution_value = phase1_inst.total_cost()
+            logging.info('Phase 1 solved successfully')
             logging.info('Phase 1 solution = %s', phase1_solution_value)
         except:
             logging.critical('Phase 1 problem not solved successfully.')
