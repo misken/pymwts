@@ -2,10 +2,10 @@
 # Name:        module1
 # Purpose:
 #
-# Author:      IPS User
+# Author:      isken
 #
 # Created:     28/06/2011
-# Copyright:   (c) IPS User 2011
+# Copyright:   (c) isken
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python

@@ -91,6 +91,16 @@ Fixed the imports to get rid of `from pymwts import BLAH` and everything just wo
 Running real problems
 =====================
 
+To run problems using the development version and without installing, need
+to add the source directory to the Python search path. Example:
+
+    import sys
+    sys.path.insert(0, "/home/mark/Documents/research/MultiWeek/pymwts/pymwts")
+    import solvemwts
+    solvemwts.solvemwts("mwts05_d02_t1_a01_noptub_loose","./inputs/dat/mwts05_d02_t1_a01_noptub_loose.dat","./outputs/","gurobi",1200.0,0.02,results_db="mwts05_d2456.db")
+
+
+
 TODO - Update this section after figuring out new way to package
 and install mwts. The stuff below is old
 
@@ -116,7 +126,7 @@ Here's a simple script::
 
 You can run it like any Python script::
 
-    (coopr)$ python basictest.py
+    (mwts)$ python basictest.py
 
 
 Method 2 - using mwts command line Python script

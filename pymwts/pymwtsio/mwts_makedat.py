@@ -59,7 +59,7 @@ def create_weekend_base(n_weeks):
 
     return list(itertools.product(*mw_basis_list))
 
-def filterpatterns(pattern,ttnum,wkendtype,wkdspec):
+def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
     """
     Creates a sequence of binary values to be used for list filtering. This
     function will contain the various rules used to filter out weekend days
@@ -280,7 +280,7 @@ def is_weekend_worked(x,wkendtype,i):
 
     
 
-def num_consecutive_weekends(x,wkendtype,circular=True):
+def num_consecutive_weekends(x, wkendtype, circular=True):
     """
     Returns largest number of consecutive weekends worked in a pattern
 
@@ -531,7 +531,7 @@ def shiftlencons_to_param(pname,ttspec,plist,isStringIO=True):
     else:
         return param
 
-def list_to_indexedset(sname,slist,isStringIO=True):
+def list_to_indexedset(sname, slist, isStringIO=True):
     """
     Convert a list to a GMPL representation of a parameter.
     Inputs:
@@ -604,7 +604,7 @@ def mix_days_prds_params(ttspec,pname,nonshiftlen_pname,shiftlen_pname,isStringI
     if not isShiftLen:
         return list_to_param(pname,L)
     else:
-        return shiftlencons_to_param(pname,ttspec,L)
+        return shiftlencons_to_param(pname, ttspec,L)
 
 
 
@@ -827,6 +827,7 @@ def get_length_x_from_mix(ttspec):
     """
     Get list of lists of shift length indexes for each tour type from
     a mix spec.
+    
     Inputs:
         ttspec - yaml representation of tour type mix parameters
     Output:

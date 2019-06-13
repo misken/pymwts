@@ -128,22 +128,24 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Boolean indicators for debugging weekends related constraints
     b_weekend_subsets_5_4_con_active = True
-    b_weekend_subsets_5_5_con_active = True # Feels redundant, see comments in constraint
-    b_weekend_subsets_5_5lb_con_active = True
-    b_weekend_subsets_5_5sun_con_active = True
-    b_weekend_subsets_5_5sat_con_active = True
-    b_weekend_subsets_5_4sun_con_active = True
-    b_weekend_subsets_5_4sat_con_active = True
+    b_weekend_subsets_5_5_con_active = False # Feels redundant, see comments in constraint
+    b_weekend_subsets_5_5lb_con_active = False
+    b_weekend_subsets_5_5sun_con_active = False
+    b_weekend_subsets_5_5sat_con_active = False
+
+    # What exactly do the following two constraints do?
+    b_weekend_subsets_5_4sun_con_active = False
+    b_weekend_subsets_5_4sat_con_active = False
 
     b_weekend_subsets_4_3_con_active = True
-    b_weekend_subsets_4_4_con_active = True
+    b_weekend_subsets_4_4_con_active = False
 
     b_weekend_subsets_3_2_con_active = True
 
     b_weekend_subsets_2_1_con_active = True
-    
-    b_DTT_TT_fullwkendadj_UB_active = True
-    
+
+    # The following are heuristic in nature and not sure needed
+    b_DTT_TT_fullwkendadj_UB_active = False
     b_ad_hoc_weekend_subsets_ttype7_active = False
     b_ad_hoc_weekend_subsets_ttype8_active = False
 
