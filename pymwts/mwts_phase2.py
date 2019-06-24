@@ -158,6 +158,29 @@ model_phase2.A_idx = pyo.Set(dimen=5,ordered=True,initialize=A_idx_rule)
 model_phase2.A = pyo.Param(model_phase2.A_idx, default=0.0)
 #model_phase2.A.deactivate()
 
+# -- Multiweek days worked patterns
+
+
+def maxmwdw_init(M):
+    maxmwdw = 4 ** M.n_weeks.value
+    return maxmwdw
+
+
+model_phase2.max_mwdw_patterns = pyo.Param(initialize=maxmwdw_init)
+
+model_phase2.num_mwdw_patterns = pyo.Param(model_phase2.TTYPES)  # Number of mwdw worked patterns
+
+
+def A_mwdw_idx_rule(M):
+    return [(t, i, w) for t in M.TTYPES
+            for i in pyo.sequence(M.max_mwdw_patterns)
+            for w in M.WEEKS
+            if i <= M.num_mwdw_patterns[t]]
+
+
+model_phase2.A_mwdw_idx = pyo.Set(dimen=3, ordered=True, initialize=A_mwdw_idx_rule)
+model_phase2.A_mwdw = pyo.Param(model_phase2.A_mwdw_idx, within=pyo.NonNegativeIntegers, default=0)
+
 ### Bounds on tour type variables
 model_phase2.tt_lb = pyo.Param(model_phase2.TTYPES)  # RHS from .MIX
 model_phase2.tt_ub = pyo.Param(model_phase2.TTYPES, default=infinity)
@@ -794,7 +817,7 @@ model_phase2.DailyShiftWorked = pyo.Param(model_phase2.DailyShiftWorked_idx, def
 #                      (i,t) in okTourType and p <= num_weekend_patterns[weekend_type[i,t],t]} 
 #       >= 0, integer ;
        
-def ok_weekenddaysworked_idx_rule(M):
+def weekenddaysworked_idx_rule(M):
     index_list =[]
     for (i,t) in M.okTourType:
         for pattern in pyo.sequence(M.max_weekend_patterns):
@@ -804,12 +827,12 @@ def ok_weekenddaysworked_idx_rule(M):
     
     return index_list
                         
-model_phase2.ok_weekenddaysworked_idx = \
-    pyo.Set(dimen=3,initialize=ok_weekenddaysworked_idx_rule)
+model_phase2.weekenddaysworked_idx = \
+    pyo.Set(dimen=3, initialize=weekenddaysworked_idx_rule)
 
 
 
-model_phase2.WeekendDaysWorked = pyo.Param(model_phase2.ok_weekenddaysworked_idx, default=0)  
+model_phase2.WeekendDaysWorked = pyo.Param(model_phase2.weekenddaysworked_idx, default=0)
     
     # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
     # in start window i and of tour type t

@@ -191,6 +191,29 @@ def A_wkend_days_idx_rule(M):
 model_phase1.A_wkend_days_idx = pyo.Set(dimen=4,ordered=True,initialize=A_wkend_days_idx_rule)
 
 
+# -- Multiweek days worked patterns
+
+def maxmwdw_init(M):
+    maxmwdw = 4 ** M.n_weeks.value
+    return maxmwdw
+
+
+model_phase1.max_mwdw_patterns = pyo.Param(initialize=maxmwdw_init)
+
+model_phase1.num_mwdw_patterns = pyo.Param(model_phase1.TTYPES)  # Number of mwdw worked patterns
+
+
+def A_mwdw_idx_rule(M):
+    return [(t, p, w) for t in M.TTYPES
+            for p in pyo.sequence(M.max_mwdw_patterns)
+            for w in M.WEEKS
+            if p <= M.num_mwdw_patterns[t]]
+
+
+model_phase1.A_mwdw_idx = pyo.Set(dimen=3, ordered=True, initialize=A_mwdw_idx_rule)
+model_phase1.A_mwdw = pyo.Param(model_phase1.A_mwdw_idx, within=pyo.NonNegativeIntegers, default=0)
+
+
 def activeTT_init(M):
     return [t for t in M.TTYPES if M.tt_ub[t] > 0]
 
@@ -782,22 +805,27 @@ def bchain_init(M,t,k):
     return window_list
 #
 #
-model_phase1.bchain = pyo.Set(model_phase1.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=bchain_init)
+
+
+model_phase1.bchain = pyo.Set(model_phase1.okStartWindowRoots_idx, dimen=3, ordered=True, initialize=bchain_init)
+
 #
-##set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
-## (i,j) in bchain[t,k]}
-## := setof{(w,x) in {PERIODS,DAYS}: (w,x) not in (bchain[t,k] diff {(i,j)}) and
-## (w,x) in okWindowBeginnings[t,k] and
-## forall{(p,q) in (okWindowBeginnings[t,k] diff {(w,x)})} (p,q) not in (okWindowWepochs[w,x,k,t]) and
-##     (period[w,x]>=period[i,j] and
-##     forall{(n,o) in bchain[t,k]: period[n,o]>period[i,j]} period[w,x]<
-##  period[n,o] or
-##  (period[w,x]<period[i,j] and
-##  forall{(n,o) in bchain[t,k]} (period[w,x]<
-##   period[n,o] and period[n,o]<=period[i,j]) ) )
-##  } (w,x) ;
+# #set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
+# # (i,j) in bchain[t,k]}
+# # := setof{(w,x) in {PERIODS,DAYS}: (w,x) not in (bchain[t,k] diff {(i,j)}) and
+# # (w,x) in okWindowBeginnings[t,k] and
+# # forall{(p,q) in (okWindowBeginnings[t,k] diff {(w,x)})} (p,q) not in (okWindowWepochs[w,x,k,t]) and
+# #     (period[w,x]>=period[i,j] and
+# #     forall{(n,o) in bchain[t,k]: period[n,o]>period[i,j]} period[w,x]<
+# #  period[n,o] or
+# #  (period[w,x]<period[i,j] and
+# #  forall{(n,o) in bchain[t,k]} (period[w,x]<
+# #   period[n,o] and period[n,o]<=period[i,j]) ) )
+# #  } (w,x) ;
 #
 #
+
+
 def chain_idx_rule(M):
     return [(t,k,i,j,w) for t in M.activeTT
                       for k in M.LENGTHS
@@ -922,7 +950,7 @@ def linkspan_init(M,t,k,i,j,w,m):
     return window_list
 
 
-model_phase1.linkspan = pyo.Set(model_phase1.link_idx,dimen=3,ordered=True,initialize=linkspan_init)
+model_phase1.linkspan = pyo.Set(model_phase1.link_idx, dimen=3, ordered=True, initialize=linkspan_init)
 
 
 
@@ -972,33 +1000,31 @@ def okTourType_rule(M):
             index_list.append((i,t))
     
     return index_list
-                        
-model_phase1.okTourType = pyo.Set(dimen=2,initialize=okTourType_rule)
+
+
+model_phase1.okTourType = pyo.Set(dimen=2, initialize=okTourType_rule)
 
 
 def TourType_idx_rule(M):
-    return [(i,t) for i in M.WINDOWS                        
-                      for t in M.activeTT
-                      if (i,t) in M.okTourType]
+    return [(i, t) for i in M.WINDOWS
+            for t in M.activeTT
+            if (i, t) in M.okTourType]
                         
 
-model_phase1.TourType_idx = pyo.Set(dimen=2,initialize=TourType_idx_rule)
+model_phase1.TourType_idx = pyo.Set(dimen=2, initialize=TourType_idx_rule)
 
 model_phase1.TourType = pyo.Var(model_phase1.TourType_idx, within=pyo.NonNegativeIntegers)
 
 
-
-
-#/*set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS :
+# /*set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS :
 #    (i,d) in ok_window_beginnings[t]} (i,t,d);*/
 #
 #
-#set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS} (i,t,d);
+# set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS} (i,t,d);
     
-##### Daily tour type pyo.Variables
+# #### Daily tour type pyo.Variables
 
 
-    
 model_phase1.okDailyTourType = model_phase1.okTourType * model_phase1.DAYS
 
 
@@ -1006,14 +1032,14 @@ model_phase1.okDailyTourType = model_phase1.okTourType * model_phase1.DAYS
 #       starting in window i and working day d in week w*/
 
 def DailyTourType_idx_rule(M):
-    return [(i,t,j,w) for i in M.WINDOWS                        
-                      for t in M.activeTT
-                      for j in M.DAYS
-                      for w in M.WEEKS
-                      if (i,t,j) in M.okDailyTourType]
+    return [(i, t, j, w) for i in M.WINDOWS
+            for t in M.activeTT
+            for j in M.DAYS
+            for w in M.WEEKS
+            if (i, t, j) in M.okDailyTourType]
                         
 
-model_phase1.DailyTourType_idx = pyo.Set(dimen=4,initialize=DailyTourType_idx_rule)
+model_phase1.DailyTourType_idx = pyo.Set(dimen=4, initialize=DailyTourType_idx_rule)
 
 model_phase1.DailyTourType = pyo.Var(model_phase1.DailyTourType_idx, within=pyo.NonNegativeIntegers)
 
@@ -1027,70 +1053,87 @@ model_phase1.DailyTourType = pyo.Var(model_phase1.DailyTourType_idx, within=pyo.
 # TODO - modify this index when get width>0 working. These are windows, not period start times.
 # Just using okShifts for now for w=0 case.  
 def DailyShiftWorked_idx_rule(M):
-    return [(i,t,k,j,w) for i in M.WINDOWS                        
-                        for t in M.activeTT
-                        for k in M.tt_length_x[t]
-                        for j in M.DAYS
-                        for w in M.WEEKS
-                        if (i,t,j) in M.okDailyTourType]
+    return [(i, t, k, j, w) for i in M.WINDOWS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            for j in M.DAYS
+            for w in M.WEEKS
+            if (i, t, j) in M.okDailyTourType]
                         
 
-model_phase1.DailyShiftWorked_idx = pyo.Set(dimen=5,initialize=DailyShiftWorked_idx_rule)
+model_phase1.DailyShiftWorked_idx = pyo.Set(dimen=5, initialize=DailyShiftWorked_idx_rule)
 
 model_phase1.DailyShiftWorked = pyo.Var(model_phase1.DailyShiftWorked_idx, within=pyo.NonNegativeIntegers)
 
-##### Weekend Days off pyo.Variables   
+# #### Weekend Days off pyo.Variables
 
-#pyo.Var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES : 
+# pyo.Var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES :
 #                      (i,t) in okTourType and p <= num_weekend_patterns[weekend_type[i,t],t]} 
 #       >= 0, integer ;
-       
-def ok_weekenddaysworked_idx_rule(M):
+
+
+def weekenddaysworked_idx_rule(M):
     index_list =[]
     for (i,t) in M.okTourType:
         for p in pyo.sequence(M.max_weekend_patterns):
             weekendtype = M.weekend_type[i,t]
             if p <= M.num_weekend_patterns[weekendtype,t]:
-                index_list.append((i,t,p))
+                index_list.append((i, t, p))
     
     return index_list
 
 
-model_phase1.ok_weekenddaysworked_idx = pyo.Set(dimen=3,initialize=ok_weekenddaysworked_idx_rule)
+model_phase1.weekenddaysworked_idx = pyo.Set(dimen=3, initialize=weekenddaysworked_idx_rule)
 
-model_phase1.WeekendDaysWorked = pyo.Var(model_phase1.ok_weekenddaysworked_idx, within=pyo.NonNegativeIntegers) 
+model_phase1.WeekendDaysWorked = pyo.Var(model_phase1.weekenddaysworked_idx, within=pyo.NonNegativeIntegers)
     
     # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
     # in start window i and of tour type t
-    
-    
-    
-    
-##### Coverage related pyo.Variables
+
+
+def multiweekdaysworked_idx_rule(M):
+    index_list = []
+    for (i,t) in M.okTourType:
+        for p in pyo.sequence(M.max_mwdw_patterns):
+            if p <= M.num_mwdw_patterns[t]:
+                index_list.append((i, t, p))
+
+    return index_list
+
+
+model_phase1.multiweekdaysworked_idx = pyo.Set(dimen=3, initialize=multiweekdaysworked_idx_rule)
+
+model_phase1.MultiWeekDaysWorked = pyo.Var(model_phase1.multiweekdaysworked_idx, within=pyo.NonNegativeIntegers)
+
+# MultiWeekDaysWorked[t, p] = Number of employees of tour type t working mwdw pattern p
+
+# #### Coverage related pyo.Variables
 
 # For computational convenience, we broke up the calculation of coverage in each period into four separate cases related
 # to pyo.Various types of overlap (or lack of). See coverage constraints.
 
-model_phase1.cov1 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov3 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov4 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
+model_phase1.cov1 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov2 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov3 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov4 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
 
 
-def under1_bounds(M,i,j,w):
+def under1_bounds(M, i, j, w):
     lb = 0.0
     ub = M.usb.value
-    return (lb,ub)
+    return (lb, ub)
 
-model_phase1.under1 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,bounds=under1_bounds)
 
-def under2_bounds(M,i,j,w):
+model_phase1.under1 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, bounds=under1_bounds)
+
+
+def under2_bounds(M, i, j, w):
     lb = 0.0
     ub = infinity
-    return (lb,ub)
+    return (lb, ub)
 
-model_phase1.under2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,bounds=under2_bounds)
+model_phase1.under2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS, bounds=under2_bounds)
 
 # Objective function
 def objective_rule(M):
@@ -1384,7 +1427,7 @@ model_phase1.DTT_TT_fullwkendadj_UB = pyo.Constraint(model_phase1.dailyconservat
 
 def DTT_DSW_rule(M,i,j,w,t): 
     return sum(M.DailyShiftWorked[i,t,k,j,w] for k in M.tt_length_x[t]) == M.DailyTourType[i,t,j,w]  
-    
+
 
 model_phase1.DTT_DSW_con = pyo.Constraint(model_phase1.shift_DTT_dailyconservation_idx,rule=DTT_DSW_rule)
 
@@ -1655,7 +1698,7 @@ def prds_FSwkend_weeklyconservation_LB_idx_rule(M):
 
 
 model_phase1.prds_FSwkend_weeklyconservation_LB_idx = \
-    pyo.Set(dimen=3,initialize=prds_FSwkend_weeklyconservation_LB_idx_rule)
+    pyo.Set(dimen=3, initialize=prds_FSwkend_weeklyconservation_LB_idx_rule)
 
 
 model_phase1.prds_FSwkend_weeklyconservation_LB = \
@@ -2323,6 +2366,29 @@ def weekend_subsets_2_1_rule(M, i, t, w, e, d1):
 
 model_phase1.weekend_subsets_2_1_con = pyo.Constraint(model_phase1.weekend_subsets_2_1_idx,
                                                       rule=weekend_subsets_2_1_rule)
+
+
+def TT_mwdw_idx_rule(M):
+    index_list = []
+    for t in M.activeTT:
+        numpats = M.num_mwdw_patterns[t]
+        if numpats > 0:
+            for i in M.WINDOWS:
+                if (i, t) in M.okTourType:
+                    for w in M.WEEKS:
+                        index_list.append((i, t, w))
+    return index_list
+
+
+def TT_mwdw_rule(M, i, t, w):
+    return sum(M.DailyTourType[i,t,j,w] for j in M.DAYS) == sum(M.MultiWeekDaysWorked[i, t, p] * M.A_mwdw[t, p, w] for p in pyo.sequence(M.num_mwdw_patterns[t]))
+
+
+model_phase1.TT_mwdw_idx = pyo.Set(dimen=3, initialize=TT_mwdw_idx_rule)
+
+model_phase1.TT_mwdw_con = pyo.Constraint(model_phase1.TT_mwdw_idx,
+                                                      rule=TT_mwdw_rule)
+
 
 
 # The following are various ad-hoc constraints that I was trying for fixing Phase 2 infeasibility problems.

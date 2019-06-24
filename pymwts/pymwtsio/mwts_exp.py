@@ -148,7 +148,7 @@ import sys
     # conn.close()
 
 def mwts_create_runpy_files(expt, expt_dir, suffix, db_problemlist, 
-                            tbl_problemlist, pnumlower=1, 
+                            tbl_problemlist, dat_suffix='', pnumlower=1,
                             pnumupper=1000000, maxtocreate=1000000,
                             devcode=False, code_loc=''):
     """
@@ -189,7 +189,7 @@ def mwts_create_runpy_files(expt, expt_dir, suffix, db_problemlist,
         f_run.write('import solvemwts\n')
 
         solve_cmd = 'solvemwts.solvemwts("' + scenario_name + '",'
-        solve_cmd = solve_cmd + '"./inputs/dat/' + scenario_name + '.dat",'
+        solve_cmd = solve_cmd + '"./inputs/dat/' + scenario_name + dat_suffix + '.dat",'
         solve_cmd = solve_cmd + '"./outputs/"' + ','
         solve_cmd = solve_cmd + '"' + r['solver'] + '"' + ','
         solve_cmd = solve_cmd + str(r['timelimit']) + ','
@@ -294,10 +294,11 @@ def main():
     #mwts_create_main_combos(6,8,['tight','moderate','loose'],2)
     
     maxtocreate = 500
-    expt = 'mwts05'
-    expt_dir = 'exps/mwts05'
-    db = 'mwts05_d2456.db'  # Must be in expt_dir
+    expt = 'mwts05_mwdw'
+    expt_dir = 'exps/mwts05/mwdw'
+    db = 'mwts05_d2456_mwdw.db'  # Must be in expt_dir
     tbl_problem_list = 'problem_list'
+    dat_suffix = ''
     
     devcode = True
     code_loc = "/home/mark/Documents/research/MultiWeek/pymwts/pymwts"
@@ -305,7 +306,7 @@ def main():
     for num in range(1, 12500, maxtocreate):
         suffix = '_' + str(num) + '_' + str(num + maxtocreate - 1)
         mwts_create_runpy_files(expt, expt_dir, 
-            suffix, db, tbl_problem_list,
+            suffix, db, tbl_problem_list, dat_suffix,
             num, num + maxtocreate, 1000000, devcode, code_loc)
      
     

@@ -311,7 +311,7 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, d) in inst.ok_weekenddaysworked_idx:
+    for (i, t, d) in inst.weekenddaysworked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, d]()))
         except:
@@ -350,7 +350,7 @@ def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
     param = ','.join(headerlist) + '\n'
 
     tnum = 0
-    for (i, t, pattern) in inst.ok_weekenddaysworked_idx:
+    for (i, t, pattern) in inst.weekenddaysworked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, pattern]()))
         except:
@@ -519,13 +519,13 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
         for i in inst.PERIODS:
             if (i, t) in inst.okTourType:
                 for k in inst.tt_length_x[t]:
-                    datarow = '{},{},{},{}'.format(t, i, k, inst.TourType[i, t])
+                    datarow = '{}|{}|{}|{}|{}'.format(t, i, k, inst.TourType[i, t], inst.TourType[i, t].value)
                     for w in inst.WEEKS:
                         for j in inst.DAYS:
                             if (i, t, k, j, w) in inst.DailyShiftWorked_idx:
-                                datarow += ',{}'.format(inst.DailyShiftWorked[i, t, k, j, w])
+                                datarow += '|{}|{}'.format(inst.DailyShiftWorked[i, t, k, j, w], inst.DailyShiftWorked[i, t, k, j, w].value)
                             else:
-                                datarow += ',{}'.format(0)
+                                datarow += '|{}|{}'.format('No shift', 0)
                     if inst.TourType[i, t].value > 0:
                         datarow += '\n'
                         param += datarow

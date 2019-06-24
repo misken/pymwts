@@ -144,8 +144,10 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     b_weekend_subsets_2_1_con_active = True
 
+    b_TT_mwdw_con_active = True
+
     # The following are heuristic in nature and not sure needed
-    b_DTT_TT_fullwkendadj_UB_active = False
+    b_DTT_TT_fullwkendadj_UB_active = True
     b_ad_hoc_weekend_subsets_ttype7_active = False
     b_ad_hoc_weekend_subsets_ttype8_active = False
 
@@ -184,7 +186,12 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.weekend_subsets_2_1_con.deactivate()
 
     if not b_DTT_TT_fullwkendadj_UB_active:
-        phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()   
+        phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()
+
+    if not b_TT_mwdw_con_active:
+        phase1_inst.TT_mwdw_con.deactivate()
+
+
         
     if not b_ad_hoc_weekend_subsets_ttype7_active:
         phase1_inst.ad_hoc_weekend_subsets_ttype7_con.deactivate()
@@ -370,7 +377,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         
         old_stdout = sys.stdout
         try:
-            f1_sum = open(phase1_summary_file,'a')
+            f1_sum = open(phase1_summary_file, 'a')
             sys.stdout = f1_sum
         
             
@@ -397,7 +404,7 @@ def solvemwts(scenario, phase1_dat_file, path,
             
             
             f1_sum.close()
-            f1_res = open(phase1_results_file,"w")
+            f1_res = open(phase1_results_file, "w")
             sys.stdout = f1_res
             phase1_results.write()
             f1_res.close()
