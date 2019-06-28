@@ -14,6 +14,73 @@ import pyomo
 import numpy as np
 
 
+# The following lives in mwts_phase1 and mwts_phase2 models project. Need to figure out how to use it from there.
+# Just copying it for now so I can get this model working.
+
+def n_prds_per_week_init(M):
+    return M.n_days_per_week()*M.n_prds_per_day()
+
+
+def n_prds_per_cycle_init(M):
+    return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
+
+
+def g_period_init(M, i, j, w):
+    return ((w - 1) * M.n_days_per_week() * M.n_prds_per_day() +
+            (j - 1) * M.n_prds_per_day() + i)
+
+
+def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
+    return ((w - 1) * n_days_per_week * n_prds_per_day +
+            (j - 1) * n_prds_per_day + i)
+
+
+def period_increment(M, i, j, w, incr):
+    p = M.g_period[i, j, w]
+    if p + incr <= M.n_prds_per_cycle:
+        return p + incr
+    else:
+        return p + incr - M.n_prds_per_cycle
+
+
+def g_period_increment(M, p, incr):
+    if p + incr <= M.n_prds_per_cycle:
+        return p + incr
+    else:
+        return p + incr - M.n_prds_per_cycle
+
+
+def g_period_difference(M, b_prd, e_prd):
+    if e_prd >= b_prd:
+        return e_prd - b_prd + 1
+    else:
+        return M.n_prds_per_cycle + e_prd - b_prd + 1
+
+
+def g_prd_to_tuple(M, p):
+    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
+    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
+    #
+    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
+    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
+
+    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
+    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
+    if prds_remainder == 0:
+        n_day = 1
+    else:
+        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
+
+    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
+    if prds_remainder == 0:
+        n_period = 1
+    else:
+        n_period = prds_remainder
+
+    return n_period, n_day, n_week
+
+
+
 # The following lives in  pymtwsio project. Need to figure out how to use it from there.
 # Just copying it for now so I can get this model working.
 def scalar_to_param(pname, pvalue, isStringIO=True):
