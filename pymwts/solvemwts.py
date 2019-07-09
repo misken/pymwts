@@ -127,7 +127,14 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.max_ptfrac_con.deactivate()
 
     # Boolean indicators for debugging weekends related constraints
-    b_weekend_subsets_5_4_con_active = True
+    b_weekend_subsets_5_4_con2_active = True
+    b_weekend_subsets_4_3_con2_active = True
+    b_weekend_subsets_3_2_con2_active = True
+    b_weekend_subsets_2_1_con2_active = True
+
+    b_TT_mwdw_con_active = True
+
+    b_weekend_subsets_5_4_con_active = False
     b_weekend_subsets_5_5_con_active = False # Feels redundant, see comments in constraint
     b_weekend_subsets_5_5lb_con_active = False
     b_weekend_subsets_5_5sun_con_active = False
@@ -137,21 +144,32 @@ def solvemwts(scenario, phase1_dat_file, path,
     b_weekend_subsets_5_4sun_con_active = False
     b_weekend_subsets_5_4sat_con_active = False
 
-    b_weekend_subsets_4_3_con_active = True
+    # Pretty sure these constraints were wrong
+    b_weekend_subsets_4_3_con_active = False
     b_weekend_subsets_4_4_con_active = False
-
-    b_weekend_subsets_3_2_con_active = True
-
-    b_weekend_subsets_2_1_con_active = True
-
-    b_TT_mwdw_con_active = True
+    b_weekend_subsets_3_2_con_active = False
+    b_weekend_subsets_2_1_con_active = False
 
     # The following are heuristic in nature and not sure needed
-    b_DTT_TT_fullwkendadj_UB_active = True
+    b_DTT_TT_fullwkendadj_UB_active = False
     b_ad_hoc_weekend_subsets_ttype7_active = False
     b_ad_hoc_weekend_subsets_ttype8_active = False
 
     # Conditional constraint deactivation
+
+    if not b_weekend_subsets_5_4_con2_active:
+        phase1_inst.weekend_subsets_5_4_con2.deactivate()
+
+    if not b_weekend_subsets_4_3_con2_active:
+        phase1_inst.weekend_subsets_4_3_con2.deactivate()
+
+    if not b_weekend_subsets_3_2_con2_active:
+        phase1_inst.weekend_subsets_3_2_con2.deactivate()
+
+    if not b_weekend_subsets_2_1_con2_active:
+        phase1_inst.weekend_subsets_2_1_con2.deactivate()
+
+
     if not b_weekend_subsets_5_4_con_active:
         phase1_inst.weekend_subsets_5_4_con.deactivate()
         
@@ -175,6 +193,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     if not b_weekend_subsets_4_3_con_active:
         phase1_inst.weekend_subsets_4_3_con.deactivate()
+
 
     if not b_weekend_subsets_4_4_con_active:
         phase1_inst.weekend_subsets_4_4_con.deactivate()
@@ -626,7 +645,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
 
 def probe_phase2(scenario, phase2_dat_file, path,
-                 which_solver, timelimit, mipgap):
+                 which_solver, timelimit, mipgap, wintt_filter=None):
     """
 
     :param scenario:
