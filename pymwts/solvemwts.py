@@ -134,21 +134,6 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     b_TT_mwdw_con_active = True
 
-    b_weekend_subsets_5_4_con_active = False
-    b_weekend_subsets_5_5_con_active = False # Feels redundant, see comments in constraint
-    b_weekend_subsets_5_5lb_con_active = False
-    b_weekend_subsets_5_5sun_con_active = False
-    b_weekend_subsets_5_5sat_con_active = False
-
-    # What exactly do the following two constraints do?
-    b_weekend_subsets_5_4sun_con_active = False
-    b_weekend_subsets_5_4sat_con_active = False
-
-    # Pretty sure these constraints were wrong
-    b_weekend_subsets_4_3_con_active = False
-    b_weekend_subsets_4_4_con_active = False
-    b_weekend_subsets_3_2_con_active = False
-    b_weekend_subsets_2_1_con_active = False
 
     # The following are heuristic in nature and not sure needed
     b_DTT_TT_fullwkendadj_UB_active = False
@@ -169,48 +154,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not b_weekend_subsets_2_1_con2_active:
         phase1_inst.weekend_subsets_2_1_con2.deactivate()
 
-
-    if not b_weekend_subsets_5_4_con_active:
-        phase1_inst.weekend_subsets_5_4_con.deactivate()
-        
-    if not b_weekend_subsets_5_5_con_active:
-        phase1_inst.weekend_subsets_5_5_con.deactivate()
-        
-    if not b_weekend_subsets_5_5lb_con_active:
-        phase1_inst.weekend_subsets_5_5lb_con.deactivate()
-        
-    if not b_weekend_subsets_5_5sun_con_active:
-        phase1_inst.weekend_subsets_5_5sun_con.deactivate()
-        
-    if not b_weekend_subsets_5_5sat_con_active:
-        phase1_inst.weekend_subsets_5_5sat_con.deactivate()
-        
-    if not b_weekend_subsets_5_4sun_con_active:
-        phase1_inst.weekend_subsets_5_4sun_con.deactivate()
-        
-    if not b_weekend_subsets_5_4sat_con_active:
-        phase1_inst.weekend_subsets_5_4sat_con.deactivate()
-
-    if not b_weekend_subsets_4_3_con_active:
-        phase1_inst.weekend_subsets_4_3_con.deactivate()
-
-
-    if not b_weekend_subsets_4_4_con_active:
-        phase1_inst.weekend_subsets_4_4_con.deactivate()
-
-    if not b_weekend_subsets_3_2_con_active:
-        phase1_inst.weekend_subsets_3_2_con.deactivate()
-
-    if not b_weekend_subsets_2_1_con_active:
-        phase1_inst.weekend_subsets_2_1_con.deactivate()
-
     if not b_DTT_TT_fullwkendadj_UB_active:
         phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()
 
     if not b_TT_mwdw_con_active:
         phase1_inst.TT_mwdw_con.deactivate()
-
-
         
     if not b_ad_hoc_weekend_subsets_ttype7_active:
         phase1_inst.ad_hoc_weekend_subsets_ttype7_con.deactivate()
