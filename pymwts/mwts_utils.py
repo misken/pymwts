@@ -456,7 +456,7 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
     """
 
     # build the header
-    headerlist = ['n', 'i', 't']
+    headerlist = ['n', 'i', 't', 'dummy']
     for w in range(1, inst.n_weeks + 1):
         for d in range(1, inst.n_days_per_week + 1):
             headerlist.append(str(w) + '_' + str(d))
@@ -468,7 +468,7 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
         if inst.TourType[i, t].value > 0:
             poslist = [str(p) for p in (i, t)]
             tnum += 1
-            datarow = str(tnum) + ',' + ','.join(poslist) + ','
+            datarow = str(tnum) + ',' + ','.join(poslist) + ', x, '
             daylist = []
             for w in range(1, inst.n_weeks + 1):
                 for d in range(1, inst.n_days_per_week + 1):
@@ -478,6 +478,9 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
             param += datarow
 
     param += "\n"
+
+    # build the header
+
     if isStringIO:
         paramout = io.StringIO()
         paramout.write(param)

@@ -178,16 +178,16 @@ def solvemwts(scenario, phase1_dat_file, path,
         tot_vars = 0
         f1_sum.write("\n\nConstraint summary \n------------------")
         for c in phase1_inst.component_objects(Constraint, active=True):
-            f1_sum.write(c.name + " --> " + str(len(c)))
+            f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
         f1_sum.write("\n\nVariable summary \n------------------")
         for v in phase1_inst.component_objects(Var):
-            f1_sum.write(v.name + " --> " + str(len(v)))
+            f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
 
-        msg = "\ntotal cons = " + str(tot_cons)
+        msg = "\ntotal cons = " + str(tot_cons) + "\n"
         f1_sum.write(msg)
-        msg = "total vars = " + str(tot_vars)
+        msg = "total vars = " + str(tot_vars) + "\n"
         f1_sum.write(msg)
 
     # Optionally write out detailed debugging info for start windows (only if width > 0)

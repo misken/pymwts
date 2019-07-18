@@ -2060,10 +2060,8 @@ def weekend_subsets_5_4_rule2(M, i, t, w, e, d1, d2, d3, d4):
 
     days_subset = [d1, d2, d3, d4]
     return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
-           sum(M.DailyTourType[i, t, d, w] for d in M.DAYS) \
-           - sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-           - 2 * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-           - sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+           sum(M.MultiWeekDaysWorked[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
 model_phase1.weekend_subsets_5_4_con2 = pyo.Constraint(model_phase1.weekend_subsets_5_4_idx,
@@ -2077,9 +2075,12 @@ def weekend_subsets_4_3_rule2(M, i, t, w, e, d1, d2, d3):
 
     days_subset = [d1, d2, d3]
     return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
-           sum(M.MultiWeekDaysWorked[i, t, p1, p2] * (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e]) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+           sum(M.MultiWeekDaysWorked[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
                for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
+    # return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
+    #        len(days_subset) * M.TourType[i, t] - (M.MultiWeekDaysWorked[i, t, p1, p2] * (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e]) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+    #            for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 model_phase1.weekend_subsets_4_3_con2 = pyo.Constraint(model_phase1.weekend_subsets_4_3_idx,
                                                        rule=weekend_subsets_4_3_rule2)
@@ -2115,10 +2116,8 @@ def weekend_subsets_3_2_rule2(M, i, t, w, e, d1, d2):
 
     days_subset = [d1, d2]
     return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
-        sum(M.DailyTourType[i, t, d, w] for d in M.DAYS)  \
-        - sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-        - 2 * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-        - sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+           sum(M.MultiWeekDaysWorked[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
 model_phase1.weekend_subsets_3_2_con2 = pyo.Constraint(model_phase1.weekend_subsets_3_2_idx,
@@ -2145,13 +2144,10 @@ model_phase1.weekend_subsets_2_1_idx = pyo.Set(dimen=5, initialize=weekend_subse
 
 
 def weekend_subsets_2_1_rule2(M, i, t, w, e, d1):
-
     days_subset = [d1]
     return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
-        sum(M.DailyTourType[i, t, d, w] for d in M.DAYS)  \
-        - sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-        - 2 * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-        - sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+           sum(M.MultiWeekDaysWorked[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
 model_phase1.weekend_subsets_2_1_con2 = pyo.Constraint(model_phase1.weekend_subsets_2_1_idx,
