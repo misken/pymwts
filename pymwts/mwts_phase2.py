@@ -854,15 +854,18 @@ model_phase2.WeekendDaysWorked = pyo.Param(model_phase2.weekenddaysworked_idx, d
 
 def multiweekdaysworked_idx_rule(M):
     index_list = []
-    for (i, t) in M.okTourType:
-        for p in pyo.sequence(M.max_mwdw_patterns):
-            if p <= M.num_mwdw_patterns[t]:
-                index_list.append((i, t, p))
+    for (i,t) in M.okTourType:
+        for p1 in pyo.sequence(M.max_mwdw_patterns):
+            if p1 <= M.num_mwdw_patterns[t]:
+                for p2 in pyo.sequence(M.max_weekend_patterns):
+                    weekendtype = M.weekend_type[i, t]
+                    if p2 <= M.num_weekend_patterns[weekendtype, t]:
+                        index_list.append((i, t, p1, p2))
 
     return index_list
 
 
-model_phase2.multiweekdaysworked_idx = pyo.Set(dimen=3, initialize=multiweekdaysworked_idx_rule)
+model_phase2.multiweekdaysworked_idx = pyo.Set(dimen=4, initialize=multiweekdaysworked_idx_rule)
 model_phase2.MultiWeekDaysWorked = pyo.Param(model_phase2.multiweekdaysworked_idx, default=0)
 
 # param n_tours:=sum{i in 1..n_windows,t in okTTYPES :(i,t) in okTourType } TourType[i,t];

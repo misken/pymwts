@@ -294,9 +294,9 @@ def main():
     #mwts_create_main_combos(6,8,['tight','moderate','loose'],2)
     
     maxtocreate = 500
-    expt = 'mwts05_mwdw'
-    expt_dir = 'exps/mwts05/mwdw'
-    db = 'mwts05_d2456_mwdw.db'  # Must be in expt_dir
+    expt = 'mwts06_mwdw'
+    expt_dir = 'exps/mwts06_mwdw'
+    db = 'mwts06_d2456_mwdw.db'  # Must be in expt_dir
     tbl_problem_list = 'problem_list'
     dat_suffix = ''
     

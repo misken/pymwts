@@ -123,7 +123,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Deactivate part-time fraction upper bound if all tour types are part-time
     tot_parttime_ttypes = sum(phase1_inst.tt_parttime[t] for t in phase1_inst.activeTT)
-    if tot_parttime_ttypes == len(phase1_inst.activeTT):
+    if tot_parttime_ttypes == len(phase1_inst.activeTT) or phase1_inst.max_parttime_frac.value == 1.0:
         phase1_inst.max_ptfrac_con.deactivate()
 
     # Boolean indicators for debugging weekends related constraints
@@ -134,11 +134,11 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     b_TT_mwdw_con_active = True
 
+    # Possible redundant constraints
 
-    # The following are heuristic in nature and not sure needed
-    b_DTT_TT_fullwkendadj_UB_active = False
-    b_ad_hoc_weekend_subsets_ttype7_active = False
-    b_ad_hoc_weekend_subsets_ttype8_active = False
+    b_DSW_TT_weeklyconservation_active = False
+    b_DTT_TT_weeklyconservation_active = False
+
 
     # Conditional constraint deactivation
 
@@ -154,17 +154,22 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not b_weekend_subsets_2_1_con2_active:
         phase1_inst.weekend_subsets_2_1_con2.deactivate()
 
-    if not b_DTT_TT_fullwkendadj_UB_active:
-        phase1_inst.DTT_TT_fullwkendadj_UB.deactivate()
-
     if not b_TT_mwdw_con_active:
         phase1_inst.TT_mwdw_con.deactivate()
-        
-    if not b_ad_hoc_weekend_subsets_ttype7_active:
-        phase1_inst.ad_hoc_weekend_subsets_ttype7_con.deactivate()
 
-    if not b_ad_hoc_weekend_subsets_ttype8_active:
-        phase1_inst.ad_hoc_weekend_subsets_ttype8_con.deactivate()
+    if not b_DSW_TT_weeklyconservation_active:
+        phase1_inst.DSW_TT_weeklyconservation_LB.deactivate()
+        phase1_inst.DSW_TT_weeklyconservation_UB.deactivate()
+        phase1_inst.DSW_TT_cumul_weeklyconservation_LB.deactivate()
+        phase1_inst.DSW_TT_cumul_weeklyconservation_UB.deactivate()
+
+    if not b_DTT_TT_weeklyconservation_active:
+        phase1_inst.DTT_TT_weeklyconservation_LB.deactivate()
+        phase1_inst.DTT_TT_weeklyconservation_UB.deactivate()
+        phase1_inst.DTT_TT_cumul_weeklyconservation_LB.deactivate()
+        phase1_inst.DTT_TT_cumul_weeklyconservation_UB.deactivate()
+
+
 
     # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
@@ -176,11 +181,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     with open(phase1_summary_file, 'w') as f1_sum:
         tot_cons = 0
         tot_vars = 0
-        f1_sum.write("\n\nConstraint summary \n------------------")
+        f1_sum.write("\n\nConstraint summary \n------------------\n")
         for c in phase1_inst.component_objects(Constraint, active=True):
             f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
-        f1_sum.write("\n\nVariable summary \n------------------")
+        f1_sum.write("\n\nVariable summary \n------------------\n")
         for v in phase1_inst.component_objects(Var):
             f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
@@ -317,20 +322,20 @@ def solvemwts(scenario, phase1_dat_file, path,
     with open(phase1_summary_file, 'a') as f1_sum:
         tot_cons = 0
         tot_vars = 0
-        f1_sum.write("\n\nConstraint summary \n------------------")
+        f1_sum.write("\n\nConstraint summary \n------------------\n")
         for c in phase1_inst.component_objects(Constraint, active=True):
             #conobj = getattr(phase1_inst, str(c))
-            f1_sum.write(c.name + " --> " + str(len(c)))
+            f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
-        f1_sum.write("\n\nVariable summary \n------------------")
+        f1_sum.write("\n\nVariable summary \n------------------\n")
         for v in phase1_inst.component_objects(Var):
             #vobj = getattr(phase1_inst, str(v))
-            f1_sum.write(v.name + " --> " + str(len(v)))
+            f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
 
-        msg = "\ntotal cons = " + str(tot_cons)
+        msg = "\ntotal cons = " + str(tot_cons) + "\n"
         f1_sum.write(msg)
-        msg = "total vars = " + str(tot_vars)
+        msg = "total vars = " + str(tot_vars) + "\n"
         f1_sum.write(msg)
 
         phase1_solution_status = phase1_results.solver.status
@@ -382,6 +387,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     param_DailyTourType = dailytourtype_to_param('DailyTourType',phase1_inst)
     param_DailyShiftWorked = dailyshiftworked_to_param('DailyShiftWorked',phase1_inst)
     param_WeekendDaysWorked = weekenddaysworked_to_param('WeekendDaysWorked',phase1_inst)
+    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekDaysWorked', phase1_inst)
 
     param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
 
@@ -399,6 +405,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     print(param_DailyTourType, file=dat)
     print(param_DailyShiftWorked, file=dat)
     print(param_WeekendDaysWorked, file=dat)
+    print(param_MultiWeekDaysWorked, file=dat)
     print(param_tour_WIN_TT, file=dat)
 
     with open(phase2_dat_file,'a') as f2_dat:
@@ -504,12 +511,12 @@ def solvemwts(scenario, phase1_dat_file, path,
     with open(phase2_summary_file,'w') as f2_sum:
         tot_cons = 0
         tot_vars = 0
-        f2_sum.write("\n\nConstraint summary \n------------------")
+        f2_sum.write("\n\nConstraint summary \n------------------\n")
         for c in phase2_inst.component_objects(Constraint, active=True):
             # conobj = getattr(phase2_inst, str(c))
             f2_sum.write(c.name + " --> " + str(len(c)) + '\n')
             tot_cons += len(c)
-        f2_sum.write("\n\nVariable summary \n------------------")
+        f2_sum.write("\n\nVariable summary \n------------------\n")
         for v in phase2_inst.component_objects(Var):
             # vobj = getattr(phase2_inst, str(v))
             f2_sum.write(v.name + " --> " + str(len(v)) + '\n')

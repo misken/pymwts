@@ -402,6 +402,56 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
         return param
 
 
+def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
+    """
+    Convert a Pyomo indexed variable to a GMPL representation of a parameter.
+    Inputs:
+        pname - string name of paramter in GMPL file
+        plist - list containing parameter (could be N-Dimen list)
+        reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
+        isStringIO - True to return StringIO object, False to return string
+
+    Output:
+        GMPL dat code for list parameter either as a StringIO
+        object or a string.
+
+        Example:
+            param midnight_thresh:=
+             1 100
+             2 100
+             3 100
+            ;
+
+    """
+    # Convert parameter as list to an ndarray
+
+    # Denumerate the array to get at the index tuple and array value
+
+    param = 'param ' + pname + ' default 0 :=\n'
+    for (i, t, p1, p2) in inst.multiweekdaysworked_idx:
+        try:
+            val = int(round(inst.MultiWeekDaysWorked[i, t, p1, p2]()))
+        except:
+            val = inst.MultiWeekDaysWorked[i, t, p1, p2]()
+
+        if val > 0:
+            poslist = [str(p) for p in (i, t, p1, p2)]
+
+            if reverseidx:
+                poslist.reverse()
+
+            datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
+            param += datarow
+
+    param += ";\n"
+    if isStringIO:
+        paramout = io.StringIO()
+        paramout.write(param)
+        return paramout.getvalue()
+    else:
+        return param
+
+
 def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
     """
     
