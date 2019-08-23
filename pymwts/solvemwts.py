@@ -387,7 +387,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     param_DailyTourType = dailytourtype_to_param('DailyTourType',phase1_inst)
     param_DailyShiftWorked = dailyshiftworked_to_param('DailyShiftWorked',phase1_inst)
     param_WeekendDaysWorked = weekenddaysworked_to_param('WeekendDaysWorked',phase1_inst)
-    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekDaysWorked', phase1_inst)
+    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekPattern', phase1_inst)
 
     param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
 
@@ -652,8 +652,9 @@ def probe_phase2(scenario, phase2_dat_file, path,
     bTour_WkendDof_conservation_active = True
     bTour_ShiftWkendDof_integration1_active = True
 
-    bTours_Weekly_LB_active = True
-    bTours_Weekly_UB_active = True
+    bTours_Weekly_active = True
+    bTours_Weekly_LB_active = False
+    bTours_Weekly_UB_active = False
     bTours_Total_LB_active = True
     bTours_Total_UB_active = True
 
@@ -683,6 +684,9 @@ def probe_phase2(scenario, phase2_dat_file, path,
 
     if not bTours_Daily_conservation_active:
         phase2_inst.Tours_Daily_conservation.deactivate()
+
+    if not bTours_Weekly_active:
+        phase2_inst.Tours_Weekly.deactivate()
 
     if not bTours_Weekly_LB_active:
         phase2_inst.Tours_Weekly_LB.deactivate()

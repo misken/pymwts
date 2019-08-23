@@ -137,8 +137,8 @@ def create_mwt(filenameInput,stubOutput,output_path):
 
     for t in range(1,num_tours+1):
         print (mwtours[t-1])
-        #outFiles['MWT'].write(mwtours[t])
-        outFiles['MWT'].write(str(tourtypes[t-1]))
+        # outFiles['MWT'].write(mwtours[t])
+        # outFiles['MWT'].write(str(tourtypes[t-1]))
         json.dump(mwtours[t-1],outFiles['MWT'])
         outFiles['MWT'].write('\n')
 
