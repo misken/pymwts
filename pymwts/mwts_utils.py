@@ -428,11 +428,11 @@ def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True)
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, p1, p2) in inst.multiweekdaysworked_idx:
+    for (i, t, p1, p2) in inst.multiweekpattern_idx:
         try:
-            val = int(round(inst.MultiWeekDaysWorked[i, t, p1, p2]()))
+            val = int(round(inst.MultiWeekPattern[i, t, p1, p2]()))
         except:
-            val = inst.MultiWeekDaysWorked[i, t, p1, p2]()
+            val = inst.MultiWeekPattern[i, t, p1, p2]()
 
         if val > 0:
             poslist = [str(p) for p in (i, t, p1, p2)]

@@ -852,7 +852,7 @@ model_phase2.WeekendDaysWorked = pyo.Param(model_phase2.weekenddaysworked_idx, d
 # in start window i and of tour type t
 
 
-def multiweekdaysworked_idx_rule(M):
+def multiweekpattern_idx_rule(M):
     index_list = []
     for (i,t) in M.okTourType:
         for p1 in pyo.sequence(M.max_mwdw_patterns):
@@ -865,8 +865,8 @@ def multiweekdaysworked_idx_rule(M):
     return index_list
 
 
-model_phase2.multiweekdaysworked_idx = pyo.Set(dimen=4, initialize=multiweekdaysworked_idx_rule)
-model_phase2.MultiWeekDaysWorked = pyo.Param(model_phase2.multiweekdaysworked_idx, default=0)
+model_phase2.multiweekpattern_idx = pyo.Set(dimen=4, initialize=multiweekpattern_idx_rule)
+model_phase2.MultiWeekPattern = pyo.Param(model_phase2.multiweekpattern_idx, default=0)
 
 
 model_phase2.n_tours = pyo.Param(within=pyo.PositiveIntegers)
@@ -881,15 +881,6 @@ model_phase2.TT_x = pyo.Param(model_phase2.TOURS)
 
 #......................................................Dec. Variables
 
-
-###var tourshift{s in 1..n_tours, i in PERIODS, j in DAYS, w in WEEKS, k in LENGTHS, t in TTYPES, p in PERIODS, d in DAYS :
-###       t=TT_x[s] and p=WIN_x[s] and k in tt_length_x[t] and (i,j,k,t) in ok_shifts and 
-###       (i,j) in okWindowWepochs[p,d,k,t]} binary ;
-###    
-###    # tourshift[s,i,j,w,k,t,p,d,q] = 1 if an x[i,j,w,k,t] shift is assigned to tour s in window (p,d,q)
-###    #            = 0 otherwise
-### 
-###
 
 def TourShifts_idx_rule(M):
     index_list = []
@@ -1019,7 +1010,7 @@ def Tour_mwdw_WkendDof_conservation_rule(M, p1, p2, i, t):
     Sum over the tours within each (i,t) and make sure they add up to the MultiWeekPattern variables
     """
     return (sum(M.Tour_mwdwWkendDof[s, p1, p2, i, t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) ==
-            M.MultiWeekDaysWorked[i, t, p1, p2])
+            M.MultiWeekPattern[i, t, p1, p2])
 
 
 model_phase2.Tour_mwdw_WkendDof_conservation = pyo.Constraint(model_phase2.Tour_mwdw_WkendDof_conservation_idx,
