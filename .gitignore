@@ -1,2 +1,6 @@
 *~
 *.pyc
+tests/outputs/
+doc/build/
+.idea/
+tests/*.db
