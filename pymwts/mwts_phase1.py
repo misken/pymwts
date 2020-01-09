@@ -1,23 +1,15 @@
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        mwts_phase1.py
 # Purpose:     Phase 1 for implicit multi-week tour scheduling model
 #
 # Author:      isken
 #
-# Created:     05/31/2011
-# Copyright:   (c) isken 2011
+# Created:     2020-01-31
+# Copyright:   (c) isken 2020
 # Licence:     <your licence>
-#-------------------------------------------------------------------------------
-#!/usr/bin/env python
+# -------------------------------------------------------------------------------
 
 import pyomo.environ as pyo
-#from pyomo.environ import *
-
-#from pyutilib.misc import import_file
-#from pymwts.mwts_utils import *
-
-import itertools
-
 
 # TODO Would be nice if Phase 1 and Phase 2 could share base pyo.Parameters
 # model_phase1 = import_file('mwts_basepyo.Params.py').model
@@ -49,7 +41,9 @@ def n_prds_per_week_init(M):
     """
     return M.n_days_per_week() * M.n_prds_per_day()
 
-model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers, initialize=n_prds_per_week_init)
+
+model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers,
+                                         initialize=n_prds_per_week_init)
 
 
 def n_prds_per_cycle_init(M):
@@ -57,7 +51,7 @@ def n_prds_per_cycle_init(M):
     Initialize convenience pyo.Parameter n_prds_per_cycle where cycle may include
     one or more weeks.
     """
-    return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
+    return M.n_weeks() * M.n_days_per_week() * M.n_prds_per_day()
 
 
 model_phase1.n_prds_per_cycle = \
