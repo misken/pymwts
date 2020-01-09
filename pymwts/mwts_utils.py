@@ -14,6 +14,73 @@ import pyomo
 import numpy as np
 
 
+# The following lives in mwts_phase1 and mwts_phase2 models project. Need to figure out how to use it from there.
+# Just copying it for now so I can get this model working.
+
+def n_prds_per_week_init(M):
+    return M.n_days_per_week()*M.n_prds_per_day()
+
+
+def n_prds_per_cycle_init(M):
+    return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
+
+
+def g_period_init(M, i, j, w):
+    return ((w - 1) * M.n_days_per_week() * M.n_prds_per_day() +
+            (j - 1) * M.n_prds_per_day() + i)
+
+
+def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
+    return ((w - 1) * n_days_per_week * n_prds_per_day +
+            (j - 1) * n_prds_per_day + i)
+
+
+def period_increment(M, i, j, w, incr):
+    p = M.g_period[i, j, w]
+    if p + incr <= M.n_prds_per_cycle:
+        return p + incr
+    else:
+        return p + incr - M.n_prds_per_cycle
+
+
+def g_period_increment(M, p, incr):
+    if p + incr <= M.n_prds_per_cycle:
+        return p + incr
+    else:
+        return p + incr - M.n_prds_per_cycle
+
+
+def g_period_difference(M, b_prd, e_prd):
+    if e_prd >= b_prd:
+        return e_prd - b_prd + 1
+    else:
+        return M.n_prds_per_cycle + e_prd - b_prd + 1
+
+
+def g_prd_to_tuple(M, p):
+    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
+    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
+    #
+    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
+    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
+
+    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
+    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
+    if prds_remainder == 0:
+        n_day = 1
+    else:
+        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
+
+    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
+    if prds_remainder == 0:
+        n_period = 1
+    else:
+        n_period = prds_remainder
+
+    return n_period, n_day, n_week
+
+
+
 # The following lives in  pymtwsio project. Need to figure out how to use it from there.
 # Just copying it for now so I can get this model working.
 def scalar_to_param(pname, pvalue, isStringIO=True):
@@ -311,7 +378,7 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, d) in inst.ok_weekenddaysworked_idx:
+    for (i, t, d) in inst.weekenddaysworked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, d]()))
         except:
@@ -319,6 +386,56 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
 
         if val > 0:
             poslist = [str(p) for p in (i, t, d)]
+
+            if reverseidx:
+                poslist.reverse()
+
+            datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
+            param += datarow
+
+    param += ";\n"
+    if isStringIO:
+        paramout = io.StringIO()
+        paramout.write(param)
+        return paramout.getvalue()
+    else:
+        return param
+
+
+def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
+    """
+    Convert a Pyomo indexed variable to a GMPL representation of a parameter.
+    Inputs:
+        pname - string name of paramter in GMPL file
+        plist - list containing parameter (could be N-Dimen list)
+        reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
+        isStringIO - True to return StringIO object, False to return string
+
+    Output:
+        GMPL dat code for list parameter either as a StringIO
+        object or a string.
+
+        Example:
+            param midnight_thresh:=
+             1 100
+             2 100
+             3 100
+            ;
+
+    """
+    # Convert parameter as list to an ndarray
+
+    # Denumerate the array to get at the index tuple and array value
+
+    param = 'param ' + pname + ' default 0 :=\n'
+    for (i, t, p1, p2) in inst.multiweekpattern_idx:
+        try:
+            val = int(round(inst.MultiWeekPattern[i, t, p1, p2]()))
+        except:
+            val = inst.MultiWeekPattern[i, t, p1, p2]()
+
+        if val > 0:
+            poslist = [str(p) for p in (i, t, p1, p2)]
 
             if reverseidx:
                 poslist.reverse()
@@ -350,7 +467,7 @@ def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
     param = ','.join(headerlist) + '\n'
 
     tnum = 0
-    for (i, t, pattern) in inst.ok_weekenddaysworked_idx:
+    for (i, t, pattern) in inst.weekenddaysworked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, pattern]()))
         except:
@@ -389,7 +506,7 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
     """
 
     # build the header
-    headerlist = ['n', 'i', 't']
+    headerlist = ['n', 'i', 't', 'dummy']
     for w in range(1, inst.n_weeks + 1):
         for d in range(1, inst.n_days_per_week + 1):
             headerlist.append(str(w) + '_' + str(d))
@@ -401,7 +518,7 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
         if inst.TourType[i, t].value > 0:
             poslist = [str(p) for p in (i, t)]
             tnum += 1
-            datarow = str(tnum) + ',' + ','.join(poslist) + ','
+            datarow = str(tnum) + ',' + ','.join(poslist) + ', x, '
             daylist = []
             for w in range(1, inst.n_weeks + 1):
                 for d in range(1, inst.n_days_per_week + 1):
@@ -411,6 +528,9 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
             param += datarow
 
     param += "\n"
+
+    # build the header
+
     if isStringIO:
         paramout = io.StringIO()
         paramout.write(param)
@@ -519,13 +639,13 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
         for i in inst.PERIODS:
             if (i, t) in inst.okTourType:
                 for k in inst.tt_length_x[t]:
-                    datarow = '{},{},{},{}'.format(t, i, k, inst.TourType[i, t])
+                    datarow = '{}|{}|{}|{}|{}'.format(t, i, k, inst.TourType[i, t], inst.TourType[i, t].value)
                     for w in inst.WEEKS:
                         for j in inst.DAYS:
                             if (i, t, k, j, w) in inst.DailyShiftWorked_idx:
-                                datarow += ',{}'.format(inst.DailyShiftWorked[i, t, k, j, w])
+                                datarow += '|{}|{}'.format(inst.DailyShiftWorked[i, t, k, j, w], inst.DailyShiftWorked[i, t, k, j, w].value)
                             else:
-                                datarow += ',{}'.format(0)
+                                datarow += '|{}|{}'.format('No shift', 0)
                     if inst.TourType[i, t].value > 0:
                         datarow += '\n'
                         param += datarow

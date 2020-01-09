@@ -1,23 +1,15 @@
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        mwts_phase1.py
 # Purpose:     Phase 1 for implicit multi-week tour scheduling model
 #
 # Author:      isken
 #
-# Created:     05/31/2011
-# Copyright:   (c) isken 2011
+# Created:     2020-01-31
+# Copyright:   (c) isken 2020
 # Licence:     <your licence>
-#-------------------------------------------------------------------------------
-#!/usr/bin/env python
+# -------------------------------------------------------------------------------
 
 import pyomo.environ as pyo
-#from pyomo.environ import *
-
-#from pyutilib.misc import import_file
-#from pymwts.mwts_utils import *
-
-import itertools
-
 
 # TODO Would be nice if Phase 1 and Phase 2 could share base pyo.Parameters
 # model_phase1 = import_file('mwts_basepyo.Params.py').model
@@ -49,7 +41,9 @@ def n_prds_per_week_init(M):
     """
     return M.n_days_per_week() * M.n_prds_per_day()
 
-model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers, initialize=n_prds_per_week_init)
+
+model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers,
+                                         initialize=n_prds_per_week_init)
 
 
 def n_prds_per_cycle_init(M):
@@ -57,7 +51,7 @@ def n_prds_per_cycle_init(M):
     Initialize convenience pyo.Parameter n_prds_per_cycle where cycle may include
     one or more weeks.
     """
-    return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
+    return M.n_weeks() * M.n_days_per_week() * M.n_prds_per_day()
 
 
 model_phase1.n_prds_per_cycle = \
@@ -191,6 +185,29 @@ def A_wkend_days_idx_rule(M):
 model_phase1.A_wkend_days_idx = pyo.Set(dimen=4,ordered=True,initialize=A_wkend_days_idx_rule)
 
 
+# -- Multiweek days worked patterns
+
+def maxmwdw_init(M):
+    maxmwdw = 4 ** M.n_weeks.value
+    return maxmwdw
+
+
+model_phase1.max_mwdw_patterns = pyo.Param(initialize=maxmwdw_init)
+
+model_phase1.num_mwdw_patterns = pyo.Param(model_phase1.TTYPES)  # Number of mwdw worked patterns
+
+
+def A_mwdw_idx_rule(M):
+    return [(t, p, w) for t in M.TTYPES
+            for p in pyo.sequence(M.max_mwdw_patterns)
+            for w in M.WEEKS
+            if p <= M.num_mwdw_patterns[t]]
+
+
+model_phase1.A_mwdw_idx = pyo.Set(dimen=3, ordered=True, initialize=A_mwdw_idx_rule)
+model_phase1.A_mwdw = pyo.Param(model_phase1.A_mwdw_idx, within=pyo.NonNegativeIntegers, default=0)
+
+
 def activeTT_init(M):
     return [t for t in M.TTYPES if M.tt_ub[t] > 0]
 
@@ -211,6 +228,29 @@ def A_num_wkend_days_init(M,i,w,t,e):
         
     
 model_phase1.A_num_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,initialize=A_num_wkend_days_init)
+
+
+def A_tot_wkend_days_idx_rule(M):
+    return [(i, t, e) for i in pyo.sequence(M.max_weekend_patterns)
+                 for t in M.TTYPES
+                 for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e,t]]
+
+
+model_phase1.A_tot_wkend_days_idx = pyo.Set(dimen=3, ordered=True, initialize=A_tot_wkend_days_idx_rule)
+
+
+def A_tot_wkend_days_init(M, i, t, e):
+    """
+    Number of weekend days worked in the i'th pattern, ttype t,
+    and weekend type e.
+    """
+    if e == 1:
+        return sum(M.A[i, 1, w, t, e] + M.A[i, 7, w, t, e] for w in M.WEEKS)
+    else:
+        return sum(M.A[i, 6, w, t, e] + M.A[i, 7, w, t, e] for w in M.WEEKS)
+
+
+model_phase1.A_tot_wkend_days = pyo.Param(model_phase1.A_tot_wkend_days_idx, initialize=A_tot_wkend_days_init)
 
 
 def A_is_two_wkend_days_init(M,i,w,t,e):
@@ -393,7 +433,7 @@ model_phase1.max_parttime_frac = pyo.Param()    # Maximum fraction of labor hour
 model_phase1.labor_budget = pyo.Param()         # Maximum labor expenditure
 
 # -----------------------------------------------------------------------
-# COST RELATED pyo.ParamETERS
+# Cost related parameters
 # -----------------------------------------------------------------------
 
 model_phase1.tt_cost_multiplier = pyo.Param(model_phase1.TTYPES)           # Tour type differential
@@ -403,7 +443,7 @@ model_phase1.cu2 = pyo.Param()
 model_phase1.usb = pyo.Param()
 
 # -----------------------------------------------------------------------
-# Weekend RELATED pyo.ParamETERS
+# Weekend related Parameters
 # -----------------------------------------------------------------------
 
 # Need to generalize for any number of periods per day
@@ -782,22 +822,27 @@ def bchain_init(M,t,k):
     return window_list
 #
 #
-model_phase1.bchain = pyo.Set(model_phase1.okStartWindowRoots_idx,dimen=3,ordered=True,initialize=bchain_init)
+
+
+model_phase1.bchain = pyo.Set(model_phase1.okStartWindowRoots_idx, dimen=3, ordered=True, initialize=bchain_init)
+
 #
-##set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
-## (i,j) in bchain[t,k]}
-## := setof{(w,x) in {PERIODS,DAYS}: (w,x) not in (bchain[t,k] diff {(i,j)}) and
-## (w,x) in okWindowBeginnings[t,k] and
-## forall{(p,q) in (okWindowBeginnings[t,k] diff {(w,x)})} (p,q) not in (okWindowWepochs[w,x,k,t]) and
-##     (period[w,x]>=period[i,j] and
-##     forall{(n,o) in bchain[t,k]: period[n,o]>period[i,j]} period[w,x]<
-##  period[n,o] or
-##  (period[w,x]<period[i,j] and
-##  forall{(n,o) in bchain[t,k]} (period[w,x]<
-##   period[n,o] and period[n,o]<=period[i,j]) ) )
-##  } (w,x) ;
+# #set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
+# # (i,j) in bchain[t,k]}
+# # := setof{(w,x) in {PERIODS,DAYS}: (w,x) not in (bchain[t,k] diff {(i,j)}) and
+# # (w,x) in okWindowBeginnings[t,k] and
+# # forall{(p,q) in (okWindowBeginnings[t,k] diff {(w,x)})} (p,q) not in (okWindowWepochs[w,x,k,t]) and
+# #     (period[w,x]>=period[i,j] and
+# #     forall{(n,o) in bchain[t,k]: period[n,o]>period[i,j]} period[w,x]<
+# #  period[n,o] or
+# #  (period[w,x]<period[i,j] and
+# #  forall{(n,o) in bchain[t,k]} (period[w,x]<
+# #   period[n,o] and period[n,o]<=period[i,j]) ) )
+# #  } (w,x) ;
 #
 #
+
+
 def chain_idx_rule(M):
     return [(t,k,i,j,w) for t in M.activeTT
                       for k in M.LENGTHS
@@ -922,30 +967,20 @@ def linkspan_init(M,t,k,i,j,w,m):
     return window_list
 
 
-model_phase1.linkspan = pyo.Set(model_phase1.link_idx,dimen=3,ordered=True,initialize=linkspan_init)
+model_phase1.linkspan = pyo.Set(model_phase1.link_idx, dimen=3, ordered=True, initialize=linkspan_init)
 
 
 
 
-##### Shift pyo.Variables
-
-#model_phase1.Shift_cost = pyo.Param(model_phase1.ok_shifts,  initialize=Shift_cost_init)
-
-
+# #### Shift Variables
 
 model_phase1.Shift = pyo.Var(model_phase1.okShifts, within=pyo.NonNegativeIntegers)
 
 # Shift[i,j,w,k,t] = Number of shifts of length k starting in period i
 # of day j in week w for a tour of type t
 
-##### Windowed tour type pyo.Variables
+# #### Tour type Variables
 # TourType[i,j] Number of employees working tour type j starting in window i  
-
-
-#/* set okTourType := setof{i in WINDOWS,t in okTTYPES :
-#    sum{j in DAYS} (if (i,j) in ok_window_beginnings[t] then 1 else 0) >= tt_min_dys_week[t]} (i,t);*/
-#    
-#set okTourType := setof{i in WINDOWS,t in okTTYPES} (i,t);
 
 def okTourType_rule(M):
     """
@@ -972,33 +1007,31 @@ def okTourType_rule(M):
             index_list.append((i,t))
     
     return index_list
-                        
-model_phase1.okTourType = pyo.Set(dimen=2,initialize=okTourType_rule)
+
+
+model_phase1.okTourType = pyo.Set(dimen=2, initialize=okTourType_rule)
 
 
 def TourType_idx_rule(M):
-    return [(i,t) for i in M.WINDOWS                        
-                      for t in M.activeTT
-                      if (i,t) in M.okTourType]
+    return [(i, t) for i in M.WINDOWS
+            for t in M.activeTT
+            if (i, t) in M.okTourType]
                         
 
-model_phase1.TourType_idx = pyo.Set(dimen=2,initialize=TourType_idx_rule)
+model_phase1.TourType_idx = pyo.Set(dimen=2, initialize=TourType_idx_rule)
 
 model_phase1.TourType = pyo.Var(model_phase1.TourType_idx, within=pyo.NonNegativeIntegers)
 
 
-
-
-#/*set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS :
+# /*set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS :
 #    (i,d) in ok_window_beginnings[t]} (i,t,d);*/
 #
 #
-#set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS} (i,t,d);
+# set okDailyTourType := setof{i in WINDOWS,t in okTTYPES, d in DAYS} (i,t,d);
     
-##### Daily tour type pyo.Variables
+# #### Daily tour type pyo.Variables
 
 
-    
 model_phase1.okDailyTourType = model_phase1.okTourType * model_phase1.DAYS
 
 
@@ -1006,14 +1039,14 @@ model_phase1.okDailyTourType = model_phase1.okTourType * model_phase1.DAYS
 #       starting in window i and working day d in week w*/
 
 def DailyTourType_idx_rule(M):
-    return [(i,t,j,w) for i in M.WINDOWS                        
-                      for t in M.activeTT
-                      for j in M.DAYS
-                      for w in M.WEEKS
-                      if (i,t,j) in M.okDailyTourType]
+    return [(i, t, j, w) for i in M.WINDOWS
+            for t in M.activeTT
+            for j in M.DAYS
+            for w in M.WEEKS
+            if (i, t, j) in M.okDailyTourType]
                         
 
-model_phase1.DailyTourType_idx = pyo.Set(dimen=4,initialize=DailyTourType_idx_rule)
+model_phase1.DailyTourType_idx = pyo.Set(dimen=4, initialize=DailyTourType_idx_rule)
 
 model_phase1.DailyTourType = pyo.Var(model_phase1.DailyTourType_idx, within=pyo.NonNegativeIntegers)
 
@@ -1027,76 +1060,100 @@ model_phase1.DailyTourType = pyo.Var(model_phase1.DailyTourType_idx, within=pyo.
 # TODO - modify this index when get width>0 working. These are windows, not period start times.
 # Just using okShifts for now for w=0 case.  
 def DailyShiftWorked_idx_rule(M):
-    return [(i,t,k,j,w) for i in M.WINDOWS                        
-                        for t in M.activeTT
-                        for k in M.tt_length_x[t]
-                        for j in M.DAYS
-                        for w in M.WEEKS
-                        if (i,t,j) in M.okDailyTourType]
+    return [(i, t, k, j, w) for i in M.WINDOWS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            for j in M.DAYS
+            for w in M.WEEKS
+            if (i, t, j) in M.okDailyTourType]
                         
 
-model_phase1.DailyShiftWorked_idx = pyo.Set(dimen=5,initialize=DailyShiftWorked_idx_rule)
+model_phase1.DailyShiftWorked_idx = pyo.Set(dimen=5, initialize=DailyShiftWorked_idx_rule)
 
 model_phase1.DailyShiftWorked = pyo.Var(model_phase1.DailyShiftWorked_idx, within=pyo.NonNegativeIntegers)
 
-##### Weekend Days off pyo.Variables   
+# #### Weekend Days off pyo.Variables
 
-#pyo.Var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES : 
+# pyo.Var WeekendDaysWorked{p in 1..max_weekend_patterns,i in 1..n_windows,t in okTTYPES :
 #                      (i,t) in okTourType and p <= num_weekend_patterns[weekend_type[i,t],t]} 
 #       >= 0, integer ;
-       
-def ok_weekenddaysworked_idx_rule(M):
+
+
+def weekenddaysworked_idx_rule(M):
     index_list =[]
-    for (i,t) in M.okTourType:
+    for (i, t) in M.okTourType:
         for p in pyo.sequence(M.max_weekend_patterns):
             weekendtype = M.weekend_type[i,t]
             if p <= M.num_weekend_patterns[weekendtype,t]:
-                index_list.append((i,t,p))
+                index_list.append((i, t, p))
     
     return index_list
 
 
-model_phase1.ok_weekenddaysworked_idx = pyo.Set(dimen=3,initialize=ok_weekenddaysworked_idx_rule)
+model_phase1.weekenddaysworked_idx = pyo.Set(dimen=3, initialize=weekenddaysworked_idx_rule)
 
-model_phase1.WeekendDaysWorked = pyo.Var(model_phase1.ok_weekenddaysworked_idx, within=pyo.NonNegativeIntegers) 
+model_phase1.WeekendDaysWorked = pyo.Var(model_phase1.weekenddaysworked_idx, within=pyo.NonNegativeIntegers)
     
     # WeekendDaysWorked[d,i,t] = Number of employees working days-off patterns d
     # in start window i and of tour type t
-    
-    
-    
-    
-##### Coverage related pyo.Variables
+
+
+def multiweekpattern_idx_rule(M):
+    index_list = []
+    for (i,t) in M.okTourType:
+        for p1 in pyo.sequence(M.max_mwdw_patterns):
+            if p1 <= M.num_mwdw_patterns[t]:
+                for p2 in pyo.sequence(M.max_weekend_patterns):
+                    weekendtype = M.weekend_type[i, t]
+                    if p2 <= M.num_weekend_patterns[weekendtype, t]:
+                        index_list.append((i, t, p1, p2))
+
+    return index_list
+
+
+model_phase1.multiweekpattern_idx = pyo.Set(dimen=4, initialize=multiweekpattern_idx_rule)
+
+model_phase1.MultiWeekPattern = pyo.Var(model_phase1.multiweekpattern_idx, within=pyo.NonNegativeIntegers)
+
+# MultiWeekPattern[i, t, p1, p2] = Number of employees of tour type t working mwdw pattern p1 with
+# weekend pattern p2 in start window i
+
+# #### Coverage related pyo.Variables
 
 # For computational convenience, we broke up the calculation of coverage in each period into four separate cases related
 # to pyo.Various types of overlap (or lack of). See coverage constraints.
 
-model_phase1.cov1 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov3 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov4 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
-model_phase1.cov = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,within=pyo.NonNegativeReals)
+model_phase1.cov1 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov2 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov3 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov4 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
+model_phase1.cov = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, within=pyo.NonNegativeReals)
 
 
-def under1_bounds(M,i,j,w):
+def under1_bounds(M, i, j, w):
     lb = 0.0
     ub = M.usb.value
-    return (lb,ub)
+    return (lb, ub)
 
-model_phase1.under1 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,bounds=under1_bounds)
 
-def under2_bounds(M,i,j,w):
+model_phase1.under1 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, bounds=under1_bounds)
+
+
+def under2_bounds(M, i, j, w):
     lb = 0.0
     ub = infinity
-    return (lb,ub)
+    return (lb, ub)
 
-model_phase1.under2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS,bounds=under2_bounds)
+model_phase1.under2 = pyo.Var(model_phase1.PERIODS,model_phase1.DAYS,model_phase1.WEEKS, bounds=under2_bounds)
 
 # Objective function
+
 def objective_rule(M):
     obj1 = sum(M.Shift[i,j,w,k,t] * M.lengths[k] * M.tt_cost_multiplier[t] for (i, j, w, k, t) in M.okShifts)
     obj2 = sum(M.under1[i,j,w] * M.cu1.value + M.under2[i,j,w] * M.cu2.value for (i,j,w) in M.bins)
+    # obj3 = sum(M.WeekendDaysWorked[i, t, p] * M.A_tot_wkend_days[p, t, e] ** 2 for (i, t, p) in M.weekenddaysworked_idx for e in M.WEEKENDS if M.weekend_type[i, t] == e)
     return obj1 + obj2
+
 
 model_phase1.total_cost = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
 
@@ -1108,380 +1165,362 @@ def max_labor_budget_rule(M):
 
 model_phase1.max_labor_budget = pyo.Constraint(rule=max_labor_budget_rule)
 
-##### Coverage constraints
+# #### Coverage constraints
 
-# Breaking them up into four different constraints, one for each case in terms of handling end of day horizon wrapping
-# Breaking them up into four different constraints, one for each case in terms of handling end of day horizon wrapping
-
-# subject to coverage1{i in PERIODS,j in DAYS,w in WEEKS} :
-#  cov1[i,j,w] = sum{l in LENGTHS,t in okTTYPES,p in 0..lengths[l]-1: (i-p)>0} if allow_start[(i-p),j,l,t]>0 then
-#                      Shift[(i-p),j,w,l,t] else 0;
-
-def coverage1_rule(M,i,j,w):
-    return sum(M.Shift[(i-p),j,w,l,t] for l in M.LENGTHS
-                             for t in M.activeTT
-                             for p in range(0,M.lengths[l])
-                             if (i-p)>0 and M.allow_start[(i-p),j,l,t]>0) == M.cov1[i,j,w]
-
-model_phase1.coverage1 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=coverage1_rule)
-
-# subject to coverage2{i in PERIODS,j in DAYS,w in WEEKS} :
-#  cov2[i,j,w] = sum{l in LENGTHS,t in okTTYPES,p in 0..lengths[l]-1: (i-p)<=0 and j>1}
-#       if allow_start[n_prds_per_day+(i-p),j-1,l,t]>0 then
-#         Shift[n_prds_per_day+(i-p),j-1,w,l,t] else 0;
-
-def coverage2_rule(M,i,j,w):
-    return sum(M.Shift[M.n_prds_per_day.value+(i-p),j-1,w,l,t] for l in M.LENGTHS
-                             for t in M.activeTT
-                             for p in range(0,M.lengths[l])
-                             if (i-p)<=0 and j>1 and
-               M.allow_start[M.n_prds_per_day.value+(i-p),j-1,l,t]>0) == M.cov2[i,j,w]
-
-model_phase1.coverage2 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=coverage2_rule)
-
-# subject to coverage3{i in PERIODS,j in DAYS,w in WEEKS} :
-#  cov3[i,j,w] = sum{l in LENGTHS,t in okTTYPES,p in 0..lengths[l]-1: (i-p)<=0 and j=1 and w>1}
-#       if allow_start[n_prds_per_day+(i-p),n_days_per_week,l,t]>0 then
-#     Shift[n_prds_per_day+(i-p),n_days_per_week,w-1,l,t] else 0;
-
-def coverage3_rule(M,i,j,w):
-    return sum(M.Shift[M.n_prds_per_day.value+(i-p),M.n_days_per_week.value,w-1,l,t] for l in M.LENGTHS
-                             for t in M.activeTT
-                             for p in range(0,M.lengths[l])
-                             if (i-p)<=0 and j==1 and w>1 and
-               M.allow_start[M.n_prds_per_day.value+(i-p),M.n_days_per_week.value,l,t]>0) == M.cov3[i,j,w]
-
-model_phase1.coverage3 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=coverage3_rule)
-
-# subject to coverage4{i in PERIODS,j in DAYS,w in WEEKS} :
-#  cov4[i,j,w] = sum{l in LENGTHS,t in okTTYPES,p in 0..lengths[l]-1: (i-p)<=0 and j=1 and w=1}
-#      if allow_start[n_prds_per_day+(i-p),n_days_per_week,l,t]>0 then
-#    Shift[n_prds_per_day+(i-p),n_days_per_week,n_weeks,l,t] else 0;
-
-def coverage4_rule(M,i,j,w):
-    return sum(M.Shift[M.n_prds_per_day.value+(i-p),M.n_days_per_week.value,M.n_weeks.value,l,t] for l in M.LENGTHS
-                             for t in M.activeTT
-                             for p in range(0,M.lengths[l])
-                             if (i-p)<=0 and j==1 and w==1 and
-               M.allow_start[M.n_prds_per_day.value+(i-p),M.n_days_per_week.value,l,t]>0) == M.cov4[i,j,w]
-
-model_phase1.coverage4 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=coverage4_rule)
+# Breaking them up into four different constraints, one for each case
+# in terms of handling end of day horizon wrapping
 
 
-def tot_coverage_rule(M,i,j,w):
-    return M.cov1[i,j,w] + M.cov2[i,j,w] + M.cov3[i,j,w] + M.cov4[i,j,w] == M.cov[i,j,w]
+def coverage1_rule(M, i, j, w):
+    return sum(M.Shift[(i - p), j, w, l, t] for l in M.LENGTHS
+               for t in M.activeTT
+               for p in range(0, M.lengths[l])
+               if (i - p) > 0 and M.allow_start[(i - p), j, l, t] > 0) == M.cov1[i, j, w]
+
+
+model_phase1.coverage1 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS,
+                                        rule=coverage1_rule)
+
+
+def coverage2_rule(M, i, j, w):
+    return sum(M.Shift[M.n_prds_per_day.value + (i - p), j - 1, w, l, t] for l in M.LENGTHS
+               for t in M.activeTT
+               for p in range(0, M.lengths[l])
+               if (i - p) <= 0 and j > 1 and
+               M.allow_start[M.n_prds_per_day.value + (i - p), j - 1, l, t] > 0) == M.cov2[i, j, w]
+
+
+model_phase1.coverage2 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS,
+                                        rule=coverage2_rule)
+
+
+def coverage3_rule(M, i, j, w):
+    return sum(M.Shift[M.n_prds_per_day.value + (i - p), M.n_days_per_week.value, w - 1, l, t] for l in M.LENGTHS
+               for t in M.activeTT
+               for p in range(0, M.lengths[l])
+               if (i - p) <= 0 and j == 1 and w > 1 and
+               M.allow_start[M.n_prds_per_day.value + (i - p), M.n_days_per_week.value, l, t] > 0) == M.cov3[i, j, w]
+
+
+model_phase1.coverage3 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS,
+                                        rule=coverage3_rule)
+
+
+def coverage4_rule(M, i, j, w):
+    return sum(
+        M.Shift[M.n_prds_per_day.value + (i - p), M.n_days_per_week.value, M.n_weeks.value, l, t] for l in M.LENGTHS
+        for t in M.activeTT
+        for p in range(0, M.lengths[l])
+        if (i - p) <= 0 and j == 1 and w == 1 and
+        M.allow_start[M.n_prds_per_day.value + (i - p), M.n_days_per_week.value, l, t] > 0) == M.cov4[i, j, w]
+
+
+model_phase1.coverage4 = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS,
+                                        rule=coverage4_rule)
+
+
+def tot_coverage_rule(M, i, j, w):
+    return M.cov1[i, j, w] + M.cov2[i, j, w] + M.cov3[i, j, w] + M.cov4[i, j, w] == M.cov[i, j, w]
 
 
 model_phase1.tot_coverage = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=tot_coverage_rule)
 
 
-def coverage_rule(M,i,j,w):
-    return M.cov[i,j,w] + M.under1[i,j,w] + M.under2[i,j,w] >= M.dmd_staff[i,j,w]
+def coverage_rule(M, i, j, w):
+    return M.cov[i, j, w] + M.under1[i, j, w] + M.under2[i, j, w] >= M.dmd_staff[i, j, w]
 
 
 model_phase1.coverage = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=coverage_rule)
 
 
-def minstaff_rule(M,i,j,w):
-    return M.cov[i,j,w] >= M.min_staff[i,j,w]
+def minstaff_rule(M, i, j, w):
+    return M.cov[i, j, w] >= M.min_staff[i, j, w]
 
 
 model_phase1.minstaff = pyo.Constraint(model_phase1.PERIODS, model_phase1.DAYS, model_phase1.WEEKS, rule=minstaff_rule)
 
-#### WT_bounds - bounds from .MIX file
-#
-def TourType_LB_rule(M,t):
-    return sum(M.TourType[i,t] for (i,s) in M.okTourType if s == t) >= M.tt_lb[t]
-
-model_phase1.TourType_LB_con = pyo.Constraint(model_phase1.activeTT, rule=TourType_LB_rule)  
-
-def TourType_UB_rule(M,t):
-    return sum(M.TourType[i,t] for (i,s) in M.okTourType if s == t) <= M.tt_ub[t]
-
-model_phase1.TourType_UB_con = pyo.Constraint(model_phase1.activeTT, rule=TourType_UB_rule)  
-
-# Each tour pyo.Variable must get a WeekendDaysWorked pattern assigned to it.
-#  subject to weekend_total{(i,t) in okTourType} :
-#    (sum{p in 1..num_weekend_patterns[weekend_type[i,t],t]} WeekendDaysWorked[p,i,t]) - TourType[i,t]  = 0;
+# Lower and upper bounds on tour type variables
 
 
-def weekend_total_rule(M,i,t):
+def TourType_LB_rule(M, t):
+    return sum(M.TourType[i, t] for (i, s) in M.okTourType if s == t) >= M.tt_lb[t]
+
+
+model_phase1.TourType_LB_con = pyo.Constraint(model_phase1.activeTT, rule=TourType_LB_rule)
+
+
+def TourType_UB_rule(M, t):
+    return sum(M.TourType[i, t] for (i, s) in M.okTourType if s == t) <= M.tt_ub[t]
+
+
+model_phase1.TourType_UB_con = pyo.Constraint(model_phase1.activeTT, rule=TourType_UB_rule)
+
+
+# Each tour Variable must get a mwdw pattern and weekday pattern assigned to it
+
+
+def MWP_total_idx_rule(M):
     """
-    Each tour pyo.Variable must get a WeekendDaysWorked pattern assigned to it
-    """
-    return sum(M.WeekendDaysWorked[i,t,p] for p in pyo.sequence(M.num_weekend_patterns[M.weekend_type[i,t],t])) \
-                == M.TourType[i,t]
-                           
-
-def weekend_total_idx_rule(M):
-    """
-    The index for the weekend_total constraints is (window, ttype) tuples
+    The index for the MWP constraints is (window, ttype) tuples
     in the set okTourType.
     """
-    return [(i,t) for (i,t) in M.okTourType]
-                        
-model_phase1.weekend_total_idx = pyo.Set(dimen=2, initialize=weekend_total_idx_rule)
-
-model_phase1.weekend_total_con = pyo.Constraint(model_phase1.weekend_total_idx, rule=weekend_total_rule)
+    return [(i, t) for (i, t) in M.okTourType]
 
 
-# Integrate days-off and shift scheduling sub-problems
+def MWP_total_rule(M, i, t):
+    """
+    Each tour Variable must get a multi-week pattern assigned to it
+    """
+    weekendtype = M.weekend_type[i, t]
+    return sum(M.MultiWeekPattern[i, t, p1, p2] for p1 in pyo.sequence(M.num_mwdw_patterns[t]) for p2
+        in pyo.sequence(M.num_weekend_patterns[weekendtype, t])) == M.TourType[i,t]
 
-"""
-The number of people working on Sun or Sat as part of a type 1 weekend worked pattern must be equal to the
-number of people working on Sun or Sat as specified by DailyTourType pyo.Variables.
-"""
 
-# subject to weekend_integration_1{j in DAYS,w in WEEKS,i in 1..n_windows,t in okTTYPES :
-#    j in weekend[i,t] and 1 in weekend[i,t] and 7 in weekend[i,t] and (i,t,j) in okDailyTourType} :
-#      sum{p in 1..num_weekend_patterns[weekend_type[i,t],t]} A[p,j,w,t,1]*WeekendDaysWorked[p,i,t] =
-#        DailyTourType[i,t,j,w];
-      
+model_phase1.MWP_total_idx = pyo.Set(dimen=2, initialize=MWP_total_idx_rule)
+
+model_phase1.MWP_total_con = pyo.Constraint(model_phase1.MWP_total_idx, rule=MWP_total_rule)
+
+
+# Coordinate weekend days worked variables and multi-week pattern variables.
+# Could actually eliminate the weekend variables but convenient for use in constraints.
+
+def MWP_weekend_integration_rule(M, i, t, p):
+    """
+    Each weekend variable must be consistent with multi-week pattern variables
+    """
+    return sum(M.MultiWeekPattern[i, t, p1, p] for p1 in pyo.sequence(M.num_mwdw_patterns[t])) \
+           == M.WeekendDaysWorked[i, t, p]
+
+
+model_phase1.MWP_weekend_integration_con = pyo.Constraint(model_phase1.weekenddaysworked_idx,
+                                                          rule=MWP_weekend_integration_rule)
+
+# Integrate WeekendDaysWorked variables with DailyTourType variables
 
 def weekend_integration_1_SS_idx_rule(M):
-    return [(j,w,i,t) for j in M.DAYS
-                    for w in M.WEEKS
-                    for i in M.WINDOWS                        
-                    for t in M.activeTT
-                    if j in M.weekend[i,t] and 1 in M.weekend[i,t] and 7 in M.weekend[i,t] \
-                      and (i,t,j) in M.okDailyTourType]
-                        
+    """
+    The number of people working on Sun or Sat as part of a type 1 weekend worked pattern must be equal to the
+    number of people working on Sun or Sat as specified by DailyTourType variables.
+    """
+    return [(j, w, i, t) for j in M.DAYS
+            for w in M.WEEKS
+            for i in M.WINDOWS
+            for t in M.activeTT
+            if j in M.weekend[i, t] and 1 in M.weekend[i, t] and 7 in M.weekend[i, t]
+            and (i, t, j) in M.okDailyTourType]
+
+
 model_phase1.weekend_integration_1_SS_idx = pyo.Set(dimen=4, initialize=weekend_integration_1_SS_idx_rule)
 
 
-def weekend_integration_1_SS_rule(M,j,w,i,t):
+def weekend_integration_1_SS_rule(M, j, w, i, t):
     """
     The number of people working on Sun or Sat as part of a type 1 weekend worked pattern must be equal to the
     number of people working on Sun or Sat as specified by DailyTourType pyo.Variables.
     """
-    return sum(M.A[p,j,w,t,1] * M.WeekendDaysWorked[i,t,p] for p in pyo.sequence(M.num_weekend_patterns[1,t])) \
-                == M.DailyTourType[i,t,j,w]
-                
+    return sum(M.A[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p] for p in pyo.sequence(M.num_weekend_patterns[1, t])) \
+           == M.DailyTourType[i, t, j, w]
+
 
 model_phase1.weekend_integration_1_SS_con = pyo.Constraint(model_phase1.weekend_integration_1_SS_idx,
-                                                       rule=weekend_integration_1_SS_rule)
+                                                           rule=weekend_integration_1_SS_rule)
 
 
-# subject to weekend_integration_2{j in DAYS,w in WEEKS,i in 1..n_windows,
-#    t in okTTYPES : j in weekend[i,t] and 6 in weekend[i,t] and 7 in weekend[i,t] and (i,t,j) in okDailyTourType} :
-#     sum{p in 1..num_weekend_patterns[weekend_type[i,t],t]} A[p,j,w,t,2]*WeekendDaysWorked[p,i,t] =
-#         DailyTourType[i,t,j,w];
-
-
-def weekend_integration_2_FS_rule(M,j,w,i,t):
+def weekend_integration_2_FS_rule(M, j, w, i, t):
     """
     The number of people working on Fri or Sat as part of a type 2 weekend worked pattern must be equal to the
     number of people working on Sun or Sat as specified by DailyTourType pyo.Variables.
     """
-    return sum(M.A[p,j,w,t,2] * M.WeekendDaysWorked[i,t,p] for p in pyo.sequence(M.num_weekend_patterns[2,t])) \
-                == M.DailyTourType[i,t,j,w]
+    return sum(M.A[p, j, w, t, 2] * M.WeekendDaysWorked[i, t, p] for p in pyo.sequence(M.num_weekend_patterns[2, t])) \
+           == M.DailyTourType[i, t, j, w]
 
 
 def weekend_integration_2_FS_idx_rule(M):
-    return [(j,w,i,t) for j in M.DAYS
-                    for w in M.WEEKS
-                    for i in M.WINDOWS                        
-                    for t in M.activeTT
-                    if j in M.weekend[i,t] and 6 in M.weekend[i,t] and 7 in M.weekend[i,t] \
-                      and (i,t,j) in M.okDailyTourType]
-                        
-model_phase1.weekend_integration_2_FS_idx = pyo.Set(dimen=4,initialize=weekend_integration_2_FS_idx_rule)  
-
-model_phase1.weekend_integration_2_FS_con = pyo.Constraint(model_phase1.weekend_integration_2_FS_idx,rule=weekend_integration_2_FS_rule)
-
-# Integrate shift, days worked, and tour type pyo.Variables
-
-# Make sure number of shifts scheduled each day for each tour type doesn't exceed the number of
-# tour types scheduled to work that day
-
-# Make sure number of shifts scheduled each week for each tour is equal to the number of days worked each week
-
-# TODO: I think the following is redundant given DTT_DSW constraints
-#
-# subject to shift_DTT_dailyconservation{i in 1..n_windows, j in DAYS, w in WEEKS, t in TTYPES : (i,t,j) in okDailyTourType } :
-#    sum{k in LENGTHS: k in tt_length_x[t] and (i,j,k,t) in ok_shifts} Shift[i,j,w,k,t] = DailyTourType[i,t,j,w];
+    return [(j, w, i, t) for j in M.DAYS
+            for w in M.WEEKS
+            for i in M.WINDOWS
+            for t in M.activeTT
+            if j in M.weekend[i, t] and 6 in M.weekend[i, t] and 7 in M.weekend[i, t]
+            and (i, t, j) in M.okDailyTourType]
 
 
-# TODO The following are only correct for start window = 0
-# def shift_DTT_dailyconservation_rule(M,i,j,w,t):
-#    return sum(M.Shift[i,j,w,k,t] for k in M.tt_length_x[t] if (i,j,w,k,t) in M.okShifts) \
-#                                  == M.DailyTourType[i,t,j,w]
+model_phase1.weekend_integration_2_FS_idx = pyo.Set(dimen=4, initialize=weekend_integration_2_FS_idx_rule)
 
+model_phase1.weekend_integration_2_FS_con = pyo.Constraint(model_phase1.weekend_integration_2_FS_idx,
+                                                           rule=weekend_integration_2_FS_rule)
+
+# Integrate shift, days worked, and tour type variables
 
 # The index set gets used in the DTT_DSW_con and DTT_TT_UB
 
-def shift_DTT_dailyconservation_idx_rule(M):    
-    return [(i,j,w,t) for i in M.WINDOWS 
-                      for j in M.DAYS   
-                      for w in M.WEEKS                    
-                      for t in M.activeTT
-                      if (i,t,j) in M.okDailyTourType]
-                         
-
-model_phase1.shift_DTT_dailyconservation_idx = pyo.Set(dimen=4, initialize=shift_DTT_dailyconservation_idx_rule)  
-
-# model_phase1.shift_DTT_dailyconservation_con =
-#    Constraint(model_phase1.shift_DTT_dailyconservation_idx,rule=shift_DTT_dailyconservation_rule)
+def shift_DTT_dailyconservation_idx_rule(M):
+    return [(i, j, w, t) for i in M.WINDOWS
+            for j in M.DAYS
+            for w in M.WEEKS
+            for t in M.activeTT
+            if (i, t, j) in M.okDailyTourType]
 
 
-##
-#### ---- Make sure number of people working on any given day <= number of employees
-###subject to DWT_WT_UB{j in DAYS,i in 1..n_windows, t in okTTYPES, w in WEEKS : (i,t,j) in okDailyTourType} :
-###    DailyTourType[i,t,j,w] <= TourType[i,t];
-###    
-###    
-###subject to DWT_DSW{j in DAYS,i in 1..n_windows, t in okTTYPES, w in WEEKS : (i,t,j) in okDailyTourType} :
-###    sum{k in tt_length_x[t]}DailyShiftWorked[i,t,k,j,w] = DailyTourType[i,t,j,w];
-#### ------------------------------------------------------------------------------------------------    
-##### ---- Make sure number of people working on any given day <= number of employees
+model_phase1.shift_DTT_dailyconservation_idx = pyo.Set(dimen=4, initialize=shift_DTT_dailyconservation_idx_rule)
 
-
-def DTT_TT_UB_rule(M,i,j,w,t):
+def DTT_TT_UB_rule(M, i, j, w, t):
     """
     Every day of every week for each (window,ttype), there can be no more people scheduled (DailyTourType) than
     number of people assigned to TourType[window,ttype]
     """
-    return M.DailyTourType[i,t,j,w] <= M.TourType[i,t]
+    return M.DailyTourType[i, t, j, w] <= M.TourType[i, t]
     
  
 model_phase1.DTT_TT_UB = \
     pyo.Constraint(model_phase1.shift_DTT_dailyconservation_idx, rule=DTT_TT_UB_rule)
 
 
-# For case where two weekend days worked and min days worked per week = 2, we do a heuristic
-# adjustment to the max of DailyTourType each day to avoid infeasibility due to forcing
-# a two weekend day person to work a third day and perhaps leading to some other tour not
-# getting >= 2 shifts over the week
+# Coordinate DailyShiftWorked and DailyTourType variables for each day of each week
+
+def DTT_DSW_rule(M, i, j, w, t):
+    return sum(M.DailyShiftWorked[i, t, k, j, w] for k in M.tt_length_x[t]) == M.DailyTourType[i, t, j, w]
 
 
-def dailyconservation_wkendadj_idx_rule(M):
-    return [(i,j,w,t) for i in M.WINDOWS 
-                      for j in M.DAYS   
-                      for w in M.WEEKS                    
-                      for t in M.activeTT
-                      if (i,t,j) in M.okDailyTourType and M.tt_min_dys_weeks[t,w] == 2]
-                         
-
-model_phase1.dailyconservation_wkendadj_idx = pyo.Set(dimen=4, initialize=dailyconservation_wkendadj_idx_rule)
-
-
-def DTT_TT_fullwkendadj_UB_rule(M,i,j,w,t):
-    return M.DailyTourType[i,t,j,w] <= M.TourType[i,t] - sum(M.WeekendDaysWorked[i,t,p]
-                                                             for p in M.two_wkend_days[w,t,M.weekend_type[i,t]])
-    
-model_phase1.DTT_TT_fullwkendadj_UB = pyo.Constraint(model_phase1.dailyconservation_wkendadj_idx,
-                                                 rule=DTT_TT_fullwkendadj_UB_rule)
-
-# def DTT_TT_halfwkendadj_UB_rule(M,i,j,w,t):
-#    return M.DailyTourType[i,t,j,w] <= M.TourType[i,t] - sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,M.weekend_type[i,t]])
-#    
-# model_phase1.DTT_TT_fullwkendadj_UB = Constraint(model_phase1.dailyconservation_wkendadj_idx,rule=DTT_TT_fullwkendadj_UB_rule)
-
-
-# Coordinate DailyShiftWorked and DailyTourType pyo.Variables 
-# For each day of week in each week
-
-
-def DTT_DSW_rule(M,i,j,w,t): 
-    return sum(M.DailyShiftWorked[i,t,k,j,w] for k in M.tt_length_x[t]) == M.DailyTourType[i,t,j,w]  
-    
-
-model_phase1.DTT_DSW_con = pyo.Constraint(model_phase1.shift_DTT_dailyconservation_idx,rule=DTT_DSW_rule)
+model_phase1.DTT_DSW_con = pyo.Constraint(model_phase1.shift_DTT_dailyconservation_idx, rule=DTT_DSW_rule)
 
 # ---- Min and max bounds on days worked each week
 
-# subject to DWT_WT_weeklyconservation_LB{i in 1..n_windows, t in okTTYPES, w in WEEKS } :
-#    sum{d in DAYS: (i,t,d) in okDailyTourType} DailyTourType[i,t,d,w] >= TourType[i,t]*tt_min_dys_weeks[t,w];
+# TODO - actually need to think through possible redundancy of the weekly and cumulative weekly
+# constraints on DTT and TT now that the mwdw vars explicitly determine the number of people
+# working each day - i.e. the DTT values. Still need these constraints on DSW_TT since those
+# are shift length specific variables.
 
-# subject to DWT_WT_weeklyconservation_UB{i in 1..n_windows, t in okTTYPES, w in WEEKS } :
-#    sum{d in DAYS: (i,t,d) in okDailyTourType} DailyTourType[i,t,d,w] <= TourType[i,t]*tt_max_dys_weeks[t,w];
+# Index for both lower and upper bound versions of these constraints are the same
 
 
 def DTT_TT_weeklyconservation_idx_rule(M):
     return [(i,t,w) for (i,t) in M.okTourType
                         for w in M.WEEKS]
-                        
-
-model_phase1.DTT_TT_weeklyconservation_idx = pyo.Set(dimen=3,initialize=DTT_TT_weeklyconservation_idx_rule)
 
 
-def DTT_TT_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS)  >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
+model_phase1.DTT_TT_weeklyconservation_idx = pyo.Set(dimen=3, initialize=DTT_TT_weeklyconservation_idx_rule)
+
+# Now that mwdw vars added, we can directly determine DTT sum over each week instead of using the LB, UBs.
+
+
+def DTT_MWP_idx_rule(M):
+    index_list = []
+    for t in M.activeTT:
+        numpats = M.num_mwdw_patterns[t]
+        if numpats > 0:
+            for i in M.WINDOWS:
+                if (i, t) in M.okTourType:
+                    for w in M.WEEKS:
+                        index_list.append((i, t, w))
+    return index_list
+
+
+def DTT_MWP_rule(M, i, t, w):
+    weekendtype = M.weekend_type[i, t]
+    return sum(M.DailyTourType[i, t, j, w] for j in M.DAYS) == sum(
+        M.MultiWeekPattern[i, t, p1, p2] * M.A_mwdw[t, p1, w] for p1 in pyo.sequence(M.num_mwdw_patterns[t]) for p2
+        in pyo.sequence(M.num_weekend_patterns[weekendtype, t]))
+
+
+model_phase1.DTT_MWP_idx = pyo.Set(dimen=3, initialize=DTT_MWP_idx_rule)
+
+model_phase1.DTT_MWP_con = pyo.Constraint(model_phase1.DTT_MWP_idx,
+                                                      rule=DTT_MWP_rule)
+
+
+# Lower bound on DTT vars based on minimum number of days worked per week
+
+def DTT_TT_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.DailyTourType[i, t, d, w] for d in M.DAYS) >= M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
 
 
 model_phase1.DTT_TT_weeklyconservation_LB = \
   pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_weeklyconservation_LB_rule)
 
 
-def DTT_TT_weeklyconservation_UB_rule(M,i,t,w):
-    return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS) <= M.TourType[i,t]*M.tt_max_dys_weeks[t,w]
+# Upper bound on DTT vars based on maximum number of days worked per week
+
+def DTT_TT_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.DailyTourType[i, t, d, w] for d in M.DAYS) <= M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
+
 
 model_phase1.DTT_TT_weeklyconservation_UB = \
-  pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_weeklyconservation_UB_rule)
+    pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_weeklyconservation_UB_rule)
 
- 
-def DTT_TT_cumul_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyTourType[i,t,d,z] for d in M.DAYS for z in pyo.sequence(w)) >= \
-           M.TourType[i,t]*M.tt_min_cumul_dys_weeks[t,w]
+
+# Cumulative (over weeks) versions of the lower and upper bound constraints immediately above
+
+def DTT_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.DailyTourType[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) >= \
+           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
 
 
 model_phase1.DTT_TT_cumul_weeklyconservation_LB = \
-  pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_cumul_weeklyconservation_LB_rule)
+    pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_cumul_weeklyconservation_LB_rule)
 
-  
-def DTT_TT_cumul_weeklyconservation_UB_rule(M,i,t,w):
-    return sum(M.DailyTourType[i,t,d,z] for d in M.DAYS for z in pyo.sequence(w)) <= \
-           M.TourType[i,t]*M.tt_max_cumul_dys_weeks[t,w]
+
+def DTT_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.DailyTourType[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) <= \
+           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
 
 
 model_phase1.DTT_TT_cumul_weeklyconservation_UB = \
-  pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_cumul_weeklyconservation_UB_rule)
+    pyo.Constraint(model_phase1.DTT_TT_weeklyconservation_idx, rule=DTT_TT_cumul_weeklyconservation_UB_rule)
+
+
+# The DSW_TT_weeklyconservation constraints feel redundant given that DSW summed over lengths is
+# equal to DTT and we've already got DTT_TT constraints above.
+# TODO - test for redundancy. Binary deactivation code already added.
+
 
 
 def DSW_TT_weeklyconservation_idx_rule(M):
     return [(i,t,w) for (i,t) in M.okTourType for w in M.WEEKS]
 
 
-model_phase1.DSW_TT_weeklyconservation_idx = pyo.Set(dimen=3,initialize=DSW_TT_weeklyconservation_idx_rule) 
+model_phase1.DSW_TT_weeklyconservation_idx = pyo.Set(dimen=3, initialize=DSW_TT_weeklyconservation_idx_rule)
 
-                        
-def DSW_TT_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyShiftWorked[i,t,k,d,w] for d in M.DAYS for k in M.tt_length_x[t] if \
-               (i,t,k,d,w) in M.DailyShiftWorked_idx) >= M.TourType[i,t]*M.tt_min_dys_weeks[t,w]
+
+def DSW_TT_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.DailyShiftWorked[i, t, k, d, w] for d in M.DAYS for k in M.tt_length_x[t] if \
+               (i, t, k, d, w) in M.DailyShiftWorked_idx) >= M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
 
 
 model_phase1.DSW_TT_weeklyconservation_LB = \
-  pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_weeklyconservation_LB_rule)
+    pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_weeklyconservation_LB_rule)
 
 
-def DSW_TT_weeklyconservation_UB_rule(M,i,t,w):
-    return sum(M.DailyShiftWorked[i,t,k,d,w] for d in M.DAYS for k in M.tt_length_x[t] if \
-               (i,t,k,d,w) in M.DailyShiftWorked_idx) <= M.TourType[i,t]*M.tt_max_dys_weeks[t,w]
+def DSW_TT_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.DailyShiftWorked[i, t, k, d, w] for d in M.DAYS for k in M.tt_length_x[t] if \
+               (i, t, k, d, w) in M.DailyShiftWorked_idx) <= M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
 
 
 model_phase1.DSW_TT_weeklyconservation_UB = \
-  pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_weeklyconservation_UB_rule)
+    pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_weeklyconservation_UB_rule)
 
 
-def DSW_TT_cumul_weeklyconservation_LB_rule(M,i,t,w):
-    return sum(M.DailyShiftWorked[i,t,k,d,z] for d in M.DAYS for k in M.tt_length_x[t] for \
-               z in pyo.sequence(w) if (i,t,k,d,z) in M.DailyShiftWorked_idx) >= \
-           M.TourType[i,t]*M.tt_min_cumul_dys_weeks[t,w]
+def DSW_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.DailyShiftWorked[i, t, k, d, z] for d in M.DAYS for k in M.tt_length_x[t] for \
+               z in pyo.sequence(w) if (i, t, k, d, z) in M.DailyShiftWorked_idx) >= \
+           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
+
 
 model_phase1.DSW_TT_cumul_weeklyconservation_LB = \
-  pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_cumul_weeklyconservation_LB_rule)
+    pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_cumul_weeklyconservation_LB_rule)
 
 
-def DSW_TT_cumul_weeklyconservation_UB_rule(M,i,t,w):
-    return sum(M.DailyShiftWorked[i,t,k,d,z] for d in M.DAYS for k in M.tt_length_x[t] for \
-               z in pyo.sequence(w) if (i,t,k,d,z) in M.DailyShiftWorked_idx) <= \
-           M.TourType[i,t]*M.tt_max_cumul_dys_weeks[t,w]
+def DSW_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.DailyShiftWorked[i, t, k, d, z] for d in M.DAYS for k in M.tt_length_x[t] for \
+               z in pyo.sequence(w) if (i, t, k, d, z) in M.DailyShiftWorked_idx) <= \
+           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
+
 
 model_phase1.DSW_TT_cumul_weeklyconservation_UB = \
-  pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_cumul_weeklyconservation_UB_rule)
+    pyo.Constraint(model_phase1.DSW_TT_weeklyconservation_idx, rule=DSW_TT_cumul_weeklyconservation_UB_rule)
 
 
-# Shiftlen versions of the above.
+# Shiftlen versions of the DTT_TT constraints using the DSW vars.
+# These are needed as they are shift length specific.
 
 def DSW_TT_shiftlen_weeklyconservation_idx_rule(M):
     return [(i,t,k,w) for (i,t) in M.okTourType
@@ -1506,8 +1545,8 @@ def DSW_TT_shiftlen_weeklyconservation_UB_rule(M,i,t,k,w):
 
 model_phase1.DSW_TT_shiftlen_weeklyconservation_UB_con = \
   pyo.Constraint(model_phase1.DSW_TT_shiftlen_weeklyconservation_idx, rule=DSW_TT_shiftlen_weeklyconservation_UB_rule)
-#  
-#  
+
+
 def DSW_TT_shiftlen_cumul_weeklyconservation_LB_rule(M,i,t,k,w):
     return sum(M.DailyShiftWorked[i,t,k,d,z] for d in M.DAYS for z in pyo.sequence(w)) >= \
            M.TourType[i,t]*M.tt_shiftlen_min_cumul_dys_weeks[t,k,w]
@@ -1523,13 +1562,6 @@ def DSW_TT_shiftlen_cumul_weeklyconservation_UB_rule(M,i,t,k,w):
 
 model_phase1.DSW_TT_shiftlen_cumul_weeklyconservation_UB = \
   pyo.Constraint(model_phase1.DSW_TT_shiftlen_weeklyconservation_idx, rule=DSW_TT_shiftlen_cumul_weeklyconservation_UB_rule)
-
-
-##### ---- OK - Min and max bounds on prds worked each week
-##Shift[i,j,w,k,t]*lengths[k] >= TourType[i,t]*tt_min_prds_weeks[t,w]
-#def prds_worked_weekly_LB_rule(M,i,t,w):
-#    return sum(M.Shift[i,d,w,k,t]*M.lengths[k] for d in M.DAYS for k in M.tt_length_x[t] if (i,d,w,k,t) in M.okShifts) \
-#        >= M.TourType[i,t]*M.tt_min_prds_weeks[t,w]
 
 
 def prds_worked_weekly_LB_rule(M,i,t,w):
@@ -1550,7 +1582,7 @@ model_phase1.prds_worked_weekly_UB = \
   pyo.Constraint(model_phase1.okTourType,model_phase1.WEEKS, rule=prds_worked_weekly_UB_rule)
 
 
-## Cumulative versions of the above 2 constraints
+# # Cumulative versions of the above 2 constraints
 def prds_worked_cumul_weekly_LB_rule(M,i,t,w):
     return sum(M.DailyShiftWorked[i,t,k,d,z]*M.lengths[k] for d in M.DAYS for k in M.tt_length_x[t] \
                for z in pyo.sequence(w) if (i,t,k,d,z) in M.DailyShiftWorked_idx) >= \
@@ -1570,25 +1602,6 @@ def prds_worked_cumul_weekly_UB_rule(M,i,t,w):
 model_phase1.prds_worked_cumul_weekly_UB = \
   pyo.Constraint(model_phase1.okTourType,model_phase1.WEEKS, rule=prds_worked_cumul_weekly_UB_rule)
 
-
-# The following were commented out for some reason though they definitely appear in GMPL model
-
-# Shiftlen version of the above (reused model_phase1.prds_worked_shiflen_weekly_idx from above)
-
-# ---- OK - Min and max bounds on shifts worked each week
-#subject to shift_WT_weeklyconservation_LB{i in 1..n_windows, t in okTTYPES, k in LENGTHS, w in WEEKS } :
-#    sum{d in DAYS: (i,d,k,t) in ok_shifts} Shift[i,d,w,k,t] >= TourType[i,t]*tt_shiftlen_min_dys_weeks[t,k,w];
-#
-#subject to shift_WT_weeklyconservation_UB{i in 1..n_windows, t in okTTYPES, k in LENGTHS, w in WEEKS } :
-#    sum{d in DAYS: (i,d,k,t) in ok_shifts} Shift[i,d,w,k,t] <= TourType[i,t]*tt_shiftlen_max_dys_weeks[t,k,w];
-#
-#
-## ---- OK - Min and max bounds on shifts worked over cumulative number of weeks
-# subject to shift_WT_cumul_weeklyconservation_LB{i in 1..n_windows, t in okTTYPES, k in LENGTHS, w in WEEKS } :
-#    sum{d in DAYS,z in 1..w: (i,d,k,t) in ok_shifts} Shift[i,d,z,k,t] >= TourType[i,t]*tt_shiftlen_min_cumul_dys_weeks[t,k,w];
-#
-# subject to shift_WT_cumul_weeklyconservation_UB{i in 1..n_windows, t in okTTYPES, k in LENGTHS, w in WEEKS } :
-#    sum{d in DAYS,z in 1..w: (i,d,k,t) in ok_shifts} Shift[i,d,z,k,t] <= TourType[i,t]*tt_shiftlen_max_cumul_dys_weeks[t,k,w];
 
 # These should be the shift length specific versions of the above 4 constraints
 def prds_worked_shiflen_weekly_idx_rule(M):
@@ -1655,7 +1668,7 @@ def prds_FSwkend_weeklyconservation_LB_idx_rule(M):
 
 
 model_phase1.prds_FSwkend_weeklyconservation_LB_idx = \
-    pyo.Set(dimen=3,initialize=prds_FSwkend_weeklyconservation_LB_idx_rule)
+    pyo.Set(dimen=3, initialize=prds_FSwkend_weeklyconservation_LB_idx_rule)
 
 
 model_phase1.prds_FSwkend_weeklyconservation_LB = \
@@ -1666,17 +1679,6 @@ model_phase1.prds_FSwkend_cumul_weeklyconservation_LB = \
     pyo.Constraint(model_phase1.prds_FSwkend_weeklyconservation_LB_idx,rule=prds_FSwkend_cumul_weeklyconservation_LB_rule)
 
 
-#
-#####subject to DWT_ID_weeklyconservation_LB{i in 1..n_windows, t in okTTYPES, w in WEEKS:
-##### 6 in weekend[i,t] and 7 in weekend[i,t]} :
-#####    sum{d in DAYS: (i,t,d) in okDailyTourType} DailyTourType[i,t,d,w] >= 
-#####    sum{p in 1..num_weekend_patterns[t]}WeekendDaysWorked[p,i,t]*FriSat_min_dys_weeks[t,p,w];
-#####    
-#####subject to DWT_ID_cumul_weeklyconservation_LB{i in 1..n_windows, t in okTTYPES, w in WEEKS:
-##### 6 in weekend[i,t] and 7 in weekend[i,t]} :
-#####    sum{d in DAYS, z in 1..w: (i,t,d) in okDailyTourType} DailyTourType[i,t,d,z] >= 
-#####    sum{p in 1..num_weekend_patterns[t]}WeekendDaysWorked[p,i,t]*FriSat_min_cumul_dys_weeks[t,p,w];
-##
 def DWT_FSwkend_weeklyconservation_LB_rule(M,i,t,w):
     return sum(M.DailyTourType[i,t,d,w] for d in M.DAYS if (i,t,d) in M.okDailyTourType) >= \
         sum(M.WeekendDaysWorked[i,t,p] * M.FriSat_min_dys_weeks[t,p,w] for \
@@ -1693,38 +1695,28 @@ def DWT_FSwkend_weeklyconservation_LB_idx_rule(M):
     return [(i,t,w) for (i,t) in M.okTourType
                     for w in M.WEEKS
                     if 6 in M.weekend[i,t] and 7 in M.weekend[i,t]]
-                        
 
-model_phase1.DWT_FSwkend_weeklyconservation_LB_idx = pyo.Set(dimen=3,initialize=DWT_FSwkend_weeklyconservation_LB_idx_rule)
-model_phase1.DWT_FSwkend_weeklyconservation_LB = pyo.Constraint(model_phase1.DWT_FSwkend_weeklyconservation_LB_idx,rule=DWT_FSwkend_weeklyconservation_LB_rule)
-model_phase1.DWT_FSwkend_cumul_weeklyconservation_LB = pyo.Constraint(model_phase1.DWT_FSwkend_weeklyconservation_LB_idx,rule=DWT_FSwkend_cumul_weeklyconservation_LB_rule)
 
-# TODO Reformulate the following max_ptfrac constraint as I think it's causing problems
-##### Part-time fraction constraints
-####
-####
-#####subject to max_ptfrac :
-#####   (  sum{i in PERIODS,j in DAYS,w in WEEKS,k in LENGTHS,t in TTYPES: ptfrac_tog > 0 and (i,j,k,t) in ok_shifts} 
-#####       ( if tt_parttime[t] > 0 then 
-#####        Shift[i,j,w,k,t]*lengths[k]*(1.0-1.0/ptfrac) else
-#####            Shift[i,j,w,k,t]*lengths[k] ) ) >= 0.0 ;
-##
+model_phase1.DWT_FSwkend_weeklyconservation_LB_idx = pyo.Set(dimen=3,
+                                                             initialize=DWT_FSwkend_weeklyconservation_LB_idx_rule)
+model_phase1.DWT_FSwkend_weeklyconservation_LB = pyo.Constraint(model_phase1.DWT_FSwkend_weeklyconservation_LB_idx,
+                                                                rule=DWT_FSwkend_weeklyconservation_LB_rule)
+model_phase1.DWT_FSwkend_cumul_weeklyconservation_LB = pyo.Constraint(
+    model_phase1.DWT_FSwkend_weeklyconservation_LB_idx, rule=DWT_FSwkend_cumul_weeklyconservation_LB_rule)
+
 
 def max_ptfrac_rule(M):
-    return sum(M.Shift[i,j,w,k,t] * M.lengths[k] for (i,j,w,k,t) in M.okShifts if M.tt_parttime[t] > 0) <= \
-        M.max_parttime_frac.value * sum(M.Shift[i,j,w,k,t] * M.lengths[k] for (i,j,w,k,t) in M.okShifts)
-    
-    
+    return sum(M.Shift[i, j, w, k, t] * M.lengths[k] for (i, j, w, k, t) in M.okShifts if M.tt_parttime[t] > 0) <= \
+           M.max_parttime_frac.value * sum(M.Shift[i, j, w, k, t] * M.lengths[k] for (i, j, w, k, t) in M.okShifts)
+
+
 model_phase1.max_ptfrac_con = pyo.Constraint(rule=max_ptfrac_rule)
 
 
-# Chains - coordinates DWT and ix within each chain
+# Chains - coordinates DWS and Shift within each chain for intra-tour start-time flexibility
 
-# How to deal with multiple weeks?
-# How to deal with fact that single tour type can have multiple shift lengths? It's a problem since we CANNOT equate sums
-# of shift pyo.Variables for a specific shift length with DailyTourType pyo.Variables.
 
-#subject to chains_sweep_l{e in WEEKS, t in okTTYPES, k in tt_length_x[t], (b,j) in bchain[t,k],
+# subject to chains_sweep_l{e in WEEKS, t in okTTYPES, k in tt_length_x[t], (b,j) in bchain[t,k],
 #             p in period[b,j]..period[b,j],
 #             w in 0..(numlinks[t,k,b,j]-1-(p-period[b,j])):
 #   width>0 } :
@@ -1740,10 +1732,10 @@ def chains_sweep_l_rule(M, t, k, b, j, w, p, v):
 
     return sum(
         M.Shift[l, m, n, k, t] for (l, m, n) in M.linkspan[t, k, b, j, w, v + 1] if (l, m, n, k, t) in M.okShifts) >= \
-           sum(M.DailyShiftWorked[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]] \
+           sum(M.DailyShiftWorked[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]]
                for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
-                         if (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2]) \
-                         in M.okStartWindowRoots[t, k] and sum(M.allow_start[x, y, k, t] for (x, y, z) \
+                         if (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2])
+                         in M.okStartWindowRoots[t, k] and sum(M.allow_start[x, y, k, t] for (x, y, z)
                                                                in M.PotentialGlobalStartWindow[
                                                                    g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1],
                                                                    g_prd_to_tuple(M, v)[2]]) > 0])
@@ -1764,23 +1756,13 @@ def chains_sweep_l_idx_rule(M):
                                         index_list.append((t, k, b, j, w, p, m))
                                         
     return index_list
-                                           
-    
-#    return [(t,k,b,j,w,m) for t in M.activeTT
-#                          for k in M.LENGTHS
-#                          for b in M.PERIODS
-#                          for j in M.DAYS
-#                          for w in M.WEEKS
-#                          for p in range(M.g_period[b,j,w].value,M.g_period[b,j,w].value+1)
-#                          for m in range(0,M.n_links[t,k,b,j,w].value-1-(p-M.g_period[b,j,w].value)+1)
-#                          if M.g_start_window_width>0 and (b,j,w) in M.bchain[t,k] and k in M.tt_length_x[t]]
 
 
 model_phase1.chains_sweep_l_idx = pyo.Set(dimen=7, ordered=True, initialize=chains_sweep_l_idx_rule)
 model_phase1.chains_sweep_l_con = pyo.Constraint(model_phase1.chains_sweep_l_idx, rule=chains_sweep_l_rule)
 
 
-#subject to chains_sweep_u{e in WEEKS,t in okTTYPES, k in tt_length_x[t],(b,j) in bchain[t,k],
+# subject to chains_sweep_u{e in WEEKS,t in okTTYPES, k in tt_length_x[t],(b,j) in bchain[t,k],
 #             w in 0..(numlinks[t,k,b,j]-1):
 #   width>0 } :
 #    sum{ i in period[b,j]..period[b,j]+w :
@@ -1789,33 +1771,38 @@ model_phase1.chains_sweep_l_con = pyo.Constraint(model_phase1.chains_sweep_l_idx
 #     sum{u in period[b,j]..period[b,j]+w : (which_prd[u],which_day[u]) in okWindowBeginnings[t,k] and 
 #      sum{(l,m) in WindowWepochs[which_prd[u],which_day[u]]} allow_start[l,m,k,t]>0} 
 #      DailyShiftWorked[which_prd[u],t,k,which_day[u],e] ; 
-      
-def chains_sweep_u_rule(M,t,k,b,j,w,p,v):
-    
-    return  sum(M.Shift[g_prd_to_tuple(M, i)[0],g_prd_to_tuple(M, i)[1],g_prd_to_tuple(M, i)[2],k,t] 
-              for i in range(p,p+v+1) if (g_prd_to_tuple(M, i)[0],g_prd_to_tuple(M, i)[1],g_prd_to_tuple(M, i)[2]) in M.okShifts) <= sum(M.DailyShiftWorked[g_prd_to_tuple(M, u)[0],t,k,g_prd_to_tuple(M, u)[1],g_prd_to_tuple(M, u)[2]] 
-                   for u in [vv for vv in range(p,p + M.g_start_window_width + 1)
-                if (g_prd_to_tuple(M, v)[0],g_prd_to_tuple(M, v)[1],g_prd_to_tuple(M, v)[2]) in M.okStartWindowRoots[t,k] \
-                  and sum(M.allow_start[x,y,k,t] for (x,y,z) in M.PotentialGlobalStartWindow[g_prd_to_tuple(M, v)[0],g_prd_to_tuple(M, v)[1],g_prd_to_tuple(M, v)[2]])>0])
-                           
+
+def chains_sweep_u_rule(M, t, k, b, j, w, p, v):
+    return sum(M.Shift[g_prd_to_tuple(M, i)[0], g_prd_to_tuple(M, i)[1], g_prd_to_tuple(M, i)[2], k, t]
+               for i in range(p, p + v + 1) if
+               (g_prd_to_tuple(M, i)[0], g_prd_to_tuple(M, i)[1], g_prd_to_tuple(M, i)[2]) in M.okShifts) <= sum(
+        M.DailyShiftWorked[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]]
+        for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
+                  if
+                  (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2]) in M.okStartWindowRoots[
+                      t, k] \
+                  and sum(M.allow_start[x, y, k, t] for (x, y, z) in M.PotentialGlobalStartWindow[
+                      g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2]]) > 0])
+
+
 def chains_sweep_u_idx_rule(M):
     index_list = []
-    if M.g_start_window_width>0:
+    if M.g_start_window_width > 0:
         for t in M.activeTT:
             for k in [len for len in M.LENGTHS if len in M.tt_length_x[t]]:
                 for b in M.PERIODS:
                     for j in M.DAYS:
                         for w in M.WEEKS:
-                            for p in range(M.g_period[b,j,w].value,M.g_period[b,j,w]+1):
-                                if (b,j,w) in M.bchain[t,k]:
-                                    for m in range(0,M.n_links[t,k,b,j,w]-1):
-                                        index_list.append((t,k,b,j,w,p,m))
-                                        
+                            for p in range(M.g_period[b, j, w].value, M.g_period[b, j, w] + 1):
+                                if (b, j, w) in M.bchain[t, k]:
+                                    for m in range(0, M.n_links[t, k, b, j, w] - 1):
+                                        index_list.append((t, k, b, j, w, p, m))
+
     return index_list
 
-                        
-model_phase1.chains_sweep_u_idx = pyo.Set(dimen=7,ordered=True,initialize=chains_sweep_u_idx_rule)  
-model_phase1.chains_sweep_u_con = pyo.Constraint(model_phase1.chains_sweep_l_idx,rule=chains_sweep_u_rule)     
+
+model_phase1.chains_sweep_u_idx = pyo.Set(dimen=7, ordered=True, initialize=chains_sweep_u_idx_rule)
+model_phase1.chains_sweep_u_con = pyo.Constraint(model_phase1.chains_sweep_l_idx, rule=chains_sweep_u_rule)
       
       
 
@@ -1852,23 +1839,20 @@ model_phase1.chains_tot_idx = pyo.Set(dimen=5,ordered=True,initialize=chains_tot
 model_phase1.chains_tot_con = pyo.Constraint(model_phase1.chains_tot_idx,rule=chains_tot_rule)     
 
 
-
-
-
-# TODO - the follow proxy constraints are only for PotentialGlobalStartWindow = 0
+# TODO - the follow proxy constraints are only case of no intra-tour start time flexibility
 # Coordinate Shift pyo.Variables with DailyShiftWorked for start window width=0.
 # In this case, shift periods are same as shiftworked windows
 
-def chains_tot_proxy1_rule(M,w,t,k,i,j):
-    return M.Shift[i,j,w,k,t] == M.DailyShiftWorked[i,t,k,j,w]
+def chains_tot_proxy1_rule(M, w, t, k, i, j):
+    return M.Shift[i, j, w, k, t] == M.DailyShiftWorked[i, t, k, j, w]
 
 
 def chains_tot_proxy1_idx_rule(M):
-    return [(w,t,k,i,j) for w in M.WEEKS
-                        for t in M.activeTT
-                        for k in M.tt_length_x[t]
-                        for i in M.PERIODS
-                        for j in M.DAYS if (i,j,w,k,t) in M.okShifts ]                      
+    return [(w, t, k, i, j) for w in M.WEEKS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            for i in M.PERIODS
+            for j in M.DAYS if (i, j, w, k, t) in M.okShifts]
                     
 
 model_phase1.chains_tot_proxy1_idx = pyo.Set(dimen=5, initialize=chains_tot_proxy1_idx_rule)
@@ -1876,22 +1860,22 @@ model_phase1.chains_tot_proxy1_idx = pyo.Set(dimen=5, initialize=chains_tot_prox
 model_phase1.chains_tot_proxy1_con = pyo.Constraint(model_phase1.chains_tot_proxy1_idx, rule=chains_tot_proxy1_rule)
 
 
-def chains_tot_proxy2_rule(M,w,t,k,i,j):
-    return M.DailyShiftWorked[i,t,k,j,w] == 0
+def chains_tot_proxy2_rule(M, w, t, k, i, j):
+    return M.DailyShiftWorked[i, t, k, j, w] == 0
 
 
 def chains_tot_proxy2_idx_rule(M):
-    return [(w,t,k,i,j) for w in M.WEEKS
-                        for t in M.activeTT
-                        for k in M.tt_length_x[t]
-                        for i in M.PERIODS
-                        for j in M.DAYS
-                        if (i,t,j) in M.okDailyTourType and M.allow_start[i,j,k,t] == 0] 
-                    
+    return [(w, t, k, i, j) for w in M.WEEKS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            for i in M.PERIODS
+            for j in M.DAYS
+            if (i, t, j) in M.okDailyTourType and M.allow_start[i, j, k, t] == 0]
 
-model_phase1.chains_tot_proxy2_idx = pyo.Set(dimen=5,initialize=chains_tot_proxy2_idx_rule)  
 
-model_phase1.chains_tot_proxy2_con = pyo.Constraint(model_phase1.chains_tot_proxy2_idx,rule=chains_tot_proxy2_rule)
+model_phase1.chains_tot_proxy2_idx = pyo.Set(dimen=5, initialize=chains_tot_proxy2_idx_rule)
+
+model_phase1.chains_tot_proxy2_con = pyo.Constraint(model_phase1.chains_tot_proxy2_idx, rule=chains_tot_proxy2_rule)
 
 # Weekend subset constraints
 # Need constraints to prevent cases such as the following. Consider two people with same tour type working
@@ -1922,270 +1906,22 @@ model_phase1.weekend_subsets_5_4_idx = pyo.Set(dimen=8, initialize=weekend_subse
 
 
 def weekend_subsets_5_4_rule(M, i, t, w, e, d1, d2, d3, d4):
-    
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
 
-    days = [d1, d2, d3, d4]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= \
-        (len(days)) * sum(M.WeekendDaysWorked[i, t, p] for p in M.oneorzero_wkend_day[w, t, e]) \
-        + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+    days_subset = [d1, d2, d3, d4]
+    return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
+           sum(M.MultiWeekPattern[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
-model_phase1.weekend_subsets_5_4_con = pyo.Constraint(model_phase1.weekend_subsets_5_4_idx,
-                                                      rule=weekend_subsets_5_4_rule)
-    
-
-# weekend_subsets_5_5 - put UB on number of M-F shifts based on number of weekend patterns used
-# with 0, 1, 2 weekend days worked.
-# On second thought, this seems totally redundant in that the total number of shifts per week
-# bounds in conjunction with the
-# integration of weekends off pyo.Variables and daily tour type pyo.Variables should totally
-# determine the number of M-F shifts.
-
-def weekend_subsets_5_5_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    index_list.append((i, t, w, e, 2, 3, 4, 5, 6))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_5_idx = pyo.Set(dimen=9, initialize=weekend_subsets_5_5_idx_rule)
-
-
-def weekend_subsets_5_5_rule(M, i, t, w, e, d1, d2, d3, d4, d5):
-    days = [d1, d2, d3, d4, d5]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-           + (len(days) - 2) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
-
-
-model_phase1.weekend_subsets_5_5_con = pyo.Constraint(model_phase1.weekend_subsets_5_5_idx,
-                                                      rule=weekend_subsets_5_5_rule)
-
-
-def weekend_subsets_5_5lb_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    index_list.append((i, t, w, e, 1, 2, 3, 4, 5, 6))
-                    index_list.append((i, t, w, e, 2, 3, 4, 5, 6, 7))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_5lb_idx = pyo.Set(dimen=10, initialize=weekend_subsets_5_5lb_idx_rule)
-
-
-def weekend_subsets_5_5lb_rule(M, i, t, w, e, d1, d2, d3, d4, d5, d6):
-    days = [d1, d2, d3, d4, d5, d6]
-    if 1 in days:
-        return sum(M.DailyTourType[i, t, d, w] for d in days) >= (len(days) - 1) * sum(
-            M.WeekendDaysWorked[i, t, p] for p in M.Sun_wkend_day[w, t, e])
-    else:
-        return sum(M.DailyTourType[i, t, d, w] for d in days) >= (len(days) - 1) * sum(
-            M.WeekendDaysWorked[i, t, p] for p in M.Sat_wkend_day[w, t, e])
-
-
-model_phase1.weekend_subsets_5_5lb_con = pyo.Constraint(model_phase1.weekend_subsets_5_5lb_idx,
-                                                        rule=weekend_subsets_5_5lb_rule)
-
-
-#def weekend_subsets_5_4lb_idx_rule(M):
-#    index_list = []
-#    
-#    for (i,t) in M.okTourType:
-#        for w in M.WEEKS:
-#            for e in M.WEEKENDS:
-#                if M.tt_max_dys_weeks[t,w].value ==  5:
-#                    index_list.append((i,t,w,e,2,3,4,5,6))
-#                    
-#                    
-#        
-#    return index_list
-#        
-#model_phase1.weekend_subsets_5_4lb_idx = Set(dimen=9,initialize=weekend_subsets_5_4lb_idx_rule)    
-#    
-#def weekend_subsets_5_4lb_rule(M,i,t,w,e,d1,d2,d3,d4,d5):
-#    
-#    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-#    # where x is number of weekend patterns with 2 wkend days
-#    # M.WeekendDaysWorked[i,t,p]
-#    days = [d1,d2,d3,d4,d5]
-#    return sum(M.DailyTourType[i,t,d,w] for d in days) >= (len(days))*sum(M.WeekendDaysWorked[i,t,p] for p in M.zero_wkend_day[w,t,e]) \
-#                                                          + (len(days)-1)*sum(M.WeekendDaysWorked[i,t,p] for p in M.one_wkend_day[w,t,e]) \
-#                                                          + (len(days)-2)*sum(M.WeekendDaysWorked[i,t,p] for p in M.two_wkend_days[w,t,e])
-#    
-#model_phase1.weekend_subsets_5_4lb_con = Constraint(model_phase1.weekend_subsets_5_4lb_idx,rule=weekend_subsets_5_4lb_rule) 
-
-
-def weekend_subsets_5_5sun_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    # don't think I need this one since in 5_5 - index_list.append((i,t,w,e,2,3,4,5,6))
-                    index_list.append((i, t, w, e, 2, 3, 4, 5, 7))
-                    index_list.append((i, t, w, e, 2, 3, 4, 6, 7))
-                    index_list.append((i, t, w, e, 2, 3, 5, 6, 7))
-                    index_list.append((i, t, w, e, 2, 4, 5, 6, 7))
-                    index_list.append((i, t, w, e, 3, 4, 5, 6, 7))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_5sun_idx = pyo.Set(dimen=9, initialize=weekend_subsets_5_5sun_idx_rule)
-
-
-def weekend_subsets_5_5sun_rule(M, i, t, w, e, d1, d2, d3, d4, d5):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3, d4, d5]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.Sat_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.Sun_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e])
-
-
-model_phase1.weekend_subsets_5_5sun_con = pyo.Constraint(model_phase1.weekend_subsets_5_5sun_idx,
-                                                         rule=weekend_subsets_5_5sun_rule)
-
-
-def weekend_subsets_5_5sat_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    # don't think I need this one since in 5_5 - index_list.append((i,t,w,e,2,3,4,5,6))
-                    index_list.append((i, t, w, e, 2, 3, 4, 5, 1))
-                    index_list.append((i, t, w, e, 2, 3, 4, 6, 1))
-                    index_list.append((i, t, w, e, 2, 3, 5, 6, 1))
-                    index_list.append((i, t, w, e, 2, 4, 5, 6, 1))
-                    index_list.append((i, t, w, e, 3, 4, 5, 6, 1))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_5sat_idx = pyo.Set(dimen=9, initialize=weekend_subsets_5_5sat_idx_rule)
-
-
-def weekend_subsets_5_5sat_rule(M, i, t, w, e, d1, d2, d3, d4, d5):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3, d4, d5]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.Sun_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.Sat_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e])
-
-
-model_phase1.weekend_subsets_5_5sat_con = pyo.Constraint(model_phase1.weekend_subsets_5_5sat_idx,
-                                                         rule=weekend_subsets_5_5sat_rule)
-
-
-def weekend_subsets_5_4sat_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    # don't think I need this one since in 5_5 - index_list.append((i,t,w,e,2,3,4,5,6))
-                    index_list.append((i, t, w, e, 1, 2, 3, 4))
-                    index_list.append((i, t, w, e, 1, 2, 3, 5))
-                    index_list.append((i, t, w, e, 1, 2, 3, 6))
-
-                    index_list.append((i, t, w, e, 1, 2, 4, 5))
-                    index_list.append((i, t, w, e, 1, 2, 4, 6))
-
-                    index_list.append((i, t, w, e, 1, 3, 4, 5))
-                    index_list.append((i, t, w, e, 1, 3, 4, 6))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_4sat_idx = pyo.Set(dimen=8, initialize=weekend_subsets_5_4sat_idx_rule)
-
-
-def weekend_subsets_5_4sat_rule(M, i, t, w, e, d1, d2, d3, d4):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3, d4]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.Sun_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.Sat_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e])
-
-
-model_phase1.weekend_subsets_5_4sat_con = pyo.Constraint(model_phase1.weekend_subsets_5_4sat_idx,
-                                                         rule=weekend_subsets_5_4sat_rule)
-
-
-def weekend_subsets_5_4sun_idx_rule(M):
-    index_list = []
-
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] == 5:
-                    # don't think I need this one since in 5_5 - index_list.append((i,t,w,e,2,3,4,5,6))
-                    index_list.append((i, t, w, e, 7, 2, 3, 4))
-                    index_list.append((i, t, w, e, 7, 2, 3, 5))
-                    index_list.append((i, t, w, e, 7, 2, 3, 6))
-
-                    index_list.append((i, t, w, e, 7, 2, 4, 5))
-                    index_list.append((i, t, w, e, 7, 2, 4, 6))
-
-                    index_list.append((i, t, w, e, 7, 3, 4, 5))
-                    index_list.append((i, t, w, e, 7, 3, 4, 6))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_5_4sun_idx = pyo.Set(dimen=8, initialize=weekend_subsets_5_4sun_idx_rule)
-
-
-def weekend_subsets_5_4sun_rule(M, i, t, w, e, d1, d2, d3, d4):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3, d4]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.Sat_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.Sun_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e])
-
-
-model_phase1.weekend_subsets_5_4sun_con = pyo.Constraint(model_phase1.weekend_subsets_5_4sun_idx,
-                                                         rule=weekend_subsets_5_4sun_rule)
-
+model_phase1.weekend_subsets_5_4_con2 = pyo.Constraint(model_phase1.weekend_subsets_5_4_idx,
+                                                       rule=weekend_subsets_5_4_rule)
 
 def weekend_subsets_4_3_idx_rule(M):
     index_list = []
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_max_dys_weeks[t, w] == 4:
+                if M.tt_min_dys_weeks[t, w] <= 4 <= M.tt_max_dys_weeks[t, w]:
                     index_list.append((i, t, w, e, 2, 3, 4))
                     index_list.append((i, t, w, e, 2, 3, 5))
                     index_list.append((i, t, w, e, 2, 3, 6))
@@ -2206,50 +1942,15 @@ model_phase1.weekend_subsets_4_3_idx = pyo.Set(dimen=7, initialize=weekend_subse
 
 
 def weekend_subsets_4_3_rule(M, i, t, w, e, d1, d2, d3):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.oneorzero_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+
+    days_subset = [d1, d2, d3]
+    return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
+           sum(M.MultiWeekPattern[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
-model_phase1.weekend_subsets_4_3_con = pyo.Constraint(model_phase1.weekend_subsets_4_3_idx,
-                                                      rule=weekend_subsets_4_3_rule)
-
-
-def weekend_subsets_4_4_idx_rule(M):
-    index_list = []
-    for (i, t) in M.okTourType:
-        for w in M.WEEKS:
-            for e in M.WEEKENDS:
-                if M.tt_max_dys_weeks[t, w] == 4:
-                    index_list.append((i, t, w, e, 2, 3, 4, 5))
-                    index_list.append((i, t, w, e, 2, 3, 4, 6))
-                    index_list.append((i, t, w, e, 2, 3, 5, 6))
-                    index_list.append((i, t, w, e, 2, 4, 5, 6))
-                    index_list.append((i, t, w, e, 3, 4, 5, 6))
-
-    return index_list
-
-
-model_phase1.weekend_subsets_4_4_idx = pyo.Set(dimen=8, initialize=weekend_subsets_4_4_idx_rule)
-
-
-def weekend_subsets_4_4_rule(M, i, t, w, e, d1, d2, d3, d4):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2, d3, d4]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-           + (len(days) - 2) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
-
-
-model_phase1.weekend_subsets_4_4_con = pyo.Constraint(model_phase1.weekend_subsets_4_4_idx,
-                                                      rule=weekend_subsets_4_4_rule)
+model_phase1.weekend_subsets_4_3_con2 = pyo.Constraint(model_phase1.weekend_subsets_4_3_idx,
+                                                       rule=weekend_subsets_4_3_rule)
 
 
 def weekend_subsets_3_2_idx_rule(M):
@@ -2258,7 +1959,7 @@ def weekend_subsets_3_2_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_max_dys_weeks[t, w] == 3:
+                if M.tt_min_dys_weeks[t, w] <= 3 <= M.tt_max_dys_weeks[t, w]:
                     index_list.append((i, t, w, e, 2, 3))
                     index_list.append((i, t, w, e, 2, 4))
                     index_list.append((i, t, w, e, 2, 5))
@@ -2279,17 +1980,15 @@ model_phase1.weekend_subsets_3_2_idx = pyo.Set(dimen=6, initialize=weekend_subse
 
 
 def weekend_subsets_3_2_rule(M, i, t, w, e, d1, d2):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1, d2]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.oneorzero_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+
+    days_subset = [d1, d2]
+    return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
+           sum(M.MultiWeekPattern[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
-model_phase1.weekend_subsets_3_2_con = pyo.Constraint(model_phase1.weekend_subsets_3_2_idx,
-                                                      rule=weekend_subsets_3_2_rule)
+model_phase1.weekend_subsets_3_2_con2 = pyo.Constraint(model_phase1.weekend_subsets_3_2_idx,
+                                                       rule=weekend_subsets_3_2_rule)
 
 
 def weekend_subsets_2_1_idx_rule(M):
@@ -2298,7 +1997,7 @@ def weekend_subsets_2_1_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_max_dys_weeks[t, w] == 2:
+                if M.tt_min_dys_weeks[t, w] <= 2 <= M.tt_max_dys_weeks[t, w]:
                     index_list.append((i, t, w, e, 2))
                     index_list.append((i, t, w, e, 3))
                     index_list.append((i, t, w, e, 4))
@@ -2312,133 +2011,22 @@ model_phase1.weekend_subsets_2_1_idx = pyo.Set(dimen=5, initialize=weekend_subse
 
 
 def weekend_subsets_2_1_rule(M, i, t, w, e, d1):
-    # total days in subset worked by all wkend patterns -  days worked by those with < 2 weekend days <= 4x-x or 3x
-    # where x is number of weekend patterns with 2 wkend days
-    # M.WeekendDaysWorked[i,t,p]
-    days = [d1]
-    return sum(M.DailyTourType[i, t, d, w] for d in days) <= (len(days)) * sum(
-        M.WeekendDaysWorked[i, t, p] for p in M.oneorzero_wkend_day[w, t, e]) \
-           + (len(days) - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
+    days_subset = [d1]
+    return sum(M.DailyTourType[i, t, d, w] for d in days_subset) <= \
+           sum(M.MultiWeekPattern[i, t, p1, p2] * min(len(days_subset), (M.A_mwdw[t, p1, w] - M.A_num_wkend_days[p2, w, t, e])) for p1 in pyo.sequence(M.num_mwdw_patterns[t])
+               for p2 in pyo.sequence(M.num_weekend_patterns[e, t]))
 
 
-model_phase1.weekend_subsets_2_1_con = pyo.Constraint(model_phase1.weekend_subsets_2_1_idx,
-                                                      rule=weekend_subsets_2_1_rule)
+model_phase1.weekend_subsets_2_1_con2 = pyo.Constraint(model_phase1.weekend_subsets_2_1_idx,
+                                                       rule=weekend_subsets_2_1_rule)
+
+
 
 
 # The following are various ad-hoc constraints that I was trying for fixing Phase 2 infeasibility problems.
 # Any such constraints should include deactivation switches in solvemwts.py.
 
-def ad_hoc_weekend_subsets_ttype7_idx_rule(M):
-    index_list = []
 
-    x = itertools.combinations(list(range(2, 7)), 2)
-    y = itertools.combinations(list(range(9, 14)), 2)
-    z = itertools.product(x, y)
-    daypairs = [list(p) for p in z]
-
-    for (i, t) in M.okTourType:
-        if t == 6 or t == 7:
-            for w in [1, 3]:
-                for e in M.WEEKENDS:
-                    # if M.tt_max_dys_weeks[t,w] ==  5:
-                    for d in daypairs:
-                        d1 = d[0][0]
-                        d2 = d[0][1]
-                        d3 = d[1][0] - 7
-                        d4 = d[1][1] - 7
-                        index_list.append((i, t, w, e, d1, d2, d3, d4))
-
-    return index_list
-
-
-model_phase1.ad_hoc_weekend_subsets_ttype7_idx = pyo.Set(dimen=8, initialize=ad_hoc_weekend_subsets_ttype7_idx_rule)
-
-
-def ad_hoc_weekend_subsets_ttype7_rule(M, i, t, w, e, w1d1, w1d2, w2d1, w2d2):
-    # ttype 7 is a half-time 8 (3-2 or 2-3)
-    # Trying to avoid a forced 3-3 pattern due to weekend pattern
-    # .
-
-    wk1_days = [w1d1, w1d2]
-    wk2_days = [w2d1, w2d2]
-
-    subset_len = len(wk1_days) + len(wk2_days)
-
-    return sum(M.DailyTourType[i, t, d, w] for d in wk1_days) + sum(
-        M.DailyTourType[i, t, d, w + 1] for d in wk2_days) <= \
-           subset_len * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e]) \
-           + (subset_len - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-           + (subset_len - 2) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
-
-
-model_phase1.ad_hoc_weekend_subsets_ttype7_con = pyo.Constraint(model_phase1.ad_hoc_weekend_subsets_ttype7_idx,
-                                                                rule=ad_hoc_weekend_subsets_ttype7_rule)
-
-
-######################
-
-def ad_hoc_weekend_subsets_ttype8_idx_rule(M):
-    index_list = []
-
-    w1 = itertools.combinations(list(range(2, 7)), 3)
-    w2 = itertools.combinations(list(range(9, 14)), 3)
-    w3 = itertools.combinations(list(range(16, 21)), 3)
-    w4 = itertools.combinations(list(range(23, 28)), 3)
-    z = itertools.product(w1, w2, w3, w4)
-    daytrips = [list(p) for p in z]
-
-    for (i, t) in M.okTourType:
-        if t == 8:
-            for w in [1]:
-                for e in M.WEEKENDS:
-                    # if M.tt_max_dys_weeks[t,w] ==  5:
-                    for d in daytrips:
-                        d1 = d[0][0]
-                        d2 = d[0][1]
-                        d3 = d[0][2]
-                        d4 = d[1][0] - 7
-                        d5 = d[1][1] - 7
-                        d6 = d[1][2] - 7
-                        d7 = d[2][0] - 14
-                        d8 = d[2][1] - 14
-                        d9 = d[2][2] - 14
-                        d10 = d[3][0] - 21
-                        d11 = d[3][1] - 21
-                        d12 = d[3][2] - 21
-                        index_list.append((i, t, w, e, d1, d2, d3,
-                                           d4, d5, d6,
-                                           d7, d8, d9,
-                                           d10, d11, d12))
-
-    return index_list
-
-
-model_phase1.ad_hoc_weekend_subsets_ttype8_idx = pyo.Set(dimen=16, initialize=ad_hoc_weekend_subsets_ttype8_idx_rule)
-
-
-def ad_hoc_weekend_subsets_ttype8_rule(M, i, t, w, e, w1d1, w1d2, w1d3, w2d1, w2d2, w2d3, w3d1, w3d2, w3d3, w4d1, w4d2,
-                                       w4d3):
-    # ttype 7 is a half-time 8 (3-2 or 2-3)
-    # Trying to avoid a forced 3-3 pattern due to weekend pattern
-    # .
-
-    wk1_days = [w1d1, w1d2, w1d3]
-    wk2_days = [w2d1, w2d2, w2d3]
-    wk3_days = [w3d1, w3d2, w3d3]
-    wk4_days = [w4d1, w4d2, w4d3]
-
-    subset_len = len(wk1_days) + len(wk2_days) + len(wk3_days) + len(wk4_days)
-
-    return sum(M.DailyTourType[i, t, d, w] for d in wk1_days) + sum(M.DailyTourType[i, t, d, w + 1] for d in wk2_days) \
-           + sum(M.DailyTourType[i, t, d, w + 2] for d in wk3_days) + sum(
-        M.DailyTourType[i, t, d, w + 3] for d in wk4_days) <= \
-           subset_len * sum(M.WeekendDaysWorked[i, t, p] for p in M.zero_wkend_day[w, t, e]) \
-           + (subset_len - 1) * sum(M.WeekendDaysWorked[i, t, p] for p in M.one_wkend_day[w, t, e]) \
-           + (subset_len - 2) * sum(M.WeekendDaysWorked[i, t, p] for p in M.two_wkend_days[w, t, e])
-
-
-model_phase1.ad_hoc_weekend_subsets_ttype8_con = pyo.Constraint(model_phase1.ad_hoc_weekend_subsets_ttype8_idx,
-                                                                rule=ad_hoc_weekend_subsets_ttype8_rule)
 
 
 def main():

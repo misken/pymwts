@@ -333,7 +333,7 @@ def num_consecutive_weekends(x, wkendtype, circular=True):
     return nconsec
 
 
-def dmd_min_to_dat(gmpl_param_name,fn_dmd_or_min,mode='unsliced',isStringIO=True):
+def dmd_min_to_dat(gmpl_param_name,fn_dmd_or_min,mode='unsliced', isStringIO=True):
     """
     Converts plain text matrices of dmd or min data into their dat equivalents.
     
@@ -783,37 +783,37 @@ def mix_to_dat(probspec,isStringIO=True):
 
 
     # Put the parameter pieces together into a single StringIO object
-    print >>mixout, numlen_param
-    print >>mixout, len_param
-    print >>mixout, numttypes_param
-    print >>mixout, lenxset_set
+    print (mixout, numlen_param)
+    print (mixout, len_param)
+    print (mixout, numttypes_param)
+    print (mixout, lenxset_set)
     #print >>mixout, midthresh_param
-    print >>mixout, tt_lb_param
-    print >>mixout, tt_ub_param
-    print >>mixout, tt_cost_multiplier_param
-    print >>mixout, ptflags_param
-    print >>mixout, ptfrac_param
-    print >>mixout, width_param
+    print (mixout, tt_lb_param)
+    print (mixout, tt_ub_param)
+    print (mixout, tt_cost_multiplier_param)
+    print (mixout, ptflags_param)
+    print (mixout, ptfrac_param)
+    print (mixout, width_param)
 
-    print >>mixout, tt_min_cumul_dys_weeks_param
-    print >>mixout, tt_max_cumul_dys_weeks_param
-    print >>mixout, tt_min_cumul_prds_weeks_param
-    print >>mixout, tt_max_cumul_prds_weeks_param
+    print (mixout, tt_min_cumul_dys_weeks_param)
+    print (mixout, tt_max_cumul_dys_weeks_param)
+    print (mixout, tt_min_cumul_prds_weeks_param)
+    print (mixout, tt_max_cumul_prds_weeks_param)
 
-    print >>mixout, tt_min_dys_weeks_param
-    print >>mixout, tt_max_dys_weeks_param
-    print >>mixout, tt_min_prds_weeks_param
-    print >>mixout, tt_max_prds_weeks_param
+    print (mixout, tt_min_dys_weeks_param)
+    print (mixout, tt_max_dys_weeks_param)
+    print (mixout, tt_min_prds_weeks_param)
+    print (mixout, tt_max_prds_weeks_param)
 
-    print >>mixout, tt_shiftlen_min_dys_weeks_param
-    print >>mixout, tt_shiftlen_max_dys_weeks_param
-    print >>mixout, tt_shiftlen_min_prds_weeks_param
-    print >>mixout, tt_shiftlen_max_prds_weeks_param
+    print (mixout, tt_shiftlen_min_dys_weeks_param)
+    print (mixout, tt_shiftlen_max_dys_weeks_param)
+    print (mixout, tt_shiftlen_min_prds_weeks_param)
+    print (mixout, tt_shiftlen_max_prds_weeks_param)
 
-    print >>mixout, tt_shiftlen_min_cumul_dys_weeks_param
-    print >>mixout, tt_shiftlen_max_cumul_dys_weeks_param
-    print >>mixout, tt_shiftlen_min_cumul_prds_weeks_param
-    print >>mixout, tt_shiftlen_max_cumul_prds_weeks_param
+    print (mixout, tt_shiftlen_min_cumul_dys_weeks_param)
+    print (mixout, tt_shiftlen_max_cumul_dys_weeks_param)
+    print (mixout, tt_shiftlen_min_cumul_prds_weeks_param)
+    print (mixout, tt_shiftlen_max_cumul_prds_weeks_param)
 
     # print mixout.getvalue()
 
@@ -873,7 +873,8 @@ def get_lengths_from_mix(ttspec):
 
     return lengths
 
-def csvrow_to_yaml(fn_csv, isStringIO=True):
+
+def csvrow_to_yaml(fn_csv, isstringio=True):
     """
     Convert a comma delimited row of data into a
     a yaml representation that can be inserted into the yaml mix file.
@@ -883,7 +884,7 @@ def csvrow_to_yaml(fn_csv, isStringIO=True):
 
     Inputs:
         fn_csv - csv filename containing rows of size n_periods_per_day
-        isStringIO - true to return StringIO object, false to return string
+        isstringio - true to return StringIO object, false to return string
     Output:
         yaml version of csv row of data either as a StringIO
         object or a string.
@@ -906,7 +907,7 @@ def csvrow_to_yaml(fn_csv, isStringIO=True):
     for row in ash_list:
         yamlstr += (' - ' + str(row) + '\n')
 
-    if isStringIO:
+    if isstringio:
         yamlout = StringIO.StringIO()
         yamlout.write(yamlstr)
         return yamlout.getvalue()

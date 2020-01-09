@@ -14,6 +14,7 @@ import argparse
 
 import pymwts.solvemwts as solve
 
+
 def process_command_line(argv):
     """
     Return a Namespace representing the argument list.
@@ -68,17 +69,19 @@ def process_command_line(argv):
                         help='YAML input config filename. NOT IMPLEMENTED.')    
 
     args = parser.parse_args()
-    return args    
+    return args
+
 
 def main(argv=None):
     args = process_command_line(argv)
     print(args)
     # application code here, like:
     # run(settings, args)
-    solve.solvemwts(args.scenario,args.phase1dat,args.path,
-                        args.solver,args.timelimit,args.mipGap,
-                        args.windebug)
-    return 0        # success
+    solve.solvemwts(args.scenario, args.phase1dat, args.path,
+                    args.solver, args.timelimit, args.mipGap,
+                    args.windebug)
+    return 0  # success
+
 
 if __name__ == '__main__':
     status = main()

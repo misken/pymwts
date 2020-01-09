@@ -9,15 +9,17 @@ Welcome to pymwts's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   src_structure
-   inputs
-   model_phase1
-   model_phase2
-   solution_process
-   solution_postprocess
+    src_structure
+    model_phase1
+   
 
+..
+    inputs
+    model_phase2
+    solution_process
+    solution_postprocess
 
 
 Indices and tables
