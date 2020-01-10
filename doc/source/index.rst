@@ -9,17 +9,16 @@ Welcome to pymwts's documentation!
 Contents:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
+    overview
+    intro_tour_sched
+    mwts_high_level
+    opt_models
     src_structure
-    model_phase1
-   
-
-..
-    inputs
-    model_phase2
+    problem_inputs
     solution_process
-    solution_postprocess
+    scheduling_analysis
 
 
 Indices and tables
