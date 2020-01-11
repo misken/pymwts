@@ -14,7 +14,7 @@ setup(name='pymwts',
       entry_points = {
         'console_scripts': [
             'mwts = pymwts.mwts:main', 'mwts_phase2 = pymwts.solvemwts_phase2:main']},
-      install_requires=['pyomo']
+      install_requires=['pyomo', 'PyYAML', 'numpy', 'pandas']
 
       )
 

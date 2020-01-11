@@ -89,7 +89,7 @@ def scalar_to_param(pname, pvalue, isStringIO=True):
     Inputs:
         pname - string name of paramter in GMPL file
         pvalue - value of parameter
-        isStringIO - true to return StringIO object, false to return string
+        isstringio - true to return StringIO object, false to return string
 
     Output:
         GMPL dat code for scalar parameter either as a StringIO
@@ -116,7 +116,7 @@ def list_to_param(pname, plist, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -159,7 +159,7 @@ def shift_to_param(pname, inst, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -209,7 +209,7 @@ def tourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -259,7 +259,7 @@ def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -309,7 +309,7 @@ def dailyshiftworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -359,7 +359,7 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -409,7 +409,7 @@ def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True)
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -547,7 +547,7 @@ def tour_WIN_TT_to_param(inst, isStringIO=True):
     
     Inputs:
         inst - string name of paramter in GMPL file
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         GMPL dat code for list parameter either as a StringIO
@@ -624,7 +624,7 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
     Inputs:
         pname - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
-        isStringIO - True to return StringIO object, False to return string
+        isstringio - True to return StringIO object, False to return string
 
     Output:
         Shift summary as StringIO object or a string.

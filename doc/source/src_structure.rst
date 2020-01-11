@@ -77,7 +77,7 @@ I installed pytest on 2019-03-27
 https://docs.pytest.org/en/latest/goodpractices.html#choosing-a-test-layout-import-rules
 
 
-Put test scripts inside /tests folder. Name them to start with 'test_'
+Put test scripts inside /tests folder. Name them to start with "test_"
 so that they can be discovered by pytest if desired.
 
 To run a specific test, run from main source directory - in this case,

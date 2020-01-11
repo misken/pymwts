@@ -10,11 +10,7 @@ Need for post-processing
 
 .. math::
 
-    \begin{align*}
-    1 &=  2 \\
-    2 &=  3 \\
-    3 &=  4  
-    \end{align*}
+    x^2
 
 Some more text.
 
