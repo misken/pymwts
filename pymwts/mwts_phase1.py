@@ -2021,14 +2021,6 @@ model_phase1.weekend_subsets_2_1_con2 = pyo.Constraint(model_phase1.weekend_subs
                                                        rule=weekend_subsets_2_1_rule)
 
 
-
-
-# The following are various ad-hoc constraints that I was trying for fixing Phase 2 infeasibility problems.
-# Any such constraints should include deactivation switches in solvemwts.py.
-
-
-
-
 def main():
     pass
 
