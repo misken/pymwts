@@ -626,16 +626,16 @@ def ash_to_dat(fn_mix, isstringio=True):
         return param
 
 
-def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
+def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isstringio=True):
     """
 
     :param fn_yni:
     :param fn_mix:
     :param fn_wkd:
-    :param isStringIO:
+    :param isstringio:
     :return:
     """
-    
+
     fin_yni = open(fn_yni, "r")
     probspec = yaml.safe_load(fin_yni)
     fin_mix = open(fn_mix, "r")
@@ -663,41 +663,42 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
         wkend_patterns[0] = [row for row in patterns_all if filter_patterns(row, tt, 1, wkdspec)]
         wkend_patterns[1] = [row for row in patterns_all if filter_patterns(row, tt, 2, wkdspec)]
 
-    # param A[p,j,w,t,e] = 1 if weekend pattern p calls for work on day j of week k for tour type t having weekend type e and 0 otherwise
+    # param A[p,j,w,t,e] = 1 if weekend pattern p calls for work on day j of week k
+    # for tour type t having weekend type e and 0 otherwise
 
     for i in range(2):
         for t in range(1, n_ttypes + 1):
             for p in range(len(wkend_patterns[i])):
                 for w in range(n_weeks):
                     for j in range(2):
-                        L = [p + 1, wkend_days[i][j], w + 1, t, i + 1, wkend_patterns[i][p][w][j]]
-                        wkend_rows.append(L)
+                        temp_list = [p + 1, wkend_days[i][j], w + 1, t, i + 1, wkend_patterns[i][p][w][j]]
+                        wkend_rows.append(temp_list)
 
     for t in range(1, n_ttypes + 1):
         for i in range(2):
-            L = [i + 1, t, len(wkend_patterns[i])]
-            num_wkend_rows.append(L)
+            temp_list = [i + 1, t, len(wkend_patterns[i])]
+            num_wkend_rows.append(temp_list)
 
     param = 'param num_weekend_patterns:=\n'
     for val in num_wkend_rows:
-        datarow = ' '.join(map(str, val)) + '\n'
-        param += datarow
+        data_row = ' '.join(map(str, val)) + '\n'
+        param += data_row
     param += ";\n"
 
     param += '\nparam A:=\n'
     for val in wkend_rows:
-        datarow = ' '.join(map(str, val)) + '\n'
-        param += datarow
+        data_row = ' '.join(map(str, val)) + '\n'
+        param += data_row
 
     param += ";\n"
 
     # Midnight threshold for weekend assignments
     # TODO - generalize for tour types, right now assuming global used
-    midthresholds = [wkdspec['wkd_global']['midnight_thresh'] for m in ttspec['tourtypes']]
-    midthresh_param = list_to_param('midnight_thresh', midthresholds)
-    param += midthresh_param
+    mid_thresholds = [wkdspec['wkd_global']['midnight_thresh'] for _ in ttspec['tourtypes']]
+    mid_thresh_param = list_to_param('midnight_thresh', mid_thresholds)
+    param += mid_thresh_param
 
-    if isStringIO:
+    if isstringio:
         param_out = io.StringIO()
         param_out.write(param)
         return param_out.getvalue()
@@ -706,7 +707,6 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
 
 
 def tester():
-    # print csvrow_to_yaml('infiles/oneweekash.csv',False)
     p = create_weekend_base(4)
     print(p)
 
@@ -728,72 +728,61 @@ def mwts_createdat(fn_yni, fn_dat):
 
     # Scheduling cycle
     num_prds_per_day_param = scalar_to_param('n_prds_per_day',
-                                             prob_spec['time']['n_prds_per_day'])
+                                             prob_spec['time']['n_prds_per_day'],
+                                             isstringio=False)
 
     num_days_per_week_param = scalar_to_param('n_days_per_week',
-                                              prob_spec['time']['n_days_per_week'])
+                                              prob_spec['time']['n_days_per_week'],
+                                              isstringio=False)
 
     num_weeks_param = scalar_to_param('n_weeks',
-                                      prob_spec['time']['n_weeks'])
+                                      prob_spec['time']['n_weeks'],
+                                      isstringio=False)
 
     # Cost related
-    labor_budget_param = scalar_to_param('labor_budget', prob_spec['cost']['labor_budget'])
+    labor_budget_param = scalar_to_param('labor_budget', prob_spec['cost']['labor_budget'],
+                                         isstringio=False)
 
-    cu1_param = scalar_to_param('cu1', prob_spec['cost']['understaff_cost_1'])
+    cu1_param = scalar_to_param('cu1', prob_spec['cost']['understaff_cost_1'],
+                                isstringio=False)
 
-    cu2_param = scalar_to_param('cu2', prob_spec['cost']['understaff_cost_2'])
+    cu2_param = scalar_to_param('cu2', prob_spec['cost']['understaff_cost_2'],
+                                isstringio=False)
 
-    usb_param = scalar_to_param('usb', prob_spec['cost']['understaff_1_ub'])
+    usb_param = scalar_to_param('usb', prob_spec['cost']['understaff_1_ub'],
+                                isstringio=False)
 
     # Demand and min staff
-    dmd_dat = dmd_min_to_dat('dmd_staff', prob_spec['reqd_files']['filename_dmd'], mode='unsliced')
-    min_dat = dmd_min_to_dat('min_staff', prob_spec['reqd_files']['filename_min'], mode='unsliced')
+    dmd_dat = dmd_min_to_dat('dmd_staff', prob_spec['reqd_files']['filename_dmd'],
+                             mode='unsliced', isstringio=False)
+    min_dat = dmd_min_to_dat('min_staff', prob_spec['reqd_files']['filename_min'],
+                             mode='unsliced', isstringio=False)
 
     # Tour type mix
-    mix_dat = mix_to_dat(prob_spec)
+    mix_dat = mix_to_dat(prob_spec, isstringio=False)
 
     # Weekends worked patterns section
     wkends_dat = wkends_to_dat(fn_yni,
                                prob_spec['reqd_files']['filename_mix'],
-                               prob_spec['reqd_files']['filename_wkd'])
+                               prob_spec['reqd_files']['filename_wkd'],
+                               isstringio=False)
 
     # Allowable shift start time section
-    ash_dat = ash_to_dat(fn_yni, prob_spec['reqd_files']['filename_mix'])
+    ash_dat = ash_to_dat(prob_spec['reqd_files']['filename_mix'], isstringio=False)
 
     # Put the pieces together
-    dat = io.StringIO()
-
-    dat_list = []
-    dat_list.append(num_prds_per_day_param)
-    dat_list.append(num_days_per_week_param)
-    dat_list.append(num_weeks_param)
-
-    dat_list.append(labor_budget_param)
-    dat_list.append(cu1_param)
-    dat_list.append(cu2_param)
-    dat_list.append(usb_param)
-
-
-    # print >> dat, num_prds_per_day_param
-    # print >> dat, num_days_per_week_param
-    # print >> dat, num_weeks_param
-
-    # print >> dat, labor_budget_param
-    # print >> dat, cu1_param
-    # print >> dat, cu2_param
-    # print >> dat, usb_param
-
-    dat_list.append(mix_dat)
-    dat_list.append(dmd_dat)
-    dat_list.append(min_dat)
-    dat_list.append(wkends_dat)
-    dat_list.append(ash_dat)
-
-    # print >> dat, mix_dat
-    # print >> dat, dmd_dat
-    # print >> dat, min_dat
-    # print >> dat, wkends_dat
-    # print >> dat, ash_dat
+    dat_list = [num_prds_per_day_param,
+                num_days_per_week_param,
+                num_weeks_param,
+                labor_budget_param,
+                cu1_param,
+                cu2_param,
+                usb_param,
+                mix_dat,
+                dmd_dat,
+                min_dat,
+                wkends_dat,
+                ash_dat]
 
     dat_str = '\n'.join(dat_list)
 
@@ -888,7 +877,7 @@ def filter_patterns(pattern, ttnum, wkend_type, wkdspec):
     :return:
     """
 
-    n_weeks = len(pattern)
+    # n_weeks = len(pattern)
     keep = True
 
     if 'wkd_global' in wkdspec:
