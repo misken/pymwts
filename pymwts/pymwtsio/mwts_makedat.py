@@ -31,11 +31,11 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
     :type gmpl_param_name: str
     :param fn_dmd_or_min: filename for target or minimum staffing levels
     :type fn_dmd_or_min: str
-    :param sep: 
-    :param header:
-    :param comment:
-    :param mode:
-    :param isstringio:
+    :param sep: delimiter (default is ',')
+    :param header: see Pandas `read_csv()` docs (default is None)
+    :param comment: comment character (default is '#')
+    :param mode: GMPL dat format; either 'sliced' or 'unsliced' (default)
+    :param isstringio: True (default) to return StringIO object, False to return string
     :return:
     """
 
@@ -60,8 +60,7 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
     # creator got it right.
     num_prds = len(days[0])
 
-    # Now it's time to write the GMPL code for this input data element.
-
+    # Check if writing sliced or unsliced format
     if mode == 'sliced':
         param = 'param ' + gmpl_param_name + ' := '
         for week in range(1, num_weeks + 1):
@@ -93,7 +92,6 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
         # matches the parameter spec. 
         param = list_to_param(gmpl_param_name, weeks_of_dmd, reverseidx=True)
 
-    # End the GMPL parameter spec and close the file
     if isstringio:
         param_out = io.StringIO()
         param_out.write(param)
@@ -102,100 +100,94 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
         return param
 
 
-def scalar_to_param(param_name, param_value, isstringio=True):
+def scalar_to_param(gmpl_param_name, param_value, isstringio=True):
     """
     Convert a scalar to a GMPL representation of a parameter.
 
-    :param param_name:
+    :param gmpl_param_name: name for resulting GMPL param value
+    :type gmpl_param_name: str
     :param param_value:
-    :param isstringio:
+    :param isstringio: True (default) to return StringIO object, False to return string
     :return: GMPL dat code for scalar parameter either as a StringIO object or a string.
-    :rtype: str
+    :rtype: StringIO or str
+
+    Example:
+
+     scalar_to_param('n_prds_per_day', 48) -->  'param n_prds_per_day :=  48;'
     """
 
-
-
-    """
-    
-    Inputs:
-        param_name - string name of paramter in GMPL file
-        param_value - value of parameter
-        isstringio - true to return StringIO object, false to return string
-
-    Output:
-        
-
-        Example:
-
-            param n_prds_per_day :=  48; 
-    """
-
-    param = 'param ' + param_name + ' :=  ' + str(param_value) + ';\n'
+    param = 'param ' + gmpl_param_name + ' :=  ' + str(param_value) + ';\n'
     if isstringio:
-        paramout = io.StringIO.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
     else:
         return param
 
 
-def list_to_param(pname, plist, reverseidx=False, isStringIO=True):
+def list_to_param(gmpl_param_name, param_list, reverseidx=False, isstringio=True):
     """
     Convert a list to a GMPL representation of a parameter.
-    Inputs:
-        param_name - string name of paramter in GMPL file
-        plist - list containing parameter (could be N-Dimen list)
-        reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isstringio - True to return StringIO object, False to return string
 
-    Output:
-        GMPL dat code for list parameter either as a StringIO
-        object or a string.
+    :param gmpl_param_name: name for resulting GMPL param value
+    :param param_list: list containing parameter (could be N-Dimen list)
+    :param reverseidx: True to reverse the order of the indexes (essentially transposing the matrix)
+    :param isstringio: True to return StringIO object, False to return string
+    :return: GMPL dat code for list parameter
+    :rtype:  StringIO object or a string.
 
-        Example:
-            param midnight_thresh:=
+    Example:
+
+     scalar_to_param('midnight_thresh', [100, 100, 100]) -->
+
+        param midnight_thresh:=
              1 100
              2 100
              3 100
-            ; 
-
+            ;
     """
+
     # Convert parameter as list to an ndarray
-    parray = np.array(plist)
+    param_array = np.array(param_list)
 
     # Denumerate the array to get at the index tuple and array value
-    paramrows = np.ndenumerate(parray)
-    param = 'param ' + pname + ':=\n'
-    for pos, val in paramrows:
-        poslist = [str(p + 1) for p in pos]
+    param_rows = np.ndenumerate(param_array)
+    param = 'param ' + gmpl_param_name + ':=\n'
+    for pos, val in param_rows:
+        pos_list = [str(p + 1) for p in pos]
         if reverseidx:
-            poslist.reverse()
-        datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
-        param += datarow
+            pos_list.reverse()
+        data_row = ' '.join(pos_list) + ' ' + str(val) + '\n'
+        param += data_row
 
     param += ";\n"
-    if isStringIO:
-        paramout = io.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
+    if isstringio:
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
     else:
         return param
 
 
-def shiftlencons_to_param(pname, ttspec, plist, isStringIO=True):
+def shiftlencons_to_param(gmpl_param_name, ttspec, param_list, isstringio=True):
     """
     Convert the shift length specific inputs for the days worked and periods
-    worked constraints to a GMPL representation of a parameter.
+    worked constraints to a GMPL parameter representation.
+
     Cannot use the generic list_to_param function above since the potentially
     jagged nature of the lists storing these parameters makes it impossible to
     convert to a numpy array for denumeration.
 
-    Inputs:
-        param_name - string name of paramter in GMPL file
-        plist - list containing parameter (could be N-Dimen list)
-        isstringio - true to return StringIO object, false to return string
+    :param gmpl_param_name:
+    :param ttspec:
+    :param param_list:
+    :param isstringio: True to return StringIO object, False to return string
+    :return: GMPL dat code for list parameter
+    :rtype:  StringIO object or a string.
 
-    Output:
+
+    Example:
+
        param tt_shiftlen_min_dys_weeks:=
        1 6 1 3 
        1 6 2 5 
@@ -206,59 +198,62 @@ def shiftlencons_to_param(pname, ttspec, plist, isStringIO=True):
     """
 
     lengths = get_lengths_from_mix(ttspec)
-    param = 'param ' + pname + ':=\n'
+    param = 'param ' + gmpl_param_name + ':=\n'
 
-    for t in range(0, len(plist)):  # Outer loop is tour types in mix
+    for t in range(0, len(param_list)):  # Outer loop is tour types in mix
         t_x = ttspec['tourtypes'][t]['ttnum']  # Get tour type number
-        for s in range(0, len(plist[t])):  # Inner loop is shift length
+        for s in range(0, len(param_list[t])):  # Inner loop is shift length
             # Get shift length index
             s_x = lengths.index(ttspec['tourtypes'][t]['shiftlengths'][s]['numbins'])
             # Generate the GMPL rows for this tour type, shift length
-            for w in range(0, len(plist[t][s])):
-                rowlist = [str(t_x), str(s_x + 1), str(w + 1), str(plist[t][s][w])]
-                datarow = ' '.join(rowlist) + ' ' + '\n'
-                param += datarow
+            for w in range(0, len(param_list[t][s])):
+                row_list = [str(t_x), str(s_x + 1), str(w + 1), str(param_list[t][s][w])]
+                data_row = ' '.join(row_list) + ' ' + '\n'
+                param += data_row
 
     param += ";\n"
-    if isStringIO:
-        paramout = io.StringIO.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
+    if isstringio:
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
     else:
         return param
 
 
-def list_to_indexedset(sname, slist, isStringIO=True):
+def list_to_indexedset(gmpl_set_name, set_list, isstringio=True):
     """
     Convert a list to a GMPL representation of a parameter.
-    Inputs:
-        sname - string name of set in GMPL file
-        slist - list containing set (could be N-Dimen list)
-        isstringio - true to return StringIO object, false to return string
 
-    Output:
+    :param gmpl_set_name: name for resulting GMPL param value
+    :param set_list: list containing set (could be N-Dimen list)
+    :param isstringio: True to return StringIO object, False to return string
+    :return: GMPL dat code for list parameter
+    :rtype:  StringIO object or a string.
+
+    Example:
+
         set tt_length_x[1] :=
           5 6;
 
     """
-    # Convert set as list to GMPL string rep'n
-    gset = ''
-    sindex = 0
-    for s in slist:
-        gset += 'set ' + sname + '[' + str(sindex + 1) + '] :=\n'
-        datarow = ' '.join(map(str, s)) + ';\n'
-        gset += datarow
-        sindex += 1
 
-    if isStringIO:
-        gsetout = io.StringIO.StringIO()
-        gsetout.write(gset)
-        return gsetout.getvalue()
+    gmpl_set = ''
+    set_index = 0
+    for s in set_list:
+        gmpl_set += 'set ' + gmpl_set_name + '[' + str(set_index + 1) + '] :=\n'
+        data_row = ' '.join(map(str, s)) + ';\n'
+        gmpl_set += data_row
+        set_index += 1
+
+    if isstringio:
+        gmpl_set_out = io.StringIO()
+        gmpl_set_out.write(gmpl_set)
+        return gmpl_set_out.getvalue()
     else:
-        return gset
+        return gmpl_set
 
 
-def mix_days_prds_params(ttspec, pname, nonshiftlen_pname, shiftlen_pname, isStringIO=True):
+def mix_days_prds_params(ttspec, param_name, non_shiftlen_param_name, shiftlen_param_name):
     """
     Convert the various tour type mix lower and upper bounds (both cumulative
     and non-cumulative and both shift length specific and non-shift length
@@ -268,13 +263,15 @@ def mix_days_prds_params(ttspec, pname, nonshiftlen_pname, shiftlen_pname, isStr
     length specific inputs and shiftlencons_to_param() for shift length
     specific inputs.
 
-    Inputs:
-        ttspec - the tour type spec object created from the mix file
-        param_name - string name of paramter in GMPL file
-        nonshiftlen_pname - string name of non-shift length specific mix parameter key in YAML file
-        shiftlen_pname - string name of shift length specific mix parameter key in YAML file
+    :param ttspec: the tour type spec object created from the mix file
+    :param param_name: name for resulting GMPL param value
+    :param non_shiftlen_param_name: string name of non-shift length specific mix parameter key in YAML file
+    :param shiftlen_param_name: string name of shift length specific mix parameter key in YAML file
+    :return: GMPL dat code for parameters
+    :rtype:  StringIO object or a string.
 
-    Output:
+    Example:
+
        param tt_shiftlen_min_dys_weeks:=
        1 6 1 3 
        1 6 2 5 
@@ -284,106 +281,90 @@ def mix_days_prds_params(ttspec, pname, nonshiftlen_pname, shiftlen_pname, isStr
 
     """
 
-    L = []
-    isShiftLen = False
+    param_list = []
+    is_shift_len = False
     for m in ttspec['tourtypes']:
-        if 'shiftlen' in pname:
-            isShiftLen = True
-            shiftL = []
+        if 'shiftlen' in param_name:
+            is_shift_len = True
+            shift_lens = []
             for s in m['shiftlengths']:
-                shiftL.append(s[shiftlen_pname])
-            L.append(shiftL)
+                shift_lens.append(s[shiftlen_param_name])
+            param_list.append(shift_lens)
         else:
-            if nonshiftlen_pname in m:
-                L.append(m[nonshiftlen_pname])
+            if non_shiftlen_param_name in m:
+                param_list.append(m[non_shiftlen_param_name])
             else:
-                L.append(m['shiftlengths'][0][shiftlen_pname])
+                param_list.append(m['shiftlengths'][0][shiftlen_param_name])
 
-    if not isShiftLen:
-        return list_to_param(pname, L)
+    if not is_shift_len:
+        return list_to_param(param_name, param_list)
     else:
-        return shiftlencons_to_param(pname, ttspec, L)
+        return shiftlencons_to_param(param_name, ttspec, param_list)
 
 
-def mix_to_dat(probspec, isStringIO=True):
+def mix_to_dat(prob_spec, isstringio=True):
     """
-    Reads a YAML mix file and generates all of the GMPL dat components associated with
-    the mix inputs.
+    Read a YAML mix file and generates all of the GMPL dat components associated with the mix inputs.
 
-    Inputs:
-        ttspec - the tour type spec object created from the mix file
-        param_name - string name of paramter in GMPL file
-        nonshiftlen_pname - string name of non-shift length specific mix parameter key in YAML file
-        shiftlen_pname - string name of shift length specific mix parameter key in YAML file
-
-    Output:
-       param tt_shiftlen_min_dys_weeks:=
-       1 6 1 3 
-       1 6 2 5 
-       1 6 3 5 
-       1 6 4 5 
-       ...
-
+    :param prob_spec: Problem spec object resulting from loading YAML project yni file.
+    :param isstringio: True to return StringIO object, False to return string
+    :return: GMPL dat code for mix related parameters
+    :rtype:  StringIO object or a string.
     """
 
     # Open the mix file and load it into a YAML object
 
-    fn_mix = probspec['reqd_files']['filename_mix']
-    fin = open(fn_mix, "r")
-    ttspec = yaml.load(fin)
+    fn_mix = prob_spec['reqd_files']['filename_mix']
+    f_mix_in = open(fn_mix, "r")
+    ttspec = yaml.safe_load(f_mix_in)
+    f_mix_in.close()
 
-    mixout = io.StringIO.StringIO()
-
-    ##    print ttspec
-    ##    print ttspec['tourtypes']
-    ##    print ttspec['tourtypes'][0]
-    ##    print ttspec['tourtypes'][0]['min_days_week']
+    mix_out = io.StringIO()
 
     # Get set of shift lengths and order them ascending by length
-    lenset = set([])
+    len_set = set([])
     for m in ttspec['tourtypes']:
         for s in m['shiftlengths']:
-            lenset.add(s['numbins'])
-    lengths = list(lenset)
+            len_set.add(s['numbins'])
+    lengths = list(len_set)
     lengths.sort()
     len_param = list_to_param('lengths', lengths)
 
     # Number of shift lengths
     n_lengths = np.size(lengths)
-    numlen_param = scalar_to_param('n_lengths', n_lengths)
+    n_len_param = scalar_to_param('n_lengths', n_lengths)
 
     # Number of tour types
     n_ttypes = np.size(ttspec['tourtypes'])
-    numttypes_param = scalar_to_param('n_tts', n_ttypes)
+    n_ttypes_param = scalar_to_param('n_tts', n_ttypes)
 
     # Tour type length sets
-    lenxset = get_length_x_from_mix(ttspec)
-
-    lenxset_set = list_to_indexedset('tt_length_x', lenxset)
+    lenx_set = get_length_x_from_mix(ttspec)
+    lenx_set_set = list_to_indexedset('tt_length_x', lenx_set)
 
     # Midnight threshold for weekend assignments
     # midthresholds = [m['midnight_thresh'] for m in ttspec['tourtypes']]
     # midthresh_param = list_to_param('midnight_thresh', midthresholds)
 
     # Parttime flag and bound
-    ptflags = [m['is_parttime'] for m in ttspec['tourtypes']]
-    ptflags_param = list_to_param('tt_parttime', ptflags)
+    pt_flags = [m['is_parttime'] for m in ttspec['tourtypes']]
+    pt_flags_param = list_to_param('tt_parttime', pt_flags)
 
-    ptfrac = ttspec['max_parttime_frac']
-    ptfrac_param = scalar_to_param('max_parttime_frac', ptfrac)
+    pt_frac = ttspec['max_parttime_frac']
+    pt_frac_param = scalar_to_param('max_parttime_frac', pt_frac)
 
     # Global start window width
     width = ttspec['g_start_window_width']
     width_param = scalar_to_param('g_start_window_width', width)
 
     # Lower and upper bounds on number scheduled
-    if 'opt_files' in probspec and 'filename_ttbounds' in probspec['opt_files']:
-        fn_ttbnds = probspec['opt_files']['filename_ttbounds']
+    if 'opt_files' in prob_spec and 'filename_ttbounds' in prob_spec['opt_files']:
+        fn_ttbnds = prob_spec['opt_files']['filename_ttbounds']
         fin_ttbnds = open(fn_ttbnds, "r")
-        ttbndsspec = yaml.load(fin_ttbnds)
-        tt_lb = [m['tt_lb'] for m in ttbndsspec['tourtypes']]
+        ttbnds_spec = yaml.safe_load(fin_ttbnds)
+        tt_lb = [m['tt_lb'] for m in ttbnds_spec['tourtypes']]
         tt_lb_param = list_to_param('tt_lb', tt_lb)
-        tt_ub = [m['tt_ub'] for m in ttbndsspec['tourtypes']]
+        tt_ub = [m['tt_ub'] for m in ttbnds_spec['tourtypes']]
         tt_ub_param = list_to_param('tt_ub', tt_ub)
     else:
         tt_lb = [m['tt_lb'] for m in ttspec['tourtypes']]
@@ -397,7 +378,6 @@ def mix_to_dat(probspec, isStringIO=True):
                                              tt_cost_multiplier)
 
     # Min and max cumulative days and prds worked over the weeks
-
     tt_min_dys_weeks_param = mix_days_prds_params(ttspec,
                                                   'tt_min_dys_weeks', 'min_days_week',
                                                   'min_shiftlen_days_week')
@@ -416,7 +396,6 @@ def mix_to_dat(probspec, isStringIO=True):
 
     # Min and max days and prds worked over the weeks
     # for each shift length workable in the tour type
-
     tt_shiftlen_min_dys_weeks_param = mix_days_prds_params(ttspec,
                                                            'tt_shiftlen_min_dys_weeks', 'min_days_week',
                                                            'min_shiftlen_days_week')
@@ -434,7 +413,6 @@ def mix_to_dat(probspec, isStringIO=True):
                                                             'max_shiftlen_prds_week')
 
     # Min and max days and prds worked each week
-
     tt_min_cumul_dys_weeks_param = mix_days_prds_params(ttspec,
                                                         'tt_min_cumul_dys_weeks', 'min_cumul_days_week',
                                                         'min_shiftlen_cumul_days_week')
@@ -453,7 +431,6 @@ def mix_to_dat(probspec, isStringIO=True):
 
     # Min and max cumulative days and prds worked over the weeks
     # for each shift length workable in the tour type
-
     tt_shiftlen_min_cumul_dys_weeks_param = mix_days_prds_params(ttspec,
                                                                  'tt_shiftlen_min_cumul_dys_weeks',
                                                                  'min_cumul_days_week',
@@ -475,93 +452,86 @@ def mix_to_dat(probspec, isStringIO=True):
                                                                   'max_shiftlen_cumul_prds_week')
 
     # Put the parameter pieces together into a single StringIO object
-    print(mixout, numlen_param)
-    print(mixout, len_param)
-    print(mixout, numttypes_param)
-    print(mixout, lenxset_set)
+    print(mix_out, n_len_param)
+    print(mix_out, len_param)
+    print(mix_out, n_ttypes_param)
+    print(mix_out, lenx_set_set)
     # print >>mixout, midthresh_param
-    print(mixout, tt_lb_param)
-    print(mixout, tt_ub_param)
-    print(mixout, tt_cost_multiplier_param)
-    print(mixout, ptflags_param)
-    print(mixout, ptfrac_param)
-    print(mixout, width_param)
+    print(mix_out, tt_lb_param)
+    print(mix_out, tt_ub_param)
+    print(mix_out, tt_cost_multiplier_param)
+    print(mix_out, pt_flags_param)
+    print(mix_out, pt_frac_param)
+    print(mix_out, width_param)
 
-    print(mixout, tt_min_cumul_dys_weeks_param)
-    print(mixout, tt_max_cumul_dys_weeks_param)
-    print(mixout, tt_min_cumul_prds_weeks_param)
-    print(mixout, tt_max_cumul_prds_weeks_param)
+    print(mix_out, tt_min_cumul_dys_weeks_param)
+    print(mix_out, tt_max_cumul_dys_weeks_param)
+    print(mix_out, tt_min_cumul_prds_weeks_param)
+    print(mix_out, tt_max_cumul_prds_weeks_param)
 
-    print(mixout, tt_min_dys_weeks_param)
-    print(mixout, tt_max_dys_weeks_param)
-    print(mixout, tt_min_prds_weeks_param)
-    print(mixout, tt_max_prds_weeks_param)
+    print(mix_out, tt_min_dys_weeks_param)
+    print(mix_out, tt_max_dys_weeks_param)
+    print(mix_out, tt_min_prds_weeks_param)
+    print(mix_out, tt_max_prds_weeks_param)
 
-    print(mixout, tt_shiftlen_min_dys_weeks_param)
-    print(mixout, tt_shiftlen_max_dys_weeks_param)
-    print(mixout, tt_shiftlen_min_prds_weeks_param)
-    print(mixout, tt_shiftlen_max_prds_weeks_param)
+    print(mix_out, tt_shiftlen_min_dys_weeks_param)
+    print(mix_out, tt_shiftlen_max_dys_weeks_param)
+    print(mix_out, tt_shiftlen_min_prds_weeks_param)
+    print(mix_out, tt_shiftlen_max_prds_weeks_param)
 
-    print(mixout, tt_shiftlen_min_cumul_dys_weeks_param)
-    print(mixout, tt_shiftlen_max_cumul_dys_weeks_param)
-    print(mixout, tt_shiftlen_min_cumul_prds_weeks_param)
-    print(mixout, tt_shiftlen_max_cumul_prds_weeks_param)
+    print(mix_out, tt_shiftlen_min_cumul_dys_weeks_param)
+    print(mix_out, tt_shiftlen_max_cumul_dys_weeks_param)
+    print(mix_out, tt_shiftlen_min_cumul_prds_weeks_param)
+    print(mix_out, tt_shiftlen_max_cumul_prds_weeks_param)
 
-    # print mixout.getvalue()
-
-    if isStringIO:
-        return mixout.getvalue()
+    if isstringio:
+        return mix_out.getvalue()
     else:
-        smixout = mixout.read()
-        return smixout
+        return mix_out.read()
 
 
 def get_length_x_from_mix(ttspec):
     """
-    Get list of lists of shift length indexes for each tour type from
-    a mix spec.
+    Get list of lists of shift length indexes for each tour type from a mix spec.
     
-    Inputs:
-        ttspec - yaml representation of tour type mix parameters
-    Output:
-        A list of lists whose elements are the shift length indexes for
-        each tour type.
+    :param ttspec: YAML representation of tour type mix parameters
+    :return: A list of lists whose elements are the shift length indexes for each tour type.
 
-        Example: [[1,2],[2]]
+    Example: [[1,2],[2]]
     """
+
     # Get set of shift lengths and order them ascending by length
-    lenset = set([])
+    len_set = set([])
     for m in ttspec['tourtypes']:
         for s in m['shiftlengths']:
-            lenset.add(s['numbins'])
-    lengths = list(lenset)
+            len_set.add(s['numbins'])
+    lengths = list(len_set)
     lengths.sort()
-    lenxset = []
+    lenx_set = []
     for m in ttspec['tourtypes']:
         shifts = [lengths.index(s['numbins']) for s in m['shiftlengths']]
         shifts = [s + 1 for s in shifts]
         shifts.sort()
-        lenxset.append(shifts)
+        lenx_set.append(shifts)
 
-    return lenxset
+    return lenx_set
 
 
 def get_lengths_from_mix(ttspec):
     """
     Get set of shift lengths and order them ascending by length
-    Inputs:
-        ttspec - yaml representation of tour type mix parameters
-    Output:
-        A sorted list of shift lengths.
 
-        Example: [8, 16, 20, 24]
+    :param ttspec: YAML representation of tour type mix parameters
+    :return: A sorted list of shift lengths.
+
+    Example: [8, 16, 20, 24]
     """
-    #
-    lenset = set([])
+
+    len_set = set([])
     for m in ttspec['tourtypes']:
         for s in m['shiftlengths']:
-            lenset.add(s['numbins'])
-    lengths = list(lenset)
+            len_set.add(s['numbins'])
+    lengths = list(len_set)
     lengths.sort()
 
     return lengths
@@ -573,53 +543,47 @@ def csvrow_to_yaml(fn_csv, isstringio=True):
     a yaml representation that can be inserted into the yaml mix file.
 
     This procedure does not not know or care what each row means in the sense
-    It's just taking a comma or semicolon delimited row and converts it to yaml.
+    that it's just taking a comma or semicolon delimited row and converts it to YAML.
 
-    Inputs:
-        fn_csv - csv filename containing rows of size n_periods_per_day
-        isstringio - true to return StringIO object, false to return string
-    Output:
-        yaml version of csv row of data either as a StringIO
-        object or a string.
+    :param fn_csv: csv filename
+    :param isstringio: True to return StringIO object, False to return string
+    :return: yaml version of csv row of data either as a StringIO object or a string.
 
-        Example:
+    Example:
             Input:     0, 1, 0, 0
             Output:   [0, 1, 0, 0]
-
     """
 
-    fin = open(fn_csv, 'r')
-    dialect = csv.Sniffer().sniff(fin.read(1024), delimiters=',;')
-    fin.seek(0)
-    ash_data = csv.reader(fin, dialect)
+    f_csv_in = open(fn_csv, 'r')
+    dialect = csv.Sniffer().sniff(f_csv_in.read(1024), delimiters=',;')
+    f_csv_in.seek(0)
+    ash_data = csv.reader(f_csv_in, dialect)
 
     ash_list = [map(float, row) for row in ash_data]
-    fin.close
+    f_csv_in.close()
 
-    yamlstr = ''
+    yaml_str = ''
     for row in ash_list:
-        yamlstr += (' - ' + str(row) + '\n')
+        yaml_str += (' - ' + str(row) + '\n')
 
     if isstringio:
-        yamlout = io.StringIO.StringIO()
-        yamlout.write(yamlstr)
-        return yamlout.getvalue()
+        yaml_out = io.StringIO()
+        yaml_out.write(yaml_str)
+        return yaml_out.getvalue()
     else:
-        return yamlstr
+        return yaml_str
 
 
-def ash_to_dat(fn_yni, fn_mix, isStringIO=True):
+def ash_to_dat(fn_mix, isstringio=True):
     """
     Convert allowable shift start time inputs into GMPL dat form.
-    Inputs:
-        fn_yni - filename of yaml ini scenario file
-        fn_mix - filename of yaml tour type mix file
-        isstringio - true to return StringIO object, false to return string
-    Output:
-        GMPL dat code for allowable shift start times either as a StringIO
+
+    :param fn_mix: filename of yaml tour type mix file
+    :param isstringio: true to return StringIO object, false to return string
+    :return: GMPL dat code for allowable shift start times either as a StringIO
         object or a string.
 
-        Example:
+    Example:
             param allow_start:=
               1 1 1 2 0.0
               2 1 1 2 0.0
@@ -630,46 +594,55 @@ def ash_to_dat(fn_yni, fn_mix, isStringIO=True):
               14 1 1 2 1.0
               15 1 1 2 1.0
     """
-    fin_yni = open(fn_yni, "r")
-    probspec = yaml.load(fin_yni)
-    fin_mix = open(fn_mix, "r")
-    ttspec = yaml.load(fin_mix)
+
+    f_mix_in = open(fn_mix, "r")
+    ttspec = yaml.safe_load(f_mix_in)
+    f_mix_in.close()
 
     # param allow_start[i,j,t,s] = 1 if period i and day j is an allowable
     #    shift start time for shift length s of tour type t
 
-    lenxset = get_lengths_from_mix(ttspec)
+    lenx_set = get_lengths_from_mix(ttspec)
     ash_rows = []
     for m in ttspec['tourtypes']:
         for s in m['shiftlengths']:
             for j in range(len(s['allowable_starttimes'])):
                 for i in range(len(s['allowable_starttimes'][j])):
-                    length_x = lenxset.index(s['numbins'])
-                    L = [i + 1, j + 1, length_x + 1, m['ttnum'], s['allowable_starttimes'][j][i]]
-                    ash_rows.append(L)
+                    length_x = lenx_set.index(s['numbins'])
+                    row = [i + 1, j + 1, length_x + 1, m['ttnum'], s['allowable_starttimes'][j][i]]
+                    ash_rows.append(row)
 
     param = 'param allow_start:=\n'
     for val in ash_rows:
-        datarow = ' '.join(map(str, val)) + '\n'
-        param += datarow
+        data_row = ' '.join(map(str, val)) + '\n'
+        param += data_row
 
     param += ";\n"
-    if isStringIO:
-        paramout = io.StringIO.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
+    if isstringio:
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
     else:
         return param
 
 
 def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
+    """
+
+    :param fn_yni:
+    :param fn_mix:
+    :param fn_wkd:
+    :param isStringIO:
+    :return:
+    """
+    
     fin_yni = open(fn_yni, "r")
-    probspec = yaml.load(fin_yni)
+    probspec = yaml.safe_load(fin_yni)
     fin_mix = open(fn_mix, "r")
-    ttspec = yaml.load(fin_mix)
+    ttspec = yaml.safe_load(fin_mix)
 
     fin_wkd = open(fn_wkd, "r")
-    wkdspec = yaml.load(fin_wkd)
+    wkdspec = yaml.safe_load(fin_wkd)
 
     n_weeks = probspec['time']['n_weeks']
     n_ttypes = np.size(ttspec['tourtypes'])
@@ -687,8 +660,8 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
         tt = m['ttnum']
 
         wkend_patterns = [[], []]
-        wkend_patterns[0] = [row for row in patterns_all if filterpatterns(row, tt, 1, wkdspec)]
-        wkend_patterns[1] = [row for row in patterns_all if filterpatterns(row, tt, 2, wkdspec)]
+        wkend_patterns[0] = [row for row in patterns_all if filter_patterns(row, tt, 1, wkdspec)]
+        wkend_patterns[1] = [row for row in patterns_all if filter_patterns(row, tt, 2, wkdspec)]
 
     # param A[p,j,w,t,e] = 1 if weekend pattern p calls for work on day j of week k for tour type t having weekend type e and 0 otherwise
 
@@ -725,9 +698,9 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
     param += midthresh_param
 
     if isStringIO:
-        paramout = io.StringIO.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
     else:
         return param
 
@@ -735,98 +708,116 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isStringIO=True):
 def tester():
     # print csvrow_to_yaml('infiles/oneweekash.csv',False)
     p = create_weekend_base(4)
+    print(p)
 
+    # #    p = [(0,1),(1,1),(0,0),(1,0)]
+    # #    n = num_full_weekends(p,1)
 
-##    p = [(0,1),(1,1),(0,0),(1,0)]
-##    n = num_full_weekends(p,1)
 
 def mwts_createdat(fn_yni, fn_dat):
     """
     Create a GMPL dat file for mwts problems.
-    Inputs:
-        fn_yni - Name of YAML input file for the mwts problem
-    Output:
-        fn_dat - Name of GMPL dat file to create
-    """
-    fin = open(fn_yni, "r")
-    probspec = yaml.load(fin)
 
-    # General section
+    :param fn_yni: Name of YAML input file for the mwts problem
+    :param fn_dat: Name of GMPL dat file to create
+    :return:
+    """
+
+    f_yni_in = open(fn_yni, "r")
+    prob_spec = yaml.safe_load(f_yni_in)
+
+    # Scheduling cycle
     num_prds_per_day_param = scalar_to_param('n_prds_per_day',
-                                             probspec['time']['n_prds_per_day'])
+                                             prob_spec['time']['n_prds_per_day'])
 
     num_days_per_week_param = scalar_to_param('n_days_per_week',
-                                              probspec['time']['n_days_per_week'])
+                                              prob_spec['time']['n_days_per_week'])
 
     num_weeks_param = scalar_to_param('n_weeks',
-                                      probspec['time']['n_weeks'])
+                                      prob_spec['time']['n_weeks'])
 
     # Cost related
+    labor_budget_param = scalar_to_param('labor_budget', prob_spec['cost']['labor_budget'])
 
-    labor_budget_param = scalar_to_param('labor_budget', probspec['cost']
-    ['labor_budget'])
+    cu1_param = scalar_to_param('cu1', prob_spec['cost']['understaff_cost_1'])
 
-    cu1_param = scalar_to_param('cu1', probspec['cost']
-    ['understaff_cost_1'])
+    cu2_param = scalar_to_param('cu2', prob_spec['cost']['understaff_cost_2'])
 
-    cu2_param = scalar_to_param('cu2', probspec['cost']
-    ['understaff_cost_2'])
+    usb_param = scalar_to_param('usb', prob_spec['cost']['understaff_1_ub'])
 
-    usb_param = scalar_to_param('usb', probspec['cost']
-    ['understaff_1_ub'])
+    # Demand and min staff
+    dmd_dat = dmd_min_to_dat('dmd_staff', prob_spec['reqd_files']['filename_dmd'], mode='unsliced')
+    min_dat = dmd_min_to_dat('min_staff', prob_spec['reqd_files']['filename_min'], mode='unsliced')
 
-    # Demand section
-    dmd_dat = dmd_min_to_dat('dmd_staff', probspec['reqd_files']['filename_dmd'], mode='unsliced')
-    # Min staff section
-    min_dat = dmd_min_to_dat('min_staff', probspec['reqd_files']['filename_min'], mode='unsliced')
-    # Mix section
-    mix_dat = mix_to_dat(probspec)
+    # Tour type mix
+    mix_dat = mix_to_dat(prob_spec)
 
     # Weekends worked patterns section
     wkends_dat = wkends_to_dat(fn_yni,
-                               probspec['reqd_files']['filename_mix'],
-                               probspec['reqd_files']['filename_wkd'])
+                               prob_spec['reqd_files']['filename_mix'],
+                               prob_spec['reqd_files']['filename_wkd'])
 
     # Allowable shift start time section
-    ash_dat = ash_to_dat(fn_yni, probspec['reqd_files']['filename_mix'])
+    ash_dat = ash_to_dat(fn_yni, prob_spec['reqd_files']['filename_mix'])
 
     # Put the pieces together
     dat = io.StringIO()
 
-    print >> dat, num_prds_per_day_param
-    print >> dat, num_days_per_week_param
-    print >> dat, num_weeks_param
+    dat_list = []
+    dat_list.append(num_prds_per_day_param)
+    dat_list.append(num_days_per_week_param)
+    dat_list.append(num_weeks_param)
 
-    print >> dat, labor_budget_param
-    print >> dat, cu1_param
-    print >> dat, cu2_param
-    print >> dat, usb_param
+    dat_list.append(labor_budget_param)
+    dat_list.append(cu1_param)
+    dat_list.append(cu2_param)
+    dat_list.append(usb_param)
 
-    print >> dat, mix_dat
-    print >> dat, dmd_dat
-    print >> dat, min_dat
-    print >> dat, wkends_dat
-    print >> dat, ash_dat
 
-    fout = open(fn_dat, "w")
-    print >> fout, dat.getvalue()
-    fout.close()
+    # print >> dat, num_prds_per_day_param
+    # print >> dat, num_days_per_week_param
+    # print >> dat, num_weeks_param
 
-    return 0
+    # print >> dat, labor_budget_param
+    # print >> dat, cu1_param
+    # print >> dat, cu2_param
+    # print >> dat, usb_param
+
+    dat_list.append(mix_dat)
+    dat_list.append(dmd_dat)
+    dat_list.append(min_dat)
+    dat_list.append(wkends_dat)
+    dat_list.append(ash_dat)
+
+    # print >> dat, mix_dat
+    # print >> dat, dmd_dat
+    # print >> dat, min_dat
+    # print >> dat, wkends_dat
+    # print >> dat, ash_dat
+
+    dat_str = '\n'.join(dat_list)
+
+    with open(fn_dat, "w") as f_dat_out:
+        f_dat_out.write(dat_str)
 
 
 def create_yaml_ash():
-    lens = ['8', '10', '12', '14', '16', '20', '24']
+    """
+    Guessing this was a utility used while creating ash files
 
-    for len in lens:
-        csv = '../exps/mwts02/inputs/ash/ash_' + len + '.csv'
-        yml = '/home/mark/Documents/research/MultiWeek/pymwts/pymwts/exps/mwts02/inputs/ash/ash_' + len + '.yaml'
+    :return:
+    """
+    shift_lens = ['8', '10', '12', '14', '16', '20', '24']
 
-        ash = io.StringIO.StringIO()
-        print >> ash, csvrow_to_yaml(csv)
-        fout = open(yml, "w")
-        print >> fout, ash.getvalue()
-        fout.close()
+    for shift_len in shift_lens:
+        fn_csv = '../exps/mwts02/inputs/ash/ash_' + shift_len + '.fn_csv'
+        fn_yml = '../exps/mwts02/inputs/ash/ash_' + shift_len + '.yaml'
+
+        ash = io.StringIO()
+        print(ash, csvrow_to_yaml(fn_csv))
+        f_out = open(fn_yml, "w")
+        print(f_out, ash.getvalue())
+        f_out.close()
 
 
 def create_weekend_base(n_weeks):
@@ -855,17 +846,18 @@ def create_weekend_base(n_weeks):
     return list(itertools.product(*mw_basis_list))
 
 
-def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
+def filter_patterns(pattern, ttnum, wkend_type, wkdspec):
     """
-    Creates a sequence of binary values to be used for list filtering. This
-    function will contain the various rules used to filter out weekend days
+    TODO: Create a sequence of binary values to be used for list filtering.
+
+    This function will contain the various rules used to filter out weekend days
     worked patterns that we don't want to allow.
 
     For now I'm hard coding in rules but need to develop an approach to
-    flexibly specifiying rules to apply to filter out undesirable weekends
+    flexibly specifying rules to apply to filter out undesirable weekends
     worked patterns.
 
-        Inputs:
+            Inputs:
           x - list of 2-tuples representing weekend days worked. Each list
             element is one week. The tuple of binary values represent the
             first and second day of the weekend for that week. A 1 means
@@ -879,8 +871,6 @@ def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
           half_weekends_ok - True or False
           max_consec_wkends - max consecutive weeks with >= 1 day worked
 
-
-
         Examples:
           (1) Type 1, work every other weekend
             pattern = [(0,1),(1,0),(0,1),(1,0)], type = 1
@@ -891,6 +881,11 @@ def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
         Output: True --> keep pattern
                 False --> discard pattern
 
+    :param pattern:
+    :param ttnum:
+    :param wkend_type:
+    :param wkdspec:
+    :return:
     """
 
     n_weeks = len(pattern)
@@ -902,8 +897,15 @@ def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
         max_wkends_worked = wkdspec['wkd_global']['max_wkends_worked']
         max_consec_wkends = wkdspec['wkd_global']['max_consec_wkends']
 
-    # TODO - implement tour type specific global overrides
-    # tourtype = [t for t in wkdspec['tourtypes'] if t['ttnum'] == ttnum]
+    else:
+        # TODO - implement tour type specific global overrides
+        # tourtype = [t for t in wkdspec['tourtypes'] if t['ttnum'] == ttnum]
+
+        # PLACEHOLDERS
+        max_days_worked = 0
+        is_halfweekend_ok = False
+        max_wkends_worked = 0
+        max_consec_wkends = 0
 
     # No more than max_days_worked over the scheduling horizon
     # max_days_worked = wkdspec[0]['max_days_worked']
@@ -911,37 +913,33 @@ def filterpatterns(pattern, ttnum, wkendtype, wkdspec):
         keep = False
 
         # Half-weekends
-    if not is_halfweekend_ok and num_half_weekends(pattern, wkendtype) > 0:
+    if not is_halfweekend_ok and num_half_weekends(pattern, wkend_type) > 0:
         keep = False
 
         # Max weekends (full or half) worked
-    tot_wkends_worked = num_half_weekends(pattern, wkendtype) + num_full_weekends(pattern, wkendtype)
+    tot_wkends_worked = num_half_weekends(pattern, wkend_type) + num_full_weekends(pattern, wkend_type)
     if tot_wkends_worked > max_wkends_worked:
         keep = False
 
     # Limit on consecutive weekends with one or more days worked
-    consec_wkends_worked = num_consecutive_weekends(pattern, wkendtype)
+    consec_wkends_worked = num_consecutive_weekends(pattern, wkend_type)
     if consec_wkends_worked > max_consec_wkends:
         keep = False
 
     return keep
 
 
-def num_full_weekends(x, wkendtype):
+def num_full_weekends(x, wkend_type):
     """
-    Returns number of full weekends (both days) worked in a given weekends worked pattern.
+    Compute number of full weekends (both days) worked in a given weekends worked pattern.
 
-    Inputs:
-          x - list of 2-tuples representing weekend days worked. Each list
+    :param x: list of 2-tuples representing weekend days worked. Each list
             element is one week. The tuple of binary values represent the
             first and second day of the weekend for that week. A 1 means
             the day is worked, a 0 means it is off.
-
-          wkendtype - 1 --> weekend consists of Saturday and Sunday
-                 2 --> weekend consists of Friday and Saturday
-
-    Output:
-        Number of full weekends worked
+    :param wkend_type: 1 --> weekend consists of Saturday and Sunday
+                       2 --> weekend consists of Friday and Saturday
+    :return: Number of full weekends worked
 
     Example:
         n = num_full_weekends([(0,1),(1,0),(0,1),(1,0)],1)
@@ -955,11 +953,11 @@ def num_full_weekends(x, wkendtype):
 
         n = num_full_weekends([(0,1),(1,0),(0,1),(0,0)],2)
         # n = 0
-
     """
-    if wkendtype == 2:
-        L1 = [sum(j) for j in x]
-        n = sum([(1 if j == 2 else 0) for j in L1])
+
+    if wkend_type == 2:
+        n_wkend_days_worked = [sum(j) for j in x]
+        n = sum([(1 if j == 2 else 0) for j in n_wkend_days_worked])
     else:
         n = 0
         for j in range(len(x)):
@@ -973,21 +971,17 @@ def num_full_weekends(x, wkendtype):
     return n
 
 
-def num_half_weekends(x, wkendtype):
+def num_half_weekends(x, wkend_type):
     """
-    Returns number of half weekends (one day) worked in a given weekends worked pattern.
+    Compute number of full weekends (both days) worked in a given weekends worked pattern.
 
-    Inputs:
-          x - list of 2-tuples representing weekend days worked. Each list
+    :param x: list of 2-tuples representing weekend days worked. Each list
             element is one week. The tuple of binary values represent the
             first and second day of the weekend for that week. A 1 means
             the day is worked, a 0 means it is off.
-
-          wkendtype - 1 --> weekend consists of Saturday and Sunday
-                      2 --> weekend consists of Friday and Saturday
-
-    Output:
-        Number of half weekends worked
+    :param wkend_type: 1 --> weekend consists of Saturday and Sunday
+                       2 --> weekend consists of Friday and Saturday
+    :return: Number of half weekends worked
 
     Example:
         n = num_half_weekends([(0,1),(1,0),(0,1),(1,0)],1)
@@ -1003,9 +997,9 @@ def num_half_weekends(x, wkendtype):
         # n = 3
 
     """
-    if wkendtype == 2:
-        L1 = [sum(j) for j in x]
-        n = sum([(1 if j == 1 else 0) for j in L1])
+    if wkend_type == 2:
+        n_wkend_days_worked = [sum(j) for j in x]
+        n = sum([(1 if j == 1 else 0) for j in n_wkend_days_worked])
     else:
         n = 0
         for j in range(len(x)):
@@ -1019,26 +1013,32 @@ def num_half_weekends(x, wkendtype):
     return n
 
 
-def ntuples(lst, n):
+def n_tuples(lst, n):
+    """
+    No idea why I created this and it is not used.
+
+    :param lst:
+    :param n:
+    :return:
+    """
     return zip(*[lst[i:] + lst[:i] for i in range(n)])
 
 
-def is_weekend_worked(x, wkendtype, i):
+def is_weekend_worked(x, wkend_type, i):
     """
-    Returns True if i'th weekend is worked (full or half) for a given
-    weekend pattern x and weekend type, False otherwise.
+    Determine if i'th weekend is worked (full or half) for a given
+    weekend pattern x and weekend type,
 
-    Inputs:
-          x - list of 2-tuples representing weekend days worked. Each list
+    :param x: list of 2-tuples representing weekend days worked. Each list
             element is one week. The tuple of binary values represent the
             first and second day of the weekend for that week. A 1 means
             the day is worked, a 0 means it is off.
-
-          wkendtype - 1 --> weekend consists of Saturday and Sunday
-                      2 --> weekend consists of Friday and Saturday
-
-    Output:
-        True if weekend i is worked
+    :param wkend_type: 1 --> weekend consists of Saturday and Sunday
+                       2 --> weekend consists of Friday and Saturday
+    :type wkend_type: int
+    :param i: which weekend to check
+    :type i: int
+    :return: True if weekend i is worked, False otherwise
 
     Example:
         b = is_weekend_worked([(0,1),(1,0),(0,1),(1,0)],1,1)
@@ -1054,7 +1054,7 @@ def is_weekend_worked(x, wkendtype, i):
         # b = False
 
     """
-    if wkendtype == 2:
+    if wkend_type == 2:
         if sum(x[i - 1]):
             return True
         else:
@@ -1072,24 +1072,19 @@ def is_weekend_worked(x, wkendtype, i):
             return False
 
 
-def num_consecutive_weekends(x, wkendtype, circular=True):
+def num_consecutive_weekends(x, wkend_type, circular=True):
     """
-    Returns largest number of consecutive weekends worked in a pattern
+    Returns largest number of consecutive weekends worked in a pattern.
 
-    Inputs:
-          x - list of 2-tuples representing weekend days worked. Each list
+    :param x: list of 2-tuples representing weekend days worked. Each list
             element is one week. The tuple of binary values represent the
             first and second day of the weekend for that week. A 1 means
             the day is worked, a 0 means it is off.
-
-          wkendtype - 1 --> weekend consists of Saturday and Sunday
-                      2 --> weekend consists of Friday and Saturday
-
-          circular - True  --> week 4 wraps to week 1
+    :param wkend_type: 1 --> weekend consists of Saturday and Sunday
+                       2 --> weekend consists of Friday and Saturday
+    :param circular: True  --> week n wraps to week 1
                      False --> weeks do not wrap
-
-    Output:
-        Number of consecutive weekends worked
+    :return: Number of consecutive weekends worked
 
     Example:
         n = num_consecutive_weekends([(0,1),(1,0),(0,1),(1,0)],1)
@@ -1107,7 +1102,7 @@ def num_consecutive_weekends(x, wkendtype, circular=True):
     """
 
     n = 0
-    nconsec = 0
+    n_consec = 0
     if circular:
         pattern = x + x
     else:
@@ -1115,14 +1110,14 @@ def num_consecutive_weekends(x, wkendtype, circular=True):
 
     n_weeks = len(pattern)
     for i in range(1, n_weeks + 1):
-        if is_weekend_worked(pattern, wkendtype, i):
+        if is_weekend_worked(pattern, wkend_type, i):
             n += 1
-            if n > nconsec:
-                nconsec = n
+            if n > n_consec:
+                n_consec = n
         else:
             n = 0
 
-    return nconsec
+    return n_consec
 
 
 def main():

@@ -87,7 +87,7 @@ def scalar_to_param(pname, pvalue, isStringIO=True):
     """
     Convert a scalar to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         pvalue - value of parameter
         isstringio - true to return StringIO object, false to return string
 
@@ -113,7 +113,7 @@ def list_to_param(pname, plist, reverseidx=False, isStringIO=True):
     """
     Convert a list to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -156,7 +156,7 @@ def shift_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -206,7 +206,7 @@ def tourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -256,7 +256,7 @@ def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -306,7 +306,7 @@ def dailyshiftworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -356,7 +356,7 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -406,7 +406,7 @@ def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True)
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
         isstringio - True to return StringIO object, False to return string
@@ -622,7 +622,7 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
     in multi-week format. Hopefully useful for debugging.
     
     Inputs:
-        pname - string name of paramter in GMPL file
+        param_name - string name of paramter in GMPL file
         plist - list containing parameter (could be N-Dimen list)
         isstringio - True to return StringIO object, False to return string
 
