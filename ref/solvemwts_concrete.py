@@ -260,7 +260,7 @@ phase2_inst.preprocess()
 ##
 ## Write the output
 #
-##for (i,j,w) in instance.bins:
+##for (i,j,w) in instance.epoch_tuples:
 #
 #sys.stdout = old_stdout
 ## Update the results, to use the same labels as the model

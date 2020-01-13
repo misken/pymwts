@@ -1,4 +1,14 @@
 
-This directory is called the "distribution root" from the perspective of Distutils.
+pymtws - A multi-week implicit tour scheduling model
+====================================================
 
-May 17, 2013 - Need to figure out the status of this pymtwts "installation" method
+This project will contain:
+
+* Python code for Pyomo based scheduling models
+* Python code for data input and data output processing and management
+* Documentation including user manual, tutorials, explanations
+* Sample input and output data files
+
+The models are mixed integer programming models, represented with the
+Pyomo modeling language (a Python library) and solvable with standard
+solvers such as cbc, GLPK, Gurobi, or CPLEX.

@@ -415,7 +415,7 @@ model_phase2.e_window_epoch = pyo.Param(model_phase2.bins,initialize=e_window_ep
 
 ###### PotentialGlobalStartWindow ######
 
-# Index: PotentialGlobalStartWindow is defined for all (period,day,week) bins. 
+# Index: PotentialGlobalStartWindow is defined for all (period,day,week) epoch_tuples.
 # Defn:  PotentialGlobalStartWindow[i,j,w] contains all the bin triplets within g_start_window_width periods of
 #    bin (i,j,w). The "Potential" indicates that many of these will be eliminated because [i,j,w] may
 #    not be an allowable shift start time. Notice that these windows are NOT yet shift length and tour

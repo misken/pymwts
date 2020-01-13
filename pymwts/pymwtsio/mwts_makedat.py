@@ -22,7 +22,7 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
     The input file containing demand by period is assumed to contain
     each day on a separate row. The number of columns is the same as the
     number of periods per day. If the file was for a two week problem with
-    half-hour bins, there would be 14 rows and 48 columns. Demand here is
+    half-hour epoch_tuples, there would be 14 rows and 48 columns. Demand here is
     really the target staffing level and can be a real number.
 
     Default is comma separated file with no header line.
@@ -71,7 +71,7 @@ def dmd_min_to_dat(gmpl_param_name, fn_dmd_or_min, sep=',', header=None, comment
             param += weekheader
 
             # Need to transpose the demand values so that days become cols
-            # and bins become rows and then write out the GMPL matrix.
+            # and epoch_tuples become rows and then write out the GMPL matrix.
             for prd in range(num_prds):
                 prd_line = [prd + 1]
                 prd_line.extend([days[(week - 1) * 7 + day][prd] for day in range(7)])

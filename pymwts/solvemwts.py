@@ -7,21 +7,16 @@ to GMPL DAT parameter statements and a phase 2 DAT file is created from a copy o
 phase 1 DAT file and these additional parameters.
 """
 
-#Python imports
 import sys
-# import os
 import sqlite3
 import datetime
-# import io
 import logging
-
 
 import pyomo.opt
 from pyomo.environ import *
 
 import mwts_phase1
 import mwts_phase2
-
 from mwts_utils import *
 from pymwtsio.mwts_process_out_tour import create_mwt
 
@@ -135,13 +130,10 @@ def solvemwts(scenario, phase1_dat_file, path,
     b_TT_mwdw_con_active = True
 
     # Possible redundant constraints
-
     b_DSW_TT_weeklyconservation_active = False
     b_DTT_TT_weeklyconservation_active = False
 
-
     # Conditional constraint deactivation
-
     if not b_weekend_subsets_5_4_con2_active:
         phase1_inst.weekend_subsets_5_4_con2.deactivate()
 
@@ -168,8 +160,6 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.DTT_TT_weeklyconservation_UB.deactivate()
         phase1_inst.DTT_TT_cumul_weeklyconservation_LB.deactivate()
         phase1_inst.DTT_TT_cumul_weeklyconservation_UB.deactivate()
-
-
 
     # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
@@ -199,45 +189,43 @@ def solvemwts(scenario, phase1_dat_file, path,
     if bWriteStartWinDebug:
         start_win_debug_file = path + scenario + '_debugwin.txt'
         with open(start_win_debug_file,"w") as f_windebug:
-
             for w in phase1_inst.WEEKS:
                 for j in phase1_inst.DAYS:
                     for i in phase1_inst.PERIODS:
-                        f_windebug.write('b_window_epoch[{0},{1},{2}] = {3}, e_window_epoch[{0},{1},{2}] = {4}'.format(i, j, w,
-                                                                                                            phase1_inst.b_window_epoch[
-                                                                                                                i, j, w].value,
-                                                                                                            phase1_inst.e_window_epoch[
-                                                                                                               i, j, w].value))
+                        f_windebug.write(
+                            'b_window_epoch[{0},{1},{2}] = {3}, '
+                            'e_window_epoch[{0},{1},{2}] = {4}'.format(
+                                i, j, w,phase1_inst.b_window_epoch[i, j, w].value,
+                                phase1_inst.e_window_epoch[i, j, w].value))
 
             for (i, j, w) in phase1_inst.PotentialGlobalStartWindow_index:
                 if phase1_inst.PotentialGlobalStartWindow[i, j, w]:
-                    f_windebug.write('PotentialGlobalStartWindow[{},{},{}] = {}'.format(i, j, w,
-                                                                             phase1_inst.PotentialGlobalStartWindow[
-                                                                                 i, j, w].value))
+                    f_windebug.write(
+                        'PotentialGlobalStartWindow[{},{},{}] = {}'.format(
+                            i, j, w, phase1_inst.PotentialGlobalStartWindow[i, j, w].value))
 
             for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_index:
                 if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
-                    f_windebug.write('PotentialStartWindow[{},{},{},{},{}] = {}'.format(i, j, w, k, t,
-                                                                             phase1_inst.PotentialStartWindow[
-                                                                                 i, j, w, k, t].value))
+                    f_windebug.write(
+                        'PotentialStartWindow[{},{},{},{},{}] = {}'.format(
+                            i, j, w, k, t, phase1_inst.PotentialStartWindow[i, j, w, k, t].value))
 
             f_windebug.write('okStartWindowRoots_index = ')
             for (t, k) in phase1_inst.okStartWindowRoots_index:
-                f_windebug.write(t, k)
-
+                f_windebug.write(str((t, k)))
 
             for (t,k) in phase1_inst.okStartWindowRoots_index:
                 f_windebug.write('okStartWindowRoots[{},{}] = '.format(t, k))
                 for (i, j, w) in phase1_inst.okStartWindowRoots[t, k]:
-                    f_windebug.write(i,  j, w)
+                    f_windebug.write(str(i, j, w))
 
             f_windebug.write('okTourType = ')
             for (i,t) in phase1_inst.okTourType:
-                f_windebug.write(i, t)
+                f_windebug.write(str(i, t))
 
             f_windebug.write('okDailyTourType = ')
             for (i,t,d) in phase1_inst.okDailyTourType:
-                f_windebug.write(i, t, d)
+                f_windebug.write(str(i, t, d))
 
             f_windebug.write('bchain echain #links = ')
             for (t,k) in phase1_inst.okStartWindowRoots_index:
@@ -290,20 +278,18 @@ def solvemwts(scenario, phase1_dat_file, path,
         print("Could not get solver: " + which_solver)
         sys.exit(1)
 
-    
     stream_solver = True
     phase1_results = solver.solve(phase1_inst, tee=stream_solver)
 
     # TODO - check if phase 1 solved
-    if (phase1_results.solver.status != pyomo.opt.SolverStatus.ok):
+    if phase1_results.solver.status != pyomo.opt.SolverStatus.ok:
         logging.warning('Check solver not ok? Status = %s', phase1_results.solver.status)
 
-    if (phase1_results.solver.termination_condition != pyomo.opt.TerminationCondition.optimal):
+    if phase1_results.solver.termination_condition != pyomo.opt.TerminationCondition.optimal:
         logging.warning('Check solver optimality? Term condition = %s',
                         phase1_results.solver.termination_condition)
 
     logging.info('Phase 1 solution status = %s', phase1_results.solver.status)
-
 
     # By default, results are automatically loaded into model instance
     # See https://groups.google.com/forum/#!topic/pyomo-forum/wjjY2XvmG2w
@@ -324,12 +310,12 @@ def solvemwts(scenario, phase1_dat_file, path,
         tot_vars = 0
         f1_sum.write("\n\nConstraint summary \n------------------\n")
         for c in phase1_inst.component_objects(Constraint, active=True):
-            #conobj = getattr(phase1_inst, str(c))
+            # conobj = getattr(phase1_inst, str(c))
             f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
         f1_sum.write("\n\nVariable summary \n------------------\n")
         for v in phase1_inst.component_objects(Var):
-            #vobj = getattr(phase1_inst, str(v))
+            # vobj = getattr(phase1_inst, str(v))
             f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
 
@@ -351,16 +337,12 @@ def solvemwts(scenario, phase1_dat_file, path,
     with open(phase1_shiftsum_file,'w') as f1_shiftsum:
         print(phase1_shiftsummary, file=f1_shiftsum)
 
-
     # Write tour skeleton
     phase1_tourskeleton = weekenddaysworked_to_tourskeleton(phase1_inst)
     with open(phase1_tourskeleton_file,'w') as f1_tourskeleton:
         print(phase1_tourskeleton, file=f1_tourskeleton)
         phase1_tourskeleton = dailytourtype_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
-
-
-
 
     # If phase 1 solved, create phase 2 params from phase 1 vars and solve phase 2 problem.
     # TODO - how to check for status other than 'optimal'?
@@ -372,7 +354,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     # with an abstract model. Not sure if putting an abstract model into concrete_mode does the same thing.
     # We will reference the instance object to be safe.
 
-    #phase_1_2_integrate(phase1_inst, phase2_inst)
+    # phase_1_2_integrate(phase1_inst, phase2_inst)
 
     tot_cap = value(sum(phase1_inst.cov[i,j,w].value for (i,j,w) in phase1_inst.bins))
     us1_cost = value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value for (i,j,w) in phase1_inst.bins))
@@ -391,8 +373,8 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
 
-    with open(phase2_dat_file,'w') as f2_out:
-        with open(phase1_dat_file,'r') as f1_in:
+    with open(phase2_dat_file, 'w') as f2_out:
+        with open(phase1_dat_file, 'r') as f1_in:
             f1_str = f1_in.read()
             f2_out.write(f1_str)
 
@@ -408,21 +390,19 @@ def solvemwts(scenario, phase1_dat_file, path,
     print(param_MultiWeekDaysWorked, file=dat)
     print(param_tour_WIN_TT, file=dat)
 
-    with open(phase2_dat_file,'a') as f2_dat:
+    with open(phase2_dat_file, 'a') as f2_dat:
         print(dat.getvalue(), file=f2_dat)
         logging.info('Phase 2 dat file created')
 
     # Initialize the phase 2 instance
 
-    #phase2_mdl = import_file(phase2_mod_file).model_phase2
+    # phase2_mdl = import_file(phase2_mod_file).model_phase2
     phase2_mdl = mwts_phase2.model_phase2
     phase2_inst = phase2_mdl.create_instance(filename = phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')
 
-
     # Activate/deactivate constraints
-
     bOnePatternPerTourShift_active = True
     bTours_Daily_active = True
     bTours_Daily_conservation_active = True
@@ -505,7 +485,6 @@ def solvemwts(scenario, phase1_dat_file, path,
             phase2_inst.pprint(ostream=f2_inst)
             logging.info('Phase 2 instance written')
 
-
     # Write out phase 2 problem size summary info
 
     with open(phase2_summary_file,'w') as f2_sum:
@@ -546,20 +525,21 @@ def solvemwts(scenario, phase1_dat_file, path,
             logging.info('Phase 2 summary and results written')
 
     # Create the multi-week tour file
-    idxcopy = []
+    idx_copy = []
     for idx in phase2_inst.TourShifts:
-        idxcopy.append(idx)
-    idxsorted = sorted(idxcopy)
+        idx_copy.append(idx)
+    idx_sorted = sorted(idx_copy)
 
     with open(tour_file, "w") as f2_tour:
         f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
         f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
         f2_tour.write('PP4\n')
 
-        for idx in idxsorted:
+        for idx in idx_sorted:
             if phase2_inst.TourShifts[idx].value > 0:
                 f2_tour.write(
-                    '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2], phase2_inst.lengths[idx[4]],
+                    '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
+                                                    phase2_inst.lengths[idx[4]],
                                                     phase2_inst.WIN_x[idx[0]]))
 
         f2_tour.write('TTS\n')
@@ -570,7 +550,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     logging.info('Tour related output files created')
     ts_now = datetime.datetime.now()
     var_tuple = (scenario, phase1_solution_value, tot_cap,
-                 str(phase1_solution_status), str(phase2_solution_status), us1_cost, us2_cost, phase2_solution_value,
+                 str(phase1_solution_status), str(phase2_solution_status),
+                 us1_cost, us2_cost, phase2_solution_value,
                  str(ts_now))
     logging.info('Solution log record %s', str(var_tuple))
 
@@ -579,7 +560,8 @@ def solvemwts(scenario, phase1_dat_file, path,
         conn = sqlite3.connect(results_db)
         cur = conn.cursor()
         now = datetime.datetime.now()
-        field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,us1_cost,us2_cost,phase2_obj,timestamp)'
+        field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,' \
+                           'us1_cost,us2_cost,phase2_obj,timestamp)'
         var_tuple = (scenario, phase1_solution_value, tot_cap,
                      str(phase1_solution_status), str(phase2_solution_status), us1_cost, us2_cost,
                      phase2_solution_value, str(now))
@@ -602,6 +584,14 @@ def solvemwts(scenario, phase1_dat_file, path,
 def probe_phase2(scenario, phase2_dat_file, path,
                  which_solver, timelimit, mipgap, wintt_filter=None):
     """
+    Created this to make it easy to try out limited combinations of windows and tour
+    types to try to debug model. Needed to manually add lines such as
+
+    set activeTT := 8;
+    set activeWIN := 44;
+
+    to Phase 2 dat file and then resolve Phase 2. Couldn't find easy way to integrate with
+    main model above, so created this probe_phase2() function.
 
     :param scenario:
     :param phase2_dat_file:
