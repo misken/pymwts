@@ -541,6 +541,13 @@ model_phase1.allow_start = pyo.Param(model_phase1.PERIODS,
 
 
 def okShifts_rule(M):
+    """
+    Shifts are allowable if allow_start[i, j, w, t, k] > 0
+
+    :param M: Model
+    :return: lists of allowable shift start time tuples
+    """
+
     return [(i, j, w, k, t) for i in M.PERIODS
             for j in M.DAYS
             for w in M.WEEKS
@@ -549,34 +556,28 @@ def okShifts_rule(M):
             if M.allow_start[i, j, k, t] > 0]
 
 
-model_phase1.okShifts = pyo.Set(dimen=5,ordered=True,initialize=okShifts_rule)
-
-
-def okShiftTypes_rule(M):
-    return [(i, j, k, t) for i in M.PERIODS
-            for j in M.DAYS
-            for t in M.activeTT
-            for k in M.tt_length_x[t]
-            if M.allow_start[i, j, k, t] > 0]
-
-
-model_phase1.okShiftTypes = pyo.Set(dimen=4, ordered=True, initialize=okShiftTypes_rule)
+model_phase1.okShifts = pyo.Set(dimen=5,ordered=True,
+                                initialize=okShifts_rule)
 
 
 # Limits on part time labor and limits on total labor
 
-model_phase1.max_parttime_frac = pyo.Param()    # Maximum fraction of labor hours covered by part-time employees
-model_phase1.labor_budget = pyo.Param()         # Maximum labor expenditure
+# Maximum fraction of labor hours covered by part-time employees
+model_phase1.max_parttime_frac = pyo.Param()
+# Maximum labor expenditure
+model_phase1.labor_budget = pyo.Param()
 
 # -----------------------------------------------------------------------
 # Cost related parameters
 # -----------------------------------------------------------------------
 
-model_phase1.tt_cost_multiplier = pyo.Param(model_phase1.TTYPES)           # Tour type differential
+# Tour type differential
+model_phase1.tt_cost_multiplier = pyo.Param(model_phase1.TTYPES)
 
-model_phase1.cu1 = pyo.Param()
-model_phase1.cu2 = pyo.Param()        
-model_phase1.usb = pyo.Param()
+# Understaffing cost
+model_phase1.cu1 = pyo.Param() # Tier 1 understaffing cost
+model_phase1.cu2 = pyo.Param() # Tier 2 understaffing cost
+model_phase1.usb = pyo.Param() # Tier 1 understaffing upper bound
 
 # -----------------------------------------------------------------------
 # Weekend related Parameters
@@ -589,8 +590,8 @@ model_phase1.midnight_thresh = pyo.Param(model_phase1.TTYPES, default=1e+6)
 def weekend_init(M, i, t):
     result = []
     lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    maxlen = max(lens)
-    if i + maxlen - 1 >= M.midnight_thresh[t]:
+    max_len = max(lens)
+    if i + max_len - 1 >= M.midnight_thresh[t]:
         result.append(6)
     else:
         result.append(1)
@@ -598,20 +599,22 @@ def weekend_init(M, i, t):
     return result
 
 
-model_phase1.weekend = pyo.Set(model_phase1.WINDOWS, model_phase1.TTYPES, ordered=True, initialize=weekend_init)
+model_phase1.weekend = pyo.Set(model_phase1.WINDOWS, model_phase1.TTYPES,
+                               ordered=True, initialize=weekend_init)
 
 
 def weekend_type_init(M, i, t):
     result = 1
     lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    maxlen = max(lens)
-    if i + maxlen - 1 >= M.midnight_thresh[t]:
+    max_len = max(lens)
+    if i + max_len - 1 >= M.midnight_thresh[t]:
         result = 2
 
     return result
         
           
-model_phase1.weekend_type = pyo.Param(model_phase1.WINDOWS, model_phase1.TTYPES, initialize=weekend_type_init)
+model_phase1.weekend_type = pyo.Param(model_phase1.WINDOWS, model_phase1.TTYPES,
+                                      initialize=weekend_type_init)
 
 
 
@@ -719,7 +722,15 @@ model_phase1.min_staff = pyo.Param(model_phase1.PERIODS,model_phase1.DAYS,model_
 
 model_phase1.g_start_window_width = pyo.Param()                            # Width of start-time windows
 
+def okShiftTypes_rule(M):
+    return [(i, j, k, t) for i in M.PERIODS
+            for j in M.DAYS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            if M.allow_start[i, j, k, t] > 0]
 
+
+model_phase1.okShiftTypes = pyo.Set(dimen=4, ordered=True, initialize=okShiftTypes_rule)
 
 ##/**** Beginning of each start window (in total periods from Sunday @ midnight)****/
 ##pyo.Param b_window_wepoch{i in PERIODS,j in DAYS} := n_prds_per_day*(j-1)+i;
@@ -951,7 +962,7 @@ def bchain_init(M,t,k):
     window_list =[]
     if M.g_start_window_width>0:
         for (i,j,w) in M.okStartWindowRoots[t,k]:
-            for (p,q,r) in (M.okStartWindowRoots[t,k] - Set(initialize=[(i,j,w)])):
+            for (p,q,r) in (M.okStartWindowRoots[t,k] - pyo.Set(initialize=[(i,j,w)])):
                 if (i,j,w) not in M.PotentialStartWindow[p,q,r,k,t]:
                     window_list.append((i,j,w))
 
