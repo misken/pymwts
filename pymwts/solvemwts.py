@@ -127,11 +127,9 @@ def solvemwts(scenario, phase1_dat_file, path,
     b_weekend_subsets_3_2_con2_active = True
     b_weekend_subsets_2_1_con2_active = True
 
-    b_TT_mwdw_con_active = True
-
-    # Possible redundant constraints
-    b_DSW_TT_weeklyconservation_active = False
-    b_DTT_TT_weeklyconservation_active = False
+    # Boolean indicators for possible redundant constraints
+    b_TTD_TT_weeklyconservation_active = False
+    b_TTDS_TT_weeklyconservation_active = False
 
     # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con2_active:
@@ -146,20 +144,18 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not b_weekend_subsets_2_1_con2_active:
         phase1_inst.weekend_subsets_2_1_con2.deactivate()
 
-    if not b_TT_mwdw_con_active:
-        phase1_inst.TT_mwdw_con.deactivate()
+    # Possible redundant constraint deactivation
+    if not b_TTD_TT_weeklyconservation_active:
+        phase1_inst.TTD_TT_weeklyconservation_LB.deactivate()
+        phase1_inst.TTD_TT_weeklyconservation_UB.deactivate()
+        phase1_inst.TTD_TT_cumul_weeklyconservation_LB.deactivate()
+        phase1_inst.TTD_TT_cumul_weeklyconservation_UB.deactivate()
 
-    if not b_DSW_TT_weeklyconservation_active:
-        phase1_inst.DSW_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.DSW_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.DSW_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.DSW_TT_cumul_weeklyconservation_UB.deactivate()
-
-    if not b_DTT_TT_weeklyconservation_active:
-        phase1_inst.DTT_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.DTT_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.DTT_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.DTT_TT_cumul_weeklyconservation_UB.deactivate()
+    if not b_TTDS_TT_weeklyconservation_active:
+        phase1_inst.TTDS_TT_weeklyconservation_LB.deactivate()
+        phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
+        phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
+        phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
 
     # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
