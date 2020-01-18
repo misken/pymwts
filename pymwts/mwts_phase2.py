@@ -10,7 +10,7 @@ import sys
 import pyomo.environ as pyo
 
 import mwts_shared
-from mwts_shared import epoch_increment
+from mwts_shared import epoch_to_tuple, epoch_increment
 
 # from pyutilib.misc import import_file
 
@@ -37,30 +37,6 @@ model_phase2.n_prds_per_cycle = pyo.Param(within=pyo.PositiveIntegers,
                                           initialize=mwts_shared.n_prds_per_cycle_init)
 
 
-
-def g_prd_to_tuple(M, p):
-    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
-    #
-    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
-
-    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
-    if prds_remainder == 0:
-        n_day = 1
-    else:
-        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-
-    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
-    if prds_remainder == 0:
-        n_period = 1
-    else:
-        n_period = prds_remainder
-
-    return n_period, n_day, n_week
-
-
 # For range sets, if start omitted, assumed range is 1..args[0]
 model_phase2.PERIODS = pyo.RangeSet(1, model_phase2.n_prds_per_day)
 model_phase2.EPOCHS = pyo.RangeSet(1, model_phase2.n_prds_per_cycle)  # P
@@ -69,27 +45,20 @@ model_phase2.DAYS = pyo.RangeSet(1, model_phase2.n_days_per_week)
 model_phase2.WEEKS = pyo.RangeSet(1, model_phase2.n_weeks)
 model_phase2.WEEKENDS = pyo.RangeSet(1, 2)
 
-model_phase2.epoch = pyo.Param(model_phase2.PERIODS, model_phase2.DAYS, model_phase2.WEEKS,
-                               initialize=mwts_shared.epoch_int)
+model_phase2.epoch = pyo.Param(model_phase2.PERIODS,
+                               model_phase2.DAYS, model_phase2.WEEKS,
+                               initialize=mwts_shared.epoch_init)
 
 model_phase2.epoch_tuples = model_phase2.PERIODS * model_phase2.DAYS * model_phase2.WEEKS
 
-
-def oneweek_bins_init(M):
-    return [(i, j) for i in M.PERIODS
-            for j in M.DAYS]
-
-
-model_phase2.oneweek_bins = pyo.Set(dimen=2, ordered=True, initialize=oneweek_bins_init)
-
 # ### Tour type related parameters
 
-# -- Shift Lengths
+# Shift Lengths ---------------------------------------------------------------
 model_phase2.n_lengths = pyo.Param(within=pyo.PositiveIntegers)  # Number of shift lengths
 model_phase2.LENGTHS = pyo.RangeSet(1, model_phase2.n_lengths)
 model_phase2.lengths = pyo.Param(model_phase2.LENGTHS)  # Vector of shift lengths
 
-# -- Tour Types
+# Tour Types ------------------------------------------------------------------
 model_phase2.n_tts = pyo.Param(within=pyo.PositiveIntegers)  # Number of different tour types
 model_phase2.TTYPES = pyo.RangeSet(1, model_phase2.n_tts)
 model_phase2.tt_length_x = pyo.Set(model_phase2.TTYPES, ordered=True, )  # Set of allowable length indices by tour type
@@ -112,7 +81,7 @@ def A_idx_rule(M):
     """
     Returns index for A matrix for weekend patterns.
         
-    param A[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of 
+    param A_wkend_days[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of
     week k for tour type t having weekend type e and 0 otherwise
     """
     return [(i, j, w, t, e) for i in range(1, M.max_weekend_patterns + 1)
@@ -122,8 +91,11 @@ def A_idx_rule(M):
             for e in range(1, 3) if i <= M.num_weekend_patterns[e, t]]
 
 
-model_phase2.A_idx = pyo.Set(dimen=5, ordered=True, initialize=A_idx_rule)
-model_phase2.A = pyo.Param(model_phase2.A_idx, default=0.0)
+model_phase2.A_wkend_days_idx = pyo.Set(
+    dimen=5, ordered=True,
+    initialize=mwts_shared.A_wkend_days_idx_rule)
+
+model_phase2.A = pyo.Param(model_phase2.A_wkend_days_idx, default=0.0)
 
 
 # -- Multiweek days worked patterns
@@ -153,12 +125,7 @@ model_phase2.A_mwdw = pyo.Param(model_phase2.A_mwdw_idx, within=pyo.NonNegativeI
 model_phase2.tt_lb = pyo.Param(model_phase2.TTYPES)  # RHS from .MIX
 model_phase2.tt_ub = pyo.Param(model_phase2.TTYPES, default=infinity)
 
-
-def activeTT_init(M):
-    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
-
-
-model_phase2.activeTT = pyo.Set(dimen=1, ordered=True, initialize=activeTT_init)
+model_phase2.activeTT = pyo.Set(dimen=1, ordered=True, initialize=mwts_shared.activeTT_init)
 
 ### Bounds on days and shifts worked over the week
 
@@ -285,33 +252,14 @@ model_phase2.usb = pyo.Param()
 
 model_phase2.midnight_thresh = pyo.Param(model_phase2.TTYPES, default=1e+6)
 
-
-def weekend_init(M, i, t):
-    result = []
-    lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    maxlen = max(lens)
-    if i + maxlen - 1 >= M.midnight_thresh[t]:
-        result.append(6)
-    else:
-        result.append(1)
-    result.append(7)
-    return result
+model_phase2.weekend = pyo.Set(model_phase2.WINDOWS,
+                               model_phase2.TTYPES,
+                               ordered=True, initialize=mwts_shared.weekend_init)
 
 
-model_phase2.weekend = pyo.Set(model_phase2.WINDOWS, model_phase2.TTYPES, ordered=True, initialize=weekend_init)
-
-
-def weekend_type_init(M, i, t):
-    result = 1
-    lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    maxlen = max(lens)
-    if i + maxlen - 1 >= M.midnight_thresh[t]:
-        result = 2
-
-    return result
-
-
-model_phase2.weekend_type = pyo.Param(model_phase2.WINDOWS, model_phase2.TTYPES, initialize=weekend_type_init)
+model_phase2.weekend_type = pyo.Param(
+    model_phase2.WINDOWS,
+    model_phase2.TTYPES, initialize=mwts_shared.weekend_type_init)
 
 # -----------------------------------------------------------------------
 # Coverage related PARAMETERS
@@ -561,7 +509,7 @@ def okStartWindowRoots_init(M, t, k):
         if onSaturday and onSunday:
             early = satearly
 
-        earlybin = g_prd_to_tuple(M, early)
+        earlybin = epoch_to_tuple(M, early)
         windowroot_list.append(earlybin)
         # print earlybin
 
@@ -634,16 +582,16 @@ def echain_init(M, t, k, i, j, w):
     window_list = []
     # Compute global period of (i,j,w)
     g_prd = M.g_period[i, j, w]
-    prd = g_prd_to_tuple(M, g_prd)
+    prd = epoch_to_tuple(M, g_prd)
     done = False
 
     steps = 1
     while steps <= M.g_start_window_width:
         g_prd_next = epoch_increment(M, g_prd, steps)
-        prd_next = g_prd_to_tuple(M, g_prd_next)
+        prd_next = epoch_to_tuple(M, g_prd_next)
         if prd_next in M.PotentialStartWindow[prd[0], prd[1], prd[2], k, t]:
             g_prd = g_prd_next
-            prd = g_prd_to_tuple(M, g_prd)
+            prd = epoch_to_tuple(M, g_prd)
             steps = 1
         else:
             steps = steps + 1
@@ -679,7 +627,7 @@ def chain_init(M, t, k, i, j, w):
     steps = 1
     while steps <= M.n_links[t, k, i, j, w]:
         g_prd_next = epoch_increment(M, g_prd, steps)
-        prd_next = g_prd_to_tuple(M, g_prd_next)
+        prd_next = epoch_to_tuple(M, g_prd_next)
         if prd_next in M.okStartWindowRoots[t, k]:
             window_list.append(prd_next)
         steps = steps + 1
@@ -712,7 +660,7 @@ def link_init(M, t, k, i, j, w, m):
     window_list = []
     g_prd = M.g_period[i, j, w]
     g_prd_next = epoch_increment(M, g_prd, m - 1)
-    prd_next = g_prd_to_tuple(M, g_prd_next)
+    prd_next = epoch_to_tuple(M, g_prd_next)
     window_list.append(prd_next)
 
     return window_list
@@ -1071,7 +1019,7 @@ model_phase2.One_mwdwPatternPerTourShift = pyo.Constraint(model_phase2.One_mwdwP
 ###    t=TT_x[s] and i=WIN_x[s] and j in weekend[i,TT_x[s]]} : 
 
 ###     sum{k in tt_length_x[t],(p,d) in okWindowWepochs[i,j,k,t] } tourshift[s,p,d,w,k,t,i,j] =
-###        (sum{g in 1..num_weekend_patterns[weekend_type[i,t],t]}tourdof[s,g,i,t]*A[g,j,w,t,weekend_type[i,t]]);
+###        (sum{g in 1..num_weekend_patterns[weekend_type[i,t],t]}tourdof[s,g,i,t]*A_wkend_days[g,j,w,t,weekend_type[i,t]]);
 
 def Tour_ShiftWkendDof_integration1_idx_rule(M):
     index_list = []
@@ -1102,7 +1050,7 @@ model_phase2.weekend_integration_1_SS_idx = pyo.Set(dimen=4, initialize=weekend_
 
 def action_check_WeekendDaysWorked_DailyTourType_rule(M, j, w, i, t):
     val_w = pyo.value(
-        sum(M.A[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p] for p in pyo.sequence(M.num_weekend_patterns[1, t])))
+        sum(M.A_wkend_days[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p] for p in pyo.sequence(M.num_weekend_patterns[1, t])))
     val_d = M.DailyTourType[i, t, j, w]
 
     if val_w == val_d:
@@ -1123,7 +1071,7 @@ model_phase2.action_check_WeekendDaysWorked_DailyTourType = \
 def Tour_ShiftWkendDof_integration1_rule(M, s, i, j, w, t):
     return sum(M.TourShifts[s, p, d, q, k, t] for k in M.tt_length_x[t] for (p, d, q) in
                M.PotentialStartWindow[i, j, w, k, t]) == \
-           sum(M.A[pattern, j, w, t, M.weekend_type[i, t]] * M.TourWkendDof[s, pattern, i, t] for pattern in
+           sum(M.A_wkend_days[pattern, j, w, t, M.weekend_type[i, t]] * M.TourWkendDof[s, pattern, i, t] for pattern in
                pyo.sequence(M.num_weekend_patterns[M.weekend_type[i, t], t]))
 
 

@@ -88,3 +88,80 @@ def epoch_to_tuple(M, p):
         period = prds_remainder
 
     return period, day, week
+
+
+# Tour types ------------------------------------------------------------------
+
+def activeTT_init(M):
+    """
+    Initialize list of tour types that can be used in this problem instance
+
+    :param M: Model
+    :return: list of tour type indexes
+    """
+    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
+
+
+# Weekends worked patterns ----------------------------------------------------
+
+def weekend_init(M, i, t):
+    """
+    Determines days to treat as weekend using midnight threshold parameters
+
+    :param M: Model
+    :param i: period
+    :param t: tour type
+    :return: list of ints; either [1, 7] or [6, 7]
+    """
+    result = []
+    lens = [M.lengths[k] for k in M.tt_length_x[t]]
+    max_len = max(lens)
+    if i + max_len - 1 >= M.midnight_thresh[t]:
+        result.append(6)
+    else:
+        result.append(1)
+    result.append(7)
+    return result
+
+def weekend_type_init(M, i, t):
+    """
+    Determines type of weekend using midnight threshold parameters
+
+    :param M: Model
+    :param i: period
+    :param t: tour type
+    :return: 1 if Sat and Sun, 2 if Fri and Sat
+    """
+
+    result = 1
+    lens = [M.lengths[k] for k in M.tt_length_x[t]]
+    max_len = max(lens)
+    if i + max_len - 1 >= M.midnight_thresh[t]:
+        result = 2
+
+    return result
+
+
+def A_wkend_days_idx_rule(M):
+    """
+    Construct index for weekend pattern parameter
+
+    A_wkend_days[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of week k
+    for tour type t having weekend type e, and 0 otherwise
+
+    :param M:
+    :return: list of tuples of indexes
+    """
+
+    return [(i, j, w, t, e) for i in pyo.sequence(M.max_weekend_patterns)
+            for j in M.DAYS
+            for w in M.WEEKS
+            for t in M.TTYPES
+            for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e, t]]
+
+# Multiweek days worked patterns ----------------------------------------------
+
+# TODO: Review max_mwdw_patterns
+def max_mwdw_init(M):
+    max_mwdw = 4 ** M.n_weeks.value
+    return max_mwdw

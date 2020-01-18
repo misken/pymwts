@@ -8,7 +8,8 @@ Phase 1 for implicit multi-week tour scheduling model
 import pyomo.environ as pyo
 
 import mwts_shared
-from mwts_shared import epoch_to_tuple
+from mwts_shared import epoch_to_tuple, epoch_increment
+
 
 # TODO Would be nice if Phase 1 and Phase 2 could share base pyo.Parameters
 # model_phase1 = import_file('mwts_basepyo.Params.py').model
@@ -30,99 +31,11 @@ model_phase1.n_days_per_week = \
 model_phase1.n_weeks = \
     pyo.Param(within=pyo.PositiveIntegers)  # n_W
 
-
-# def n_prds_per_week_init(M):
-#     """
-#     Initialize convenience parameter n_prds_per_week
-#     """
-#     return M.n_days_per_week() * M.n_prds_per_day()
-
-
 model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers,
                                          initialize=mwts_shared.n_prds_per_week_init)
 
-
-# def n_prds_per_cycle_init(M):
-#     """
-#     Initialize convenience parameter n_prds_per_cycle where cycle may include
-#     one or more weeks.
-#     """
-#     return M.n_weeks() * M.n_days_per_week() * M.n_prds_per_day()
-
-
 model_phase1.n_prds_per_cycle = \
     pyo.Param(within=pyo.PositiveIntegers, initialize=mwts_shared.n_prds_per_cycle_init)
-
-
-# def epoch_init(M, i, j, w):
-#     """
-#     Initialize epoch index from daily period, day of week and week of cycle.
-#
-#     :param M: Model
-#     :param i: period of day
-#     :param j: day of week
-#     :param w: week of cycle
-#     :return: period of cycle in 1..n_prds_per_cycle
-#     """
-#     return (w - 1) * M.n_days_per_week() * M.n_prds_per_day() + (j - 1) * M.n_prds_per_day() + i
-
-
-
-
-# def epoch_increment(M, p, incr):
-#     """
-#     Increment period of cycle, circling as necessary
-#
-#     :param M: Model
-#     :param p: period
-#     :param incr: Number of periods to increment by
-#     :return: incremented period
-#     """
-#     if p + incr <= M.n_prds_per_cycle:
-#         return p + incr
-#     else:
-#         return p + incr - M.n_prds_per_cycle
-
-
-# def epoch_difference(M, b_prd, e_prd):
-#     """
-#     Compute difference between two epochs accounting for end of horizon circling
-#
-#     :param M: Model
-#     :param b_prd: global start period
-#     :param e_prd: global end period
-#     :return: end - start + 1 (+ n_prds_per_cycle if spans end of horizon)
-#     """
-#
-#     if e_prd >= b_prd:
-#         return e_prd - b_prd + 1
-#     else:
-#         return M.n_prds_per_cycle + e_prd - b_prd + 1
-
-
-# def epoch_to_tuple(M, p):
-#     """
-#     Convert epoch to (daily period, day, week) tuple
-#
-#     :param M: Model
-#     :param p: epoch
-#     :return: (daily period, day, week) tuple
-#     """
-#
-#     week = ((p - 1) // M.n_prds_per_week.value) + 1
-#     prds_remainder = p - (week - 1) * M.n_prds_per_week
-#     if prds_remainder == 0:
-#         day = 1
-#     else:
-#         day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-#
-#     prds_remainder = prds_remainder - (day - 1) * M.n_prds_per_day
-#     if prds_remainder == 0:
-#         period = 1
-#     else:
-#         period = prds_remainder
-#
-#     return period, day, week
 
 
 # Temporal ranges used for various index sets
@@ -140,7 +53,7 @@ model_phase1.epoch_tuples = model_phase1.PERIODS * model_phase1.DAYS * model_pha
 
 # ### Tour type related parameters
 
-# -- Shift Lengths
+# Shift Lengths ---------------------------------------------------------------
 # Number of different shift lengths
 model_phase1.n_lengths = pyo.Param(within=pyo.PositiveIntegers)
 # Range of length indexes
@@ -148,7 +61,7 @@ model_phase1.LENGTHS = pyo.RangeSet(1, model_phase1.n_lengths)
 # Vector of shift lengths
 model_phase1.lengths = pyo.Param(model_phase1.LENGTHS)
 
-# -- Tour Types
+# Tour Types ------------------------------------------------------------------
 # Number of different tour types
 model_phase1.n_tts = pyo.Param(within=pyo.PositiveIntegers)
 # Range of tour type indexes
@@ -160,17 +73,17 @@ model_phase1.tt_lb = pyo.Param(model_phase1.TTYPES)
 model_phase1.tt_ub = pyo.Param(model_phase1.TTYPES, default=infinity)
 
 
-def activeTT_init(M):
-    """
-    Initialize list of tour types that can be used in this problem instance
+# def activeTT_init(M):
+#     """
+#     Initialize list of tour types that can be used in this problem instance
+#
+#     :param M: Model
+#     :return: list of tour type indexes
+#     """
+#     return [t for t in M.TTYPES if M.tt_ub[t] > 0]
 
-    :param M: Model
-    :return: list of tour type indexes
-    """
-    return [t for t in M.TTYPES if M.tt_ub[t] > 0]
 
-
-model_phase1.activeTT = pyo.Set(dimen=1, ordered=True, initialize=activeTT_init)
+model_phase1.activeTT = pyo.Set(dimen=1, ordered=True, initialize=mwts_shared.activeTT_init)
 
 # Bounds on days and shifts worked over the week ------------------------------
 
@@ -297,51 +210,51 @@ model_phase1.usb = pyo.Param()  # Tier 1 understaffing upper bound
 model_phase1.midnight_thresh = pyo.Param(model_phase1.TTYPES, default=1e+6)
 
 
-def weekend_init(M, i, t):
-    """
-    Determines days to treat as weekend using midnight threshold parameters
-
-    :param M: Model
-    :param i: period
-    :param t: tour type
-    :return: list of ints; either [1, 7] or [6, 7]
-    """
-    result = []
-    lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    max_len = max(lens)
-    if i + max_len - 1 >= M.midnight_thresh[t]:
-        result.append(6)
-    else:
-        result.append(1)
-    result.append(7)
-    return result
+# def weekend_init(M, i, t):
+#     """
+#     Determines days to treat as weekend using midnight threshold parameters
+#
+#     :param M: Model
+#     :param i: period
+#     :param t: tour type
+#     :return: list of ints; either [1, 7] or [6, 7]
+#     """
+#     result = []
+#     lens = [M.lengths[k] for k in M.tt_length_x[t]]
+#     max_len = max(lens)
+#     if i + max_len - 1 >= M.midnight_thresh[t]:
+#         result.append(6)
+#     else:
+#         result.append(1)
+#     result.append(7)
+#     return result
 
 
 model_phase1.weekend = pyo.Set(model_phase1.WINDOWS, model_phase1.TTYPES,
-                               ordered=True, initialize=weekend_init)
+                               ordered=True, initialize=mwts_shared.weekend_init)
 
 
-def weekend_type_init(M, i, t):
-    """
-    Determines type of weekend using midnight threshold parameters
-
-    :param M: Model
-    :param i: period
-    :param t: tour type
-    :return: 1 if Sat and Sun, 2 if Fri and Sat
-    """
-
-    result = 1
-    lens = [M.lengths[k] for k in M.tt_length_x[t]]
-    max_len = max(lens)
-    if i + max_len - 1 >= M.midnight_thresh[t]:
-        result = 2
-
-    return result
+# def weekend_type_init(M, i, t):
+#     """
+#     Determines type of weekend using midnight threshold parameters
+#
+#     :param M: Model
+#     :param i: period
+#     :param t: tour type
+#     :return: 1 if Sat and Sun, 2 if Fri and Sat
+#     """
+#
+#     result = 1
+#     lens = [M.lengths[k] for k in M.tt_length_x[t]]
+#     max_len = max(lens)
+#     if i + max_len - 1 >= M.midnight_thresh[t]:
+#         result = 2
+#
+#     return result
 
 
 model_phase1.weekend_type = pyo.Param(model_phase1.WINDOWS, model_phase1.TTYPES,
-                                      initialize=weekend_type_init)
+                                      initialize=mwts_shared.weekend_type_init)
 
 
 # -- Weekend patterns
@@ -362,187 +275,40 @@ model_phase1.num_weekend_patterns = pyo.Param(model_phase1.WEEKENDS,
                                               model_phase1.TTYPES)
 
 
-def A_wkend_days_idx_rule(M):
-    """
-    Construct index for weekend pattern parameter
-
-    A_wkend_days[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of week k
-    for tour type t having weekend type e, and 0 otherwise
-
-    :param M:
-    :return: list of tuples of indexes
-    """
-
-    return [(i, j, w, t, e) for i in pyo.sequence(M.max_weekend_patterns)
-            for j in M.DAYS
-            for w in M.WEEKS
-            for t in M.TTYPES
-            for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e, t]]
+# def A_wkend_days_idx_rule(M):
+#     """
+#     Construct index for weekend pattern parameter
+#
+#     A_wkend_days[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of week k
+#     for tour type t having weekend type e, and 0 otherwise
+#
+#     :param M:
+#     :return: list of tuples of indexes
+#     """
+#
+#     return [(i, j, w, t, e) for i in pyo.sequence(M.max_weekend_patterns)
+#             for j in M.DAYS
+#             for w in M.WEEKS
+#             for t in M.TTYPES
+#             for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e, t]]
 
 
 model_phase1.A_wkend_days_idx = pyo.Set(dimen=5, ordered=True,
-                                        initialize=A_wkend_days_idx_rule)
+                                        initialize=mwts_shared.A_wkend_days_idx_rule)
 
 model_phase1.A_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,
                                       within=pyo.Boolean, default=0)
 
 
-# def zero_wkend_day_init(M, w, t, e):
-#     """
-#     Find weekend patterns with no weekend days worked in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with zero weekend days worked
-#     """
-#     set_list = []
-#     pattern_list = [(p, W, T, E) for (p, W, T, E) in M.A_wkend_days_idx if W == w and T == t and E == e]
-#
-#     for (p, W, T, E) in pattern_list:
-#         if M.A_is_one_wkend_days[p, W, T, E] == 0 and M.A_is_two_wkend_days[p, W, T, E] == 0:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                       initialize=zero_wkend_day_init)
-#
-#
-# def one_wkend_day_init(M, w, t, e):
-#     """
-#     Find weekend patterns with one weekend day worked in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with one weekend day worked
-#     """
-#     set_list = []
-#     for (p, W, T, E) in M.A_wkend_days_idx:
-#         if W == w and T == t and E == e and M.A_is_one_wkend_days[p, w, t, e] == 1:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.one_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                      initialize=one_wkend_day_init)
-#
-#
-# def Sun_wkend_day_init(M, w, t, e):
-#     """
-#     Find weekend patterns that are Sunday only in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with only Sunday worked
-#     """
-#
-#     set_list = []
-#     for (p, W, T, E) in M.A_wkend_days_idx:
-#         if W == w and T == t and E == e and M.A_is_Sunday[p, w, t, e]:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.Sun_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                      initialize=Sun_wkend_day_init)
-#
-#
-# def Sat_wkend_day_init(M, w, t, e):
-#     """
-#     Find weekend patterns that are Saturday only in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with only Saturday worked
-#     """
-#     set_list = []
-#     for (p, W, T, E) in M.A_wkend_days_idx:
-#         if W == w and T == t and E == e and M.A_is_Saturday[p, w, t, e]:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.Sat_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                      initialize=Sat_wkend_day_init)
-#
-#
-# def one_or_zero_wkend_day_init(M, w, t, e):
-#     """
-#     Find weekend patterns that have work in one or zero days in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with one or zero days worked
-#     """
-#     set_list = []
-#     for (p, W, T, E) in M.A_wkend_days_idx:
-#         if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 0:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.one_or_zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                              initialize=one_or_zero_wkend_day_init)
-#
-#
-# def two_wkend_days_init(M, w, t, e):
-#     """
-#     Find weekend patterns that have work in two days in week w for tour type t and
-#     weekend type e.
-#
-#     :param M: Model
-#     :param w: week
-#     :param t: tour type
-#     :param e: weekend type
-#     :return: list of pattern indexes with two days worked
-#     """
-#     set_list = []
-#     for (p, W, T, E) in M.A_wkend_days_idx:
-#         if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 1:
-#             set_list.append(p)
-#
-#     return set_list
-#
-#
-# model_phase1.two_wkend_days = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-#                                       initialize=two_wkend_days_init)
+# Multiweek days worked patterns ----------------------------------------------
 
 
+# def max_mwdw_init(M):
+#     max_mwdw = 4 ** M.n_weeks.value
+#     return max_mwdw
 
 
-
-
-
-
-# Multiweek days worked patterns
-
-# TODO: Review max_mwdw_patterns
-def max_mwdw_init(M):
-    max_mwdw = 4 ** M.n_weeks.value
-    return max_mwdw
-
-
-model_phase1.max_mwdw_patterns = pyo.Param(initialize=max_mwdw_init)
+model_phase1.max_mwdw_patterns = pyo.Param(initialize=mwts_shared.max_mwdw_init)
 model_phase1.num_mwdw_patterns = pyo.Param(model_phase1.TTYPES)
 
 
