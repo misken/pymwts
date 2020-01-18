@@ -109,7 +109,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     logging.info('DAT %s', phase1_dat_file)
 
     # Create Phase 1 model instance
-    phase1_mdl = mwts_phase1.model_phase1
+    phase1_mdl = mwts_phase1.model
     phase1_inst = phase1_mdl.create_instance(filename=phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
     logging.info('Phase 1 instance created')
@@ -399,7 +399,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     # Initialize the phase 2 instance
 
     # phase2_mdl = import_file(phase2_mod_file).model_phase2
-    phase2_mdl = mwts_phase2.model_phase2
+    phase2_mdl = mwts_phase2.model
     phase2_inst = phase2_mdl.create_instance(filename = phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')

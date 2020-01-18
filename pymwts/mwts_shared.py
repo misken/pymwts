@@ -5,6 +5,10 @@ Shared model components and functions
 # Author: misken
 # License: TBD
 
+import pyomo.environ as pyo
+
+
+# General temporal parameters -------------------------------------------------
 
 def n_prds_per_week_init(M):
     """
@@ -104,6 +108,17 @@ def activeTT_init(M):
 
 # Weekends worked patterns ----------------------------------------------------
 
+def max_wkend_patterns_init(M):
+    """
+    Compute maximum number of weekend worked patterns
+
+    :param M:
+    :return:
+    """
+    max_patterns = 2 ** (2 * M.n_weeks.value)
+    return max_patterns
+
+
 def weekend_init(M, i, t):
     """
     Determines days to treat as weekend using midnight threshold parameters
@@ -122,6 +137,7 @@ def weekend_init(M, i, t):
         result.append(1)
     result.append(7)
     return result
+
 
 def weekend_type_init(M, i, t):
     """
@@ -161,7 +177,51 @@ def A_wkend_days_idx_rule(M):
 
 # Multiweek days worked patterns ----------------------------------------------
 
+
 # TODO: Review max_mwdw_patterns
 def max_mwdw_init(M):
     max_mwdw = 4 ** M.n_weeks.value
     return max_mwdw
+
+
+def A_mwdw_idx_rule(M):
+    """
+    Construct index for multiweek num days worked pattern parameter
+
+    A_mwdw[t, p, w] = number of day worked in week w
+    for tour type t having mwdw pattern p
+
+    :param M:
+    :return: list of tuples of indexes
+    """
+
+    return [(t, p, w) for t in M.TTYPES
+            for p in pyo.sequence(M.max_mwdw_patterns)
+            for w in M.WEEKS
+            if p <= M.num_mwdw_patterns[t]]
+
+
+# Shifts ----------------------------------------------------------------------
+
+def okShifts_rule(M):
+    """
+    Shifts are allowable if allow_start[i, j, w, t, k] > 0
+
+    :param M: Model
+    :return: lists of allowable shift start time tuples
+    """
+
+    return [(i, j, w, k, t) for i in M.PERIODS
+            for j in M.DAYS
+            for w in M.WEEKS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            if M.allow_start[i, j, k, t] > 0]
+
+
+def okShiftTypes_rule(M):
+    return [(i, j, k, t) for i in M.PERIODS
+            for j in M.DAYS
+            for t in M.activeTT
+            for k in M.tt_length_x[t]
+            if M.allow_start[i, j, k, t] > 0]
