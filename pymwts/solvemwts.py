@@ -114,7 +114,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_inst.name = 'mwts_phase1_inst'
     logging.info('Phase 1 instance created')
 
-    # Activate/deactivate constraints
+    # Activate/deactivate constraints -----------------------------------------
 
     # Deactivate part-time fraction upper bound if all tour types are part-time
     tot_parttime_ttypes = sum(phase1_inst.tt_parttime[t] for t in phase1_inst.activeTT)
@@ -156,6 +156,8 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
         phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
         phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
+
+    # Post Phase 1 construction taks ------------------------------------------
 
     # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
@@ -251,6 +253,8 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # TODO - add status messages during overall model generation and solution process
 
+    # Solve Phase 1 -----------------------------------------------------------
+
     # Setup the solver
     solver = None
     if which_solver == 'cbc':
@@ -339,6 +343,8 @@ def solvemwts(scenario, phase1_dat_file, path,
         print(phase1_tourskeleton, file=f1_tourskeleton)
         phase1_tourskeleton = dailytourtype_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
+
+    # Phase 2 model construction ----------------------------------------------
 
     # If phase 1 solved, create phase 2 params from phase 1 vars and solve phase 2 problem.
     # TODO - how to check for status other than 'optimal'?
