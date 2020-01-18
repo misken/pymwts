@@ -378,7 +378,7 @@ def weekenddaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, d) in inst.weekenddaysworked_idx:
+    for (i, t, d) in inst.weekend_days_worked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, d]()))
         except:
@@ -428,11 +428,11 @@ def multiweekdaysworked_to_param(pname, inst, reverseidx=False, isStringIO=True)
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, p1, p2) in inst.multiweekpattern_idx:
+    for (i, t, p1, p2) in inst.multiweekdaysworked_idx:
         try:
-            val = int(round(inst.MultiWeekPattern[i, t, p1, p2]()))
+            val = int(round(inst.MultiWeekDaysWorked[i, t, p1, p2]()))
         except:
-            val = inst.MultiWeekPattern[i, t, p1, p2]()
+            val = inst.MultiWeekDaysWorked[i, t, p1, p2]()
 
         if val > 0:
             poslist = [str(p) for p in (i, t, p1, p2)]
@@ -467,7 +467,7 @@ def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
     param = ','.join(headerlist) + '\n'
 
     tnum = 0
-    for (i, t, pattern) in inst.weekenddaysworked_idx:
+    for (i, t, pattern) in inst.weekend_days_worked_idx:
         try:
             val = int(round(inst.WeekendDaysWorked[i, t, pattern]()))
         except:
@@ -484,7 +484,7 @@ def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
                 daylist = []
                 for w in range(1, inst.n_weeks + 1):
                     for d in range(1, inst.n_days_per_week + 1):
-                        daylist.append(str(inst.A[pattern, d, w, t, e]))
+                        daylist.append(str(inst.A_wkend_days[pattern, d, w, t, e]))
 
                 datarow += ','.join(daylist) + '\n'
                 param += datarow
@@ -522,7 +522,7 @@ def dailytourtype_to_tourskeleton(inst, isStringIO=True):
             daylist = []
             for w in range(1, inst.n_weeks + 1):
                 for d in range(1, inst.n_days_per_week + 1):
-                    daylist.append(str(inst.DailyTourType[i, t, d, w]()))
+                    daylist.append(str(inst.TourTypeDay[i, t, d, w]()))
 
             datarow += ','.join(daylist) + '\n'
             param += datarow
@@ -642,8 +642,8 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
                     datarow = '{}|{}|{}|{}|{}'.format(t, i, k, inst.TourType[i, t], inst.TourType[i, t].value)
                     for w in inst.WEEKS:
                         for j in inst.DAYS:
-                            if (i, t, k, j, w) in inst.DailyShiftWorked_idx:
-                                datarow += '|{}|{}'.format(inst.DailyShiftWorked[i, t, k, j, w], inst.DailyShiftWorked[i, t, k, j, w].value)
+                            if (i, t, k, j, w) in inst.TourTypeDayShift_idx:
+                                datarow += '|{}|{}'.format(inst.TourTypeDayShift[i, t, k, j, w], inst.TourTypeDayShift[i, t, k, j, w].value)
                             else:
                                 datarow += '|{}|{}'.format('No shift', 0)
                     if inst.TourType[i, t].value > 0:

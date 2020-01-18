@@ -358,9 +358,9 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # phase_1_2_integrate(phase1_inst, phase2_inst)
 
-    tot_cap = value(sum(phase1_inst.cov[i,j,w].value for (i,j,w) in phase1_inst.bins))
-    us1_cost = value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value for (i,j,w) in phase1_inst.bins))
-    us2_cost = value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value for (i,j,w) in phase1_inst.bins))
+    tot_cap = value(sum(phase1_inst.cov[i,j,w].value for (i,j,w) in phase1_inst.epoch_tuples))
+    us1_cost = value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value for (i,j,w) in phase1_inst.epoch_tuples))
+    us2_cost = value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value for (i,j,w) in phase1_inst.epoch_tuples))
 
     n_tours = int(round(sum((phase1_inst.TourType[i,t].value for (i,t) in phase1_inst.okTourType))))
 

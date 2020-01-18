@@ -352,147 +352,6 @@ model_phase1.weekend_type = pyo.Param(model_phase1.WINDOWS, model_phase1.TTYPES,
                                       initialize=weekend_type_init)
 
 
-def zero_wkend_day_init(M, w, t, e):
-    """
-    Find weekend patterns with no weekend days worked in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with zero weekend days worked
-    """
-    set_list = []
-    pattern_list = [(p, W, T, E) for (p, W, T, E) in M.A_wkend_days_idx if W == w and T == t and E == e]
-
-    for (p, W, T, E) in pattern_list:
-        if M.A_is_one_wkend_days[p, W, T, E] == 0 and M.A_is_two_wkend_days[p, W, T, E] == 0:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                      initialize=zero_wkend_day_init)
-
-
-def one_wkend_day_init(M, w, t, e):
-    """
-    Find weekend patterns with one weekend day worked in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with one weekend day worked
-    """
-    set_list = []
-    for (p, W, T, E) in M.A_wkend_days_idx:
-        if W == w and T == t and E == e and M.A_is_one_wkend_days[p, w, t, e] == 1:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.one_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                     initialize=one_wkend_day_init)
-
-
-def Sun_wkend_day_init(M, w, t, e):
-    """
-    Find weekend patterns that are Sunday only in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with only Sunday worked
-    """
-
-    set_list = []
-    for (p, W, T, E) in M.A_wkend_days_idx:
-        if W == w and T == t and E == e and M.A_is_Sunday[p, w, t, e]:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.Sun_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                     initialize=Sun_wkend_day_init)
-
-
-def Sat_wkend_day_init(M, w, t, e):
-    """
-    Find weekend patterns that are Saturday only in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with only Saturday worked
-    """
-    set_list = []
-    for (p, W, T, E) in M.A_wkend_days_idx:
-        if W == w and T == t and E == e and M.A_is_Saturday[p, w, t, e]:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.Sat_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                     initialize=Sat_wkend_day_init)
-
-
-def one_or_zero_wkend_day_init(M, w, t, e):
-    """
-    Find weekend patterns that have work in one or zero days in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with one or zero days worked
-    """
-    set_list = []
-    for (p, W, T, E) in M.A_wkend_days_idx:
-        if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 0:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.one_or_zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                             initialize=one_or_zero_wkend_day_init)
-
-
-def two_wkend_days_init(M, w, t, e):
-    """
-    Find weekend patterns that have work in two days in week w for tour type t and
-    weekend type e.
-
-    :param M: Model
-    :param w: week
-    :param t: tour type
-    :param e: weekend type
-    :return: list of pattern indexes with two days worked
-    """
-    set_list = []
-    for (p, W, T, E) in M.A_wkend_days_idx:
-        if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 1:
-            set_list.append(p)
-
-    return set_list
-
-
-model_phase1.two_wkend_days = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
-                                      initialize=two_wkend_days_init)
-
-
 # -- Weekend patterns
 def max_wkend_patterns(M):
     """
@@ -536,6 +395,153 @@ model_phase1.A_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,
                                       within=pyo.Boolean, default=0)
 
 
+# def zero_wkend_day_init(M, w, t, e):
+#     """
+#     Find weekend patterns with no weekend days worked in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with zero weekend days worked
+#     """
+#     set_list = []
+#     pattern_list = [(p, W, T, E) for (p, W, T, E) in M.A_wkend_days_idx if W == w and T == t and E == e]
+#
+#     for (p, W, T, E) in pattern_list:
+#         if M.A_is_one_wkend_days[p, W, T, E] == 0 and M.A_is_two_wkend_days[p, W, T, E] == 0:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                       initialize=zero_wkend_day_init)
+#
+#
+# def one_wkend_day_init(M, w, t, e):
+#     """
+#     Find weekend patterns with one weekend day worked in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with one weekend day worked
+#     """
+#     set_list = []
+#     for (p, W, T, E) in M.A_wkend_days_idx:
+#         if W == w and T == t and E == e and M.A_is_one_wkend_days[p, w, t, e] == 1:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.one_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                      initialize=one_wkend_day_init)
+#
+#
+# def Sun_wkend_day_init(M, w, t, e):
+#     """
+#     Find weekend patterns that are Sunday only in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with only Sunday worked
+#     """
+#
+#     set_list = []
+#     for (p, W, T, E) in M.A_wkend_days_idx:
+#         if W == w and T == t and E == e and M.A_is_Sunday[p, w, t, e]:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.Sun_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                      initialize=Sun_wkend_day_init)
+#
+#
+# def Sat_wkend_day_init(M, w, t, e):
+#     """
+#     Find weekend patterns that are Saturday only in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with only Saturday worked
+#     """
+#     set_list = []
+#     for (p, W, T, E) in M.A_wkend_days_idx:
+#         if W == w and T == t and E == e and M.A_is_Saturday[p, w, t, e]:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.Sat_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                      initialize=Sat_wkend_day_init)
+#
+#
+# def one_or_zero_wkend_day_init(M, w, t, e):
+#     """
+#     Find weekend patterns that have work in one or zero days in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with one or zero days worked
+#     """
+#     set_list = []
+#     for (p, W, T, E) in M.A_wkend_days_idx:
+#         if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 0:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.one_or_zero_wkend_day = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                              initialize=one_or_zero_wkend_day_init)
+#
+#
+# def two_wkend_days_init(M, w, t, e):
+#     """
+#     Find weekend patterns that have work in two days in week w for tour type t and
+#     weekend type e.
+#
+#     :param M: Model
+#     :param w: week
+#     :param t: tour type
+#     :param e: weekend type
+#     :return: list of pattern indexes with two days worked
+#     """
+#     set_list = []
+#     for (p, W, T, E) in M.A_wkend_days_idx:
+#         if W == w and T == t and E == e and M.A_is_two_wkend_days[p, w, t, e] == 1:
+#             set_list.append(p)
+#
+#     return set_list
+#
+#
+# model_phase1.two_wkend_days = pyo.Set(model_phase1.WEEKS, model_phase1.TTYPES, model_phase1.WEEKENDS,
+#                                       initialize=two_wkend_days_init)
+
+
+
+
+
+
+
+
 # Multiweek days worked patterns
 
 # TODO: Review max_mwdw_patterns
@@ -572,6 +578,24 @@ model_phase1.A_mwdw = pyo.Param(model_phase1.A_mwdw_idx,
                                 within=pyo.NonNegativeIntegers, default=0)
 
 
+def num_wkend_days_idx_rule(M):
+    """
+    Construct index for num weekend days pattern
+
+    :param M: Model
+    :return: list of tuples of indexes
+    """
+
+    return [(i, w, t, e) for i in pyo.sequence(M.max_weekend_patterns)
+            for w in M.WEEKS
+            for t in M.TTYPES
+            for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e, t]]
+
+
+model_phase1.num_wkend_days_idx = pyo.Set(dimen=4, ordered=True,
+                                        initialize=num_wkend_days_idx_rule)
+
+
 def A_num_wkend_days_init(M, i, w, t, e):
     """
     Initialize number of weekend days worked in the i'th pattern, for week k,
@@ -592,7 +616,7 @@ def A_num_wkend_days_init(M, i, w, t, e):
         return M.A_wkend_days[i, 6, w, t, e] + M.A_wkend_days[i, 7, w, t, e]
 
 
-model_phase1.A_num_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,
+model_phase1.A_num_wkend_days = pyo.Param(model_phase1.num_wkend_days_idx,
                                           initialize=A_num_wkend_days_init)
 
 
@@ -626,9 +650,9 @@ def A_tot_wkend_days_init(M, i, t, e):
     """
 
     if e == 1:
-        return sum(M.A[i, 1, w, t, e] + M.A[i, 7, w, t, e] for w in M.WEEKS)
+        return sum(M.A_wkend_days[i, 1, w, t, e] + M.A_wkend_days[i, 7, w, t, e] for w in M.WEEKS)
     else:
-        return sum(M.A[i, 6, w, t, e] + M.A[i, 7, w, t, e] for w in M.WEEKS)
+        return sum(M.A_wkend_days[i, 6, w, t, e] + M.A_wkend_days[i, 7, w, t, e] for w in M.WEEKS)
 
 
 model_phase1.A_tot_wkend_days = pyo.Param(model_phase1.A_tot_wkend_days_idx,
@@ -649,19 +673,19 @@ def A_is_two_wkend_days_init(M, i, w, t, e):
     """
 
     if e == 1:
-        if M.A[i, 1, w, t, e] == 1 and M.A[i, 7, w, t, e] == 1:
+        if M.A_wkend_days[i, 1, w, t, e] == 1 and M.A_wkend_days[i, 7, w, t, e] == 1:
             return 1
         else:
             return 0
 
     else:
-        if M.A[i, 6, w, t, e] == 1 and M.A[i, 7, w, t, e] == 1:
+        if M.A_wkend_days[i, 6, w, t, e] == 1 and M.A_wkend_days[i, 7, w, t, e] == 1:
             return 1
         else:
             return 0
 
 
-model_phase1.A_is_two_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,
+model_phase1.A_is_two_wkend_days = pyo.Param(model_phase1.num_wkend_days_idx,
                                              initialize=A_is_two_wkend_days_init)
 
 
@@ -679,19 +703,19 @@ def A_is_one_wkend_days_init(M, i, w, t, e):
     """
 
     if e == 1:
-        if (M.A[i, 1, w, t, e] + M.A[i, 7, w, t, e]) == 1:
+        if (M.A_wkend_days[i, 1, w, t, e] + M.A_wkend_days[i, 7, w, t, e]) == 1:
             return 1
         else:
             return 0
 
     else:
-        if (M.A[i, 6, w, t, e] + M.A[i, 7, w, t, e]) == 1:
+        if (M.A_wkend_days[i, 6, w, t, e] + M.A_wkend_days[i, 7, w, t, e]) == 1:
             return 1
         else:
             return 0
 
 
-model_phase1.A_is_one_wkend_days = pyo.Param(model_phase1.A_wkend_days_idx,
+model_phase1.A_is_one_wkend_days = pyo.Param(model_phase1.num_wkend_days_idx,
                                              initialize=A_is_one_wkend_days_init)
 
 
@@ -709,20 +733,20 @@ def A_is_Sunday_init(M, i, w, t, e):
     """
 
     if e == 1:
-        if M.A[i, 1, w, t, e] == 1 and M.A[i, 7, w, t, e] == 0:
+        if M.A_wkend_days[i, 1, w, t, e] == 1 and M.A_wkend_days[i, 7, w, t, e] == 0:
             return 1
         else:
             return 0
 
     else:
         # TODO - FS weekend not implemented
-        if M.A[i, 1, w, t, e] == 1 and M.A[i, 7, w, t, e] == 0:
+        if M.A_wkend_days[i, 1, w, t, e] == 1 and M.A_wkend_days[i, 7, w, t, e] == 0:
             return 1
         else:
             return 0
 
 
-model_phase1.A_is_Sunday = pyo.Param(model_phase1.A_wkend_days_idx,
+model_phase1.A_is_Sunday = pyo.Param(model_phase1.num_wkend_days_idx,
                                      initialize=A_is_Sunday_init)
 
 
@@ -740,20 +764,20 @@ def A_is_Saturday_init(M, i, w, t, e):
     """
 
     if e == 1:
-        if M.A[i, 1, w, t, e] == 0 and M.A[i, 7, w, t, e] == 1:
+        if M.A_wkend_days[i, 1, w, t, e] == 0 and M.A_wkend_days[i, 7, w, t, e] == 1:
             return 1
         else:
             return 0
 
     else:
         # TODO - FS weekend not implemented
-        if M.A[i, 1, w, t, e] == 0 and M.A[i, 7, w, t, e] == 1:
+        if M.A_wkend_days[i, 1, w, t, e] == 0 and M.A_wkend_days[i, 7, w, t, e] == 1:
             return 1
         else:
             return 0
 
 
-model_phase1.A_is_Saturday = pyo.Param(model_phase1.A_wkend_days_idx,
+model_phase1.A_is_Saturday = pyo.Param(model_phase1.num_wkend_days_idx,
                                        initialize=A_is_Saturday_init)
 
 # Coverage related parameters -------------------------------------------------
@@ -1257,7 +1281,7 @@ model_phase1.TourType = pyo.Var(model_phase1.TourType_idx,
 
 # Tour type daily variables ---------------------------------------------------
 
-# model_phase1.okTourTypeDay = model_phase1.okTourType * model_phase1.DAYS
+model_phase1.okTourTypeDay = model_phase1.okTourType * model_phase1.DAYS
 
 
 # TourTypeDay[i,t,d] - Number of people assigned to tour type t in start window i
@@ -1408,7 +1432,7 @@ model_phase1.cov = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS,
 
 
 # Upper bound on tier 1 understaffing level
-def under1_bounds(M):
+def under1_bounds(M, i, j, w):
     lb = 0.0
     ub = M.usb.value
     return lb, ub
@@ -1419,7 +1443,7 @@ model_phase1.under1 = pyo.Var(model_phase1.PERIODS, model_phase1.DAYS,
 
 
 # Upper bound on tier 2 understaffing level
-def under2_bounds():
+def under2_bounds(M, i, j, w):
     lb = 0.0
     ub = infinity
     return lb, ub
@@ -1443,7 +1467,7 @@ def objective_rule(M):
                for (i, j, w, k, t) in M.okShifts)
 
     obj2 = sum(M.under1[i, j, w] * M.cu1.value + M.under2[i, j, w] * M.cu2.value
-               for (i, j, w) in M.bins)
+               for (i, j, w) in M.epoch_tuples)
 
     return obj1 + obj2
 
@@ -1760,7 +1784,7 @@ def weekend_integration_1_SS_rule(M, j, w, i, t):
     :return: Constraint rule
     """
 
-    return sum(M.A[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p]
+    return sum(M.A_wkend_days[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p]
                for p in pyo.sequence(M.num_weekend_patterns[1, t])) \
         == M.TourTypeDay[i, t, j, w]
 
@@ -1804,7 +1828,7 @@ def weekend_integration_2_FS_rule(M, j, w, i, t):
     :param t: tour type
     :return: Constraint rule
     """
-    return sum(M.A[p, j, w, t, 2] * M.WeekendDaysWorked[i, t, p]
+    return sum(M.A_wkend_days[p, j, w, t, 2] * M.WeekendDaysWorked[i, t, p]
                for p in pyo.sequence(M.num_weekend_patterns[2, t])) \
         == M.TourTypeDay[i, t, j, w]
 
@@ -2714,6 +2738,7 @@ model_phase1.max_ptfrac_con = pyo.Constraint(rule=max_ptfrac_rule)
 
 def chains_tot_proxy1_rule(M, w, t, k, i, j):
     """
+    Coordinate shift and tour type day shift variables.
 
     :param M: Model
     :param w: week
@@ -2721,13 +2746,19 @@ def chains_tot_proxy1_rule(M, w, t, k, i, j):
     :param k: shift length
     :param i: window
     :param j: day
-    :return:
+    :return: Constraint rule
     """
 
     return M.Shift[i, j, w, k, t] == M.TourTypeDayShift[i, t, k, j, w]
 
 
 def chains_tot_proxy1_idx_rule(M):
+    """
+    Index is (week, tour type, shift length, window, day)
+
+    :param M: Model
+    :return: Constraint index rule
+    """
     return [(w, t, k, i, j) for w in M.WEEKS
             for t in M.activeTT
             for k in M.tt_length_x[t]
@@ -2745,10 +2776,28 @@ model_phase1.chains_tot_proxy1_con = pyo.Constraint(
 
 
 def chains_tot_proxy2_rule(M, w, t, k, i, j):
+    """
+    Tour type day shift variables must respect allowable start times.
+
+    :param M: Model
+    :param w: week
+    :param t: tour type
+    :param k: shift length
+    :param i: period/window
+    :param j: day
+    :return: Constraint rule
+    """
+
     return M.TourTypeDayShift[i, t, k, j, w] == 0
 
 
 def chains_tot_proxy2_idx_rule(M):
+    """
+    Index (tour type, shift length, period/window, day)
+    :param M:
+    :return: Constraint index rule
+    """
+
     return [(w, t, k, i, j) for w in M.WEEKS
             for t in M.activeTT
             for k in M.tt_length_x[t]
@@ -2765,7 +2814,8 @@ model_phase1.chains_tot_proxy2_con = pyo.Constraint(
     model_phase1.chains_tot_proxy2_idx, rule=chains_tot_proxy2_rule)
 
 
-# Chains - coordinates DWS and Shift within each chain for intra-tour start-time flexibility
+# Chains - coordinates DWS and Shift within each chain for
+# intra-tour start-time flexibility
 
 # subject to chains_sweep_l{e in WEEKS, t in okTTYPES, k in tt_length_x[t], (b,j) in bchain[t,k],
 #             p in period[b,j]..period[b,j],
@@ -2782,7 +2832,9 @@ def chains_sweep_l_rule(M, t, k, b, j, w, p, v):
     # lhs = sum(M.Shift[l,m,n,k,t] for (l,m,n) in M.linkspan[t,k,b,j,w,v+1] if (l,m,n,k,t) in M.okShifts)
 
     return sum(
-        M.Shift[l, m, n, k, t] for (l, m, n) in M.linkspan[t, k, b, j, w, v + 1] if (l, m, n, k, t) in M.okShifts) >= \
+        M.Shift[l, m, n, k, t]
+        for (l, m, n) in M.linkspan[t, k, b, j, w, v + 1]
+        if (l, m, n, k, t) in M.okShifts) >= \
            sum(M.TourTypeDayShift[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]]
                for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
                          if (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2])
@@ -2809,8 +2861,11 @@ def chains_sweep_l_idx_rule(M):
     return index_list
 
 
-model_phase1.chains_sweep_l_idx = pyo.Set(dimen=7, ordered=True, initialize=chains_sweep_l_idx_rule)
-model_phase1.chains_sweep_l_con = pyo.Constraint(model_phase1.chains_sweep_l_idx, rule=chains_sweep_l_rule)
+model_phase1.chains_sweep_l_idx = pyo.Set(dimen=7, ordered=True,
+                                          initialize=chains_sweep_l_idx_rule)
+
+model_phase1.chains_sweep_l_con = pyo.Constraint(
+    model_phase1.chains_sweep_l_idx, rule=chains_sweep_l_rule)
 
 
 # subject to chains_sweep_u{e in WEEKS,t in okTTYPES, k in tt_length_x[t],(b,j) in bchain[t,k],
@@ -2852,8 +2907,11 @@ def chains_sweep_u_idx_rule(M):
     return index_list
 
 
-model_phase1.chains_sweep_u_idx = pyo.Set(dimen=7, ordered=True, initialize=chains_sweep_u_idx_rule)
-model_phase1.chains_sweep_u_con = pyo.Constraint(model_phase1.chains_sweep_l_idx, rule=chains_sweep_u_rule)
+model_phase1.chains_sweep_u_idx = pyo.Set(dimen=7, ordered=True,
+                                          initialize=chains_sweep_u_idx_rule)
+
+model_phase1.chains_sweep_u_con = pyo.Constraint(
+    model_phase1.chains_sweep_l_idx, rule=chains_sweep_u_rule)
 
 
 # subject to chains_tot{e in WEEKS, t in okTTYPES, k in tt_length_x[t],(i,j) in bchain[t,k]} :
