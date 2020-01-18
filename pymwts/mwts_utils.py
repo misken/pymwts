@@ -80,7 +80,6 @@ def g_prd_to_tuple(M, p):
     return n_period, n_day, n_week
 
 
-
 # The following lives in  pymtwsio project. Need to figure out how to use it from there.
 # Just copying it for now so I can get this model working.
 def scalar_to_param(pname, pvalue, isStringIO=True):
@@ -278,11 +277,11 @@ def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, j, w) in inst.DailyTourType_idx:
+    for (i, t, j, w) in inst.TourTypeDay_idx:
         try:
-            val = int(round(inst.DailyTourType[i, t, j, w].value))
+            val = int(round(inst.TourTypeDay[i, t, j, w].value))
         except:
-            val = inst.DailyTourType[i, t, j, w].value
+            val = inst.TourTypeDay[i, t, j, w].value
 
         if val > 0:
             poslist = [str(p) for p in (i, t, j, w)]

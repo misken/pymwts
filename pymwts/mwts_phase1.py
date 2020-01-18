@@ -7,6 +7,9 @@ Phase 1 for implicit multi-week tour scheduling model
 
 import pyomo.environ as pyo
 
+import mwts_shared
+from mwts_shared import epoch_to_tuple
+
 # TODO Would be nice if Phase 1 and Phase 2 could share base pyo.Parameters
 # model_phase1 = import_file('mwts_basepyo.Params.py').model
 
@@ -28,109 +31,98 @@ model_phase1.n_weeks = \
     pyo.Param(within=pyo.PositiveIntegers)  # n_W
 
 
-def n_prds_per_week_init(M):
-    """
-    Initialize convenience Parameter n_prds_per_week
-    """
-    return M.n_days_per_week() * M.n_prds_per_day()
+# def n_prds_per_week_init(M):
+#     """
+#     Initialize convenience parameter n_prds_per_week
+#     """
+#     return M.n_days_per_week() * M.n_prds_per_day()
 
 
 model_phase1.n_prds_per_week = pyo.Param(within=pyo.PositiveIntegers,
-                                         initialize=n_prds_per_week_init)
+                                         initialize=mwts_shared.n_prds_per_week_init)
 
 
-def n_prds_per_cycle_init(M):
-    """
-    Initialize convenience parameter n_prds_per_cycle where cycle may include
-    one or more weeks.
-    """
-    return M.n_weeks() * M.n_days_per_week() * M.n_prds_per_day()
+# def n_prds_per_cycle_init(M):
+#     """
+#     Initialize convenience parameter n_prds_per_cycle where cycle may include
+#     one or more weeks.
+#     """
+#     return M.n_weeks() * M.n_days_per_week() * M.n_prds_per_day()
 
 
 model_phase1.n_prds_per_cycle = \
-    pyo.Param(within=pyo.PositiveIntegers, initialize=n_prds_per_cycle_init)
+    pyo.Param(within=pyo.PositiveIntegers, initialize=mwts_shared.n_prds_per_cycle_init)
 
 
-def epoch_init(M, i, j, w):
-    """
-    Initialize epoch index from daily period, day of week and week of cycle.
-
-    :param M: Model
-    :param i: period of day
-    :param j: day of week
-    :param w: week of cycle
-    :return: period of cycle in 1..n_prds_per_cycle
-    """
-    return (w - 1) * M.n_days_per_week() * M.n_prds_per_day() + (j - 1) * M.n_prds_per_day() + i
-
-
-# def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
-#     return ((w - 1) * n_days_per_week * n_prds_per_day +
-#             (j - 1) * n_prds_per_day + i)
+# def epoch_init(M, i, j, w):
+#     """
+#     Initialize epoch index from daily period, day of week and week of cycle.
+#
+#     :param M: Model
+#     :param i: period of day
+#     :param j: day of week
+#     :param w: week of cycle
+#     :return: period of cycle in 1..n_prds_per_cycle
+#     """
+#     return (w - 1) * M.n_days_per_week() * M.n_prds_per_day() + (j - 1) * M.n_prds_per_day() + i
 
 
-# def period_increment(M, i, j, w, incr):
-#     p = M.g_period[i, j, w]
+
+
+# def epoch_increment(M, p, incr):
+#     """
+#     Increment period of cycle, circling as necessary
+#
+#     :param M: Model
+#     :param p: period
+#     :param incr: Number of periods to increment by
+#     :return: incremented period
+#     """
 #     if p + incr <= M.n_prds_per_cycle:
 #         return p + incr
 #     else:
 #         return p + incr - M.n_prds_per_cycle
 
 
-def epoch_increment(M, p, incr):
-    """
-    Increment period of cycle, circling as necessary
-
-    :param M: Model
-    :param p: period
-    :param incr: Number of periods to increment by
-    :return: incremented period
-    """
-    if p + incr <= M.n_prds_per_cycle:
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def epoch_difference(M, b_prd, e_prd):
-    """
-    Compute difference between two epochs accounting for end of horizon circling
-
-    :param M: Model
-    :param b_prd: global start period
-    :param e_prd: global end period
-    :return: end - start + 1 (+ n_prds_per_cycle if spans end of horizon)
-    """
-
-    if e_prd >= b_prd:
-        return e_prd - b_prd + 1
-    else:
-        return M.n_prds_per_cycle + e_prd - b_prd + 1
+# def epoch_difference(M, b_prd, e_prd):
+#     """
+#     Compute difference between two epochs accounting for end of horizon circling
+#
+#     :param M: Model
+#     :param b_prd: global start period
+#     :param e_prd: global end period
+#     :return: end - start + 1 (+ n_prds_per_cycle if spans end of horizon)
+#     """
+#
+#     if e_prd >= b_prd:
+#         return e_prd - b_prd + 1
+#     else:
+#         return M.n_prds_per_cycle + e_prd - b_prd + 1
 
 
-def g_prd_to_tuple(M, p):
-    """
-    Convert epoch to (daily period, day, week) tuple
-
-    :param M: Model
-    :param p: epoch
-    :return: (daily period, day, week) tuple
-    """
-
-    week = ((p - 1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (week - 1) * M.n_prds_per_week
-    if prds_remainder == 0:
-        day = 1
-    else:
-        day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-
-    prds_remainder = prds_remainder - (day - 1) * M.n_prds_per_day
-    if prds_remainder == 0:
-        period = 1
-    else:
-        period = prds_remainder
-
-    return period, day, week
+# def epoch_to_tuple(M, p):
+#     """
+#     Convert epoch to (daily period, day, week) tuple
+#
+#     :param M: Model
+#     :param p: epoch
+#     :return: (daily period, day, week) tuple
+#     """
+#
+#     week = ((p - 1) // M.n_prds_per_week.value) + 1
+#     prds_remainder = p - (week - 1) * M.n_prds_per_week
+#     if prds_remainder == 0:
+#         day = 1
+#     else:
+#         day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
+#
+#     prds_remainder = prds_remainder - (day - 1) * M.n_prds_per_day
+#     if prds_remainder == 0:
+#         period = 1
+#     else:
+#         period = prds_remainder
+#
+#     return period, day, week
 
 
 # Temporal ranges used for various index sets
@@ -142,7 +134,7 @@ model_phase1.WEEKS = pyo.RangeSet(1, model_phase1.n_weeks)
 model_phase1.WEEKENDS = pyo.RangeSet(1, 2)
 
 model_phase1.epoch = pyo.Param(model_phase1.PERIODS, model_phase1.DAYS,
-                               model_phase1.WEEKS, initialize=epoch_init)
+                               model_phase1.WEEKS, initialize=mwts_shared.epoch_init)
 
 model_phase1.epoch_tuples = model_phase1.PERIODS * model_phase1.DAYS * model_phase1.WEEKS  # B
 
@@ -1026,7 +1018,7 @@ def okStartWindowRoots_init(M, t, k):
         if onSaturday and onSunday:
             early = sat_early
 
-        early_bin = g_prd_to_tuple(M, early)
+        early_bin = epoch_to_tuple(M, early)
         window_root_list.append(early_bin)
 
     return window_root_list
@@ -1100,15 +1092,15 @@ def echain_init(M, t, k, i, j, w):
     window_list = []
     # Compute epoch of (i,j,w)
     g_prd = M.epoch[i, j, w]
-    prd = g_prd_to_tuple(M, g_prd)
+    prd = epoch_to_tuple(M, g_prd)
 
     steps = 1
     while steps <= M.g_start_window_width:
         g_prd_next = epoch_increment(M, g_prd, steps)
-        prd_next = g_prd_to_tuple(M, g_prd_next)
+        prd_next = epoch_to_tuple(M, g_prd_next)
         if prd_next in M.PotentialStartWindow[prd[0], prd[1], prd[2], k, t]:
             g_prd = g_prd_next
-            prd = g_prd_to_tuple(M, g_prd)
+            prd = epoch_to_tuple(M, g_prd)
             steps = 1
         else:
             steps = steps + 1
@@ -1130,7 +1122,7 @@ def n_links_init(M, t, k, i, j, w):
     e_prd = M.echain[t, k, i, j, w][1]
     e_g_prd = M.epoch[e_prd[0], e_prd[1], e_prd[2]]
 
-    return epoch_difference(M, b_g_prd, e_g_prd)
+    return mwts_shared.epoch_difference(M, b_g_prd, e_g_prd)
 
 
 model_phase1.n_links = pyo.Param(model_phase1.chain_idx, initialize=n_links_init)
@@ -1145,7 +1137,7 @@ def chain_init(M, t, k, i, j, w):
     steps = 1
     while steps <= M.n_links[t, k, i, j, w]:
         g_prd_next = epoch_increment(M, g_prd, steps)
-        prd_next = g_prd_to_tuple(M, g_prd_next)
+        prd_next = epoch_to_tuple(M, g_prd_next)
         if prd_next in M.okStartWindowRoots[t, k]:
             window_list.append(prd_next)
         steps = steps + 1
@@ -1180,7 +1172,7 @@ def link_init(M, t, k, i, j, w, m):
     window_list = []
     g_prd = M.epoch[i, j, w]
     g_prd_next = epoch_increment(M, g_prd, m - 1)
-    prd_next = g_prd_to_tuple(M, g_prd_next)
+    prd_next = epoch_to_tuple(M, g_prd_next)
     window_list.append(prd_next)
 
     return window_list
@@ -2835,13 +2827,13 @@ def chains_sweep_l_rule(M, t, k, b, j, w, p, v):
         M.Shift[l, m, n, k, t]
         for (l, m, n) in M.linkspan[t, k, b, j, w, v + 1]
         if (l, m, n, k, t) in M.okShifts) >= \
-           sum(M.TourTypeDayShift[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]]
+           sum(M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
                for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
-                         if (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2])
+                         if (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2])
                          in M.okStartWindowRoots[t, k] and sum(M.allow_start[x, y, k, t] for (x, y, z)
                                                                in M.PotentialGlobalStartWindow[
-                                                                   g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1],
-                                                                   g_prd_to_tuple(M, v)[2]]) > 0])
+                                                                   epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1],
+                                                                   epoch_to_tuple(M, v)[2]]) > 0])
 
 
 def chains_sweep_l_idx_rule(M):
@@ -2879,16 +2871,16 @@ model_phase1.chains_sweep_l_con = pyo.Constraint(
 #      TourTypeDayShift[which_prd[u],t,k,which_day[u],e] ; 
 
 def chains_sweep_u_rule(M, t, k, b, j, w, p, v):
-    return sum(M.Shift[g_prd_to_tuple(M, i)[0], g_prd_to_tuple(M, i)[1], g_prd_to_tuple(M, i)[2], k, t]
+    return sum(M.Shift[epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2], k, t]
                for i in range(p, p + v + 1) if
-               (g_prd_to_tuple(M, i)[0], g_prd_to_tuple(M, i)[1], g_prd_to_tuple(M, i)[2]) in M.okShifts) <= sum(
-        M.TourTypeDayShift[g_prd_to_tuple(M, u)[0], t, k, g_prd_to_tuple(M, u)[1], g_prd_to_tuple(M, u)[2]]
+               (epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2]) in M.okShifts) <= sum(
+        M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
         for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
                   if
-                  (g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2]) in M.okStartWindowRoots[
+                  (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]) in M.okStartWindowRoots[
                       t, k] \
                   and sum(M.allow_start[x, y, k, t] for (x, y, z) in M.PotentialGlobalStartWindow[
-                      g_prd_to_tuple(M, v)[0], g_prd_to_tuple(M, v)[1], g_prd_to_tuple(M, v)[2]]) > 0])
+                      epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]]) > 0])
 
 
 def chains_sweep_u_idx_rule(M):
