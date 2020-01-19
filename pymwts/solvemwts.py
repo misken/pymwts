@@ -221,8 +221,8 @@ def solvemwts(scenario, phase1_dat_file, path,
             for (i,t) in phase1_inst.okTourType:
                 f_windebug.write(str(i, t))
 
-            f_windebug.write('okDailyTourType = ')
-            for (i,t,d) in phase1_inst.okDailyTourType:
+            f_windebug.write('okTourTypeDay = ')
+            for (i,t,d) in phase1_inst.okTourTypeDay:
                 f_windebug.write(str(i, t, d))
 
             f_windebug.write('bchain echain #links = ')
@@ -368,10 +368,10 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     param_Shift = shift_to_param('Shift',phase1_inst)
     param_TourType = tourtype_to_param('TourType',phase1_inst)
-    param_DailyTourType = dailytourtype_to_param('DailyTourType',phase1_inst)
-    param_DailyShiftWorked = dailyshiftworked_to_param('DailyShiftWorked',phase1_inst)
+    param_TourTypeDay = tourtypeday_to_param('TourTypeDay',phase1_inst)
+    param_TourTypeDayShift = tourtypedayshift_to_param('TourTypeDayShift',phase1_inst)
     param_WeekendDaysWorked = weekenddaysworked_to_param('WeekendDaysWorked',phase1_inst)
-    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekPattern', phase1_inst)
+    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekDaysWorked', phase1_inst)
 
     param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
 
@@ -386,8 +386,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     print(param_n_tours, file=dat)
     print(param_Shift, file=dat)
     print(param_TourType, file=dat)
-    print(param_DailyTourType, file=dat)
-    print(param_DailyShiftWorked, file=dat)
+    print(param_TourTypeDay, file=dat)
+    print(param_TourTypeDayShift, file=dat)
     print(param_WeekendDaysWorked, file=dat)
     print(param_MultiWeekDaysWorked, file=dat)
     print(param_tour_WIN_TT, file=dat)

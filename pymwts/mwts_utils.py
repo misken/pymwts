@@ -1,154 +1,17 @@
-# -------------------------------------------------------------------------------
-# Name:        pymwts_utils.py
-# Purpose:
-#
-# Author:      isken
-#
-# Created:     03/13/2012
-# Copyright:   (c) isken 2012
-# Licence:     <your licence>
-# -------------------------------------------------------------------------------
+"""
+Shared model components and functions
+"""
+
+# Author: misken
+# License: TBD
 
 import io
+
 import pyomo
 import numpy as np
 
-
-# The following lives in mwts_phase1 and mwts_phase2 models project. Need to figure out how to use it from there.
-# Just copying it for now so I can get this model working.
-
-def n_prds_per_week_init(M):
-    return M.n_days_per_week()*M.n_prds_per_day()
-
-
-def n_prds_per_cycle_init(M):
-    return M.n_weeks()*M.n_days_per_week()*M.n_prds_per_day()
-
-
-def g_period_init(M, i, j, w):
-    return ((w - 1) * M.n_days_per_week() * M.n_prds_per_day() +
-            (j - 1) * M.n_prds_per_day() + i)
-
-
-def g_tuple_to_period(i, j, w, n_prds_per_day, n_days_per_week):
-    return ((w - 1) * n_days_per_week * n_prds_per_day +
-            (j - 1) * n_prds_per_day + i)
-
-
-def period_increment(M, i, j, w, incr):
-    p = M.g_period[i, j, w]
-    if p + incr <= M.n_prds_per_cycle:
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_increment(M, p, incr):
-    if p + incr <= M.n_prds_per_cycle:
-        return p + incr
-    else:
-        return p + incr - M.n_prds_per_cycle
-
-
-def g_period_difference(M, b_prd, e_prd):
-    if e_prd >= b_prd:
-        return e_prd - b_prd + 1
-    else:
-        return M.n_prds_per_cycle + e_prd - b_prd + 1
-
-
-def g_prd_to_tuple(M, p):
-    #    param which_prd{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   p-n_prds_per_day*(ceil(p/n_prds_per_day-1));
-    #
-    # param which_day{p in 1..(n_days+1)*n_prds_per_day} :=
-    #   (if p>n_prds_per_day*n_days then 1 else 1+ceil(p/n_prds_per_day-1));
-
-    n_week = ((p - 1) // M.n_prds_per_week.value) + 1
-    prds_remainder = p - (n_week - 1) * M.n_prds_per_week
-    if prds_remainder == 0:
-        n_day = 1
-    else:
-        n_day = ((prds_remainder - 1) // M.n_prds_per_day.value) + 1
-
-    prds_remainder = prds_remainder - (n_day - 1) * M.n_prds_per_day
-    if prds_remainder == 0:
-        n_period = 1
-    else:
-        n_period = prds_remainder
-
-    return n_period, n_day, n_week
-
-
-# The following lives in  pymtwsio project. Need to figure out how to use it from there.
-# Just copying it for now so I can get this model working.
-def scalar_to_param(pname, pvalue, isStringIO=True):
-    """
-    Convert a scalar to a GMPL representation of a parameter.
-    Inputs:
-        param_name - string name of paramter in GMPL file
-        pvalue - value of parameter
-        isstringio - true to return StringIO object, false to return string
-
-    Output:
-        GMPL dat code for scalar parameter either as a StringIO
-        object or a string.
-
-        Example:
-
-            param n_prds_per_day :=  48; 
-    """
-
-    param = 'param ' + pname + ' :=  ' + str(pvalue) + ';\n'
-    if isStringIO:
-        paramout = io.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
-    else:
-        return param
-
-
-def list_to_param(pname, plist, reverseidx=False, isStringIO=True):
-    """
-    Convert a list to a GMPL representation of a parameter.
-    Inputs:
-        param_name - string name of paramter in GMPL file
-        plist - list containing parameter (could be N-Dimen list)
-        reverseidx - True to reverse the order of the indexes (essentially transposing the matrix)
-        isstringio - True to return StringIO object, False to return string
-
-    Output:
-        GMPL dat code for list parameter either as a StringIO
-        object or a string.
-
-        Example:
-            param midnight_thresh:=
-             1 100
-             2 100
-             3 100
-            ; 
-
-    """
-    # Convert parameter as list to an ndarray
-    parray = np.array(plist)
-
-    # Denumerate the array to get at the index tuple and array value
-    paramrows = np.ndenumerate(parray)
-    param = 'param ' + pname + ':=\n'
-    for pos, val in paramrows:
-        poslist = [str(p + 1) for p in pos]
-        if reverseidx:
-            poslist.reverse()
-        datarow = ' '.join(poslist) + ' ' + str(val) + '\n'
-        param += datarow
-
-    param += ";\n"
-    if isStringIO:
-        paramout = io.StringIO()
-        paramout.write(param)
-        return paramout.getvalue()
-    else:
-        return param
+import mwts_shared
+from pymwtsio.mwts_makedat import scalar_to_param, list_to_param
 
 
 def shift_to_param(pname, inst, reverseidx=False, isStringIO=True):
@@ -169,7 +32,7 @@ def shift_to_param(pname, inst, reverseidx=False, isStringIO=True):
              1 100
              2 100
              3 100
-            ; 
+            ;
 
     """
     # Convert parameter as list to an ndarray
@@ -219,7 +82,7 @@ def tourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
              1 100
              2 100
              3 100
-            ; 
+            ;
 
     """
     # Convert parameter as list to an ndarray
@@ -251,7 +114,7 @@ def tourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
         return param
 
 
-def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
+def tourtypeday_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -301,7 +164,7 @@ def dailytourtype_to_param(pname, inst, reverseidx=False, isStringIO=True):
         return param
 
 
-def dailyshiftworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
+def tourtypedayshift_to_param(pname, inst, reverseidx=False, isStringIO=True):
     """
     Convert a Pyomo indexed variable to a GMPL representation of a parameter.
     Inputs:
@@ -327,11 +190,11 @@ def dailyshiftworked_to_param(pname, inst, reverseidx=False, isStringIO=True):
     # Denumerate the array to get at the index tuple and array value
 
     param = 'param ' + pname + ' default 0 :=\n'
-    for (i, t, k, j, w) in inst.DailyShiftWorked_idx:
+    for (i, t, k, j, w) in inst.TourTypeDayShift_idx:
         try:
-            val = int(round(inst.DailyShiftWorked[i, t, k, j, w]()))
+            val = int(round(inst.TourTypeDayShift[i, t, k, j, w]()))
         except:
-            val = inst.DailyShiftWorked[i, t, k, j, w]()
+            val = inst.TourTypeDayShift[i, t, k, j, w]()
 
         if val > 0:
             poslist = [str(p) for p in (i, t, k, j, w)]

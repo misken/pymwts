@@ -14,8 +14,6 @@ from mwts_shared import epoch_to_tuple, epoch_increment
 
 # from pyutilib.misc import import_file
 
-# from mwts_utils import *
-
 
 # model = import_file('mwts_baseparams.py').model
 model = pyo.AbstractModel()
@@ -682,7 +680,7 @@ def TourTypeDay_idx_rule(M):
             for t in M.TTYPES
             for j in M.DAYS
             for w in M.WEEKS
-            if (i, t, j) in M.okDailyTourType]
+            if (i, t, j) in M.okTourTypeDay]
 
 
 model.TourTypeDay_idx = pyo.Set(dimen=4, initialize=TourTypeDay_idx_rule)
@@ -698,7 +696,7 @@ def TourTypeDayShift_idx_rule(M):
             for k in M.tt_length_x[t]
             for j in M.DAYS
             for w in M.WEEKS
-            if (i, t, j) in M.okDailyTourType]
+            if (i, t, j) in M.okTourTypeDay]
 
 
 model.TourTypeDayShift_idx = pyo.Set(dimen=5, initialize=TourTypeDayShift_idx_rule)
@@ -1005,16 +1003,16 @@ def weekend_integration_1_SS_idx_rule(M):
             for i in M.activeWIN
             for t in M.activeTT
             if j in M.weekend[i, t] and 1 in M.weekend[i, t] and 7 in M.weekend[i, t] \
-            and (i, t, j) in M.okDailyTourType]
+            and (i, t, j) in M.okTourTypeDay]
 
 
 model.weekend_integration_1_SS_idx = pyo.Set(dimen=4, initialize=weekend_integration_1_SS_idx_rule)
 
 
-def action_check_WeekendDaysWorked_DailyTourType_rule(M, j, w, i, t):
+def action_check_WeekendDaysWorked_TourTypeDay_rule(M, j, w, i, t):
     val_w = pyo.value(
         sum(M.A_wkend_days[p, j, w, t, 1] * M.WeekendDaysWorked[i, t, p] for p in pyo.sequence(M.num_weekend_patterns[1, t])))
-    val_d = M.DailyTourType[i, t, j, w]
+    val_d = M.TourTypeDay[i, t, j, w]
 
     if val_w == val_d:
         check = 'OK'
@@ -1026,9 +1024,9 @@ def action_check_WeekendDaysWorked_DailyTourType_rule(M, j, w, i, t):
         print(msg)
 
 
-model.action_check_WeekendDaysWorked_DailyTourType = \
+model.action_check_WeekendDaysWorked_TourTypeDay = \
     pyo.BuildAction(model.weekend_integration_1_SS_idx,
-                    rule=action_check_WeekendDaysWorked_DailyTourType_rule)
+                    rule=action_check_WeekendDaysWorked_TourTypeDay_rule)
 
 
 def Tour_ShiftWkendDof_integration1_rule(M, s, i, j, w, t):
