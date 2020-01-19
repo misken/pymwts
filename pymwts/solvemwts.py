@@ -129,7 +129,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Boolean indicators for possible redundant constraints
     b_TTD_TT_weeklyconservation_active = False
-    b_TTDS_TT_weeklyconservation_active = False
+    b_TTDS_TT_weeklyconservation_active = True
 
     # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con2_active:
@@ -341,7 +341,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_tourskeleton = weekenddaysworked_to_tourskeleton(phase1_inst)
     with open(phase1_tourskeleton_file,'w') as f1_tourskeleton:
         print(phase1_tourskeleton, file=f1_tourskeleton)
-        phase1_tourskeleton = dailytourtype_to_tourskeleton(phase1_inst)
+        phase1_tourskeleton = tourtypeday_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
 
     # Phase 2 model construction ----------------------------------------------

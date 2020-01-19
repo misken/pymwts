@@ -2033,80 +2033,19 @@ model.prds_worked_cumul_shiflen_weekly_UB = \
     pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
                    rule=prds_worked_cumul_shiflen_weekly_UB_rule)
 
-# TODO: Hmmm, what exactly are these constraints doing? FriSat_min_dys_weeks isn't defined anywhere.
-# def prds_FSwkend_weeklyconservation_LB_rule(M, i, t, w):
-#     return sum(M.TourTypeDayShift[i, t, k, d, w] * M.lengths[k] for j in M.DAYS for k in M.LENGTHS if
-#                (i, t, k, d, w) in M.TourTypeDayShift_idx) \
-#            >= sum(
-#         M.WeekendDaysWorked[i, t, p] * M.FriSat_min_dys_weeks[t, p, w] * min(M.lengths[k] for k in M.tt_length_x[t]) for
-#         p in M.DAYS)
-#
-#
-# def prds_FSwkend_cumul_weeklyconservation_LB_rule(M, i, t, w):
-#     return sum(
-#         M.TourTypeDayShift[i, t, k, d, z] * M.lengths[k] for j in M.DAYS for k in M.LENGTHS for z in pyo.sequence(w)
-#         if (i, t, k, d, z) in M.TourTypeDayShift_idx) \
-#            >= sum(
-#         M.WeekendDaysWorked[i, t, p] * M.FriSat_min_dys_weeks[t, p, w] * min(M.lengths[k] for k in M.tt_length_x[t]) for
-#         p in M.DAYS)
-#
-#
-# def prds_FSwkend_weeklyconservation_LB_idx_rule(M):
-#     return [(i, t, w) for (i, t) in M.okTourType
-#             for w in M.WEEKS
-#             if 6 in M.weekend[i, t] and 7 in M.weekend[i, t]]
-#
-#
-# model.prds_FSwkend_weeklyconservation_LB_idx = \
-#     pyo.Set(dimen=3, initialize=prds_FSwkend_weeklyconservation_LB_idx_rule)
-#
-# model.prds_FSwkend_weeklyconservation_LB = \
-#     pyo.Constraint(model.prds_FSwkend_weeklyconservation_LB_idx, rule=prds_FSwkend_weeklyconservation_LB_rule)
-#
-# model.prds_FSwkend_cumul_weeklyconservation_LB = \
-#     pyo.Constraint(model.prds_FSwkend_weeklyconservation_LB_idx,
-#                    rule=prds_FSwkend_cumul_weeklyconservation_LB_rule)
-#
-#
-# def DWT_FSwkend_weeklyconservation_LB_rule(M, i, t, w):
-#     return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS if (i, t, d) in M.okTourTypeDay) >= \
-#            sum(M.WeekendDaysWorked[i, t, p] * M.FriSat_min_dys_weeks[t, p, w] for \
-#                p in range(1, M.num_weekend_patterns[M.weekend_type[i, t].value, t].value + 1))
-#
-#
-# def DWT_FSwkend_cumul_weeklyconservation_LB_rule(M, i, t, w):
-#     return sum(
-#         M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w) if (i, t, d) in M.okTourTypeDay) >= \
-#            sum(M.WeekendDaysWorked[i, t, p] * M.FriSat_min_cumul_dys_weeks[t, p, w] for \
-#                p in range(1, M.num_weekend_patterns[M.weekend_type[i, t].value, t].value + 1))
-#
-#
-# def DWT_FSwkend_weeklyconservation_LB_idx_rule(M):
-#     return [(i, t, w) for (i, t) in M.okTourType
-#             for w in M.WEEKS
-#             if 6 in M.weekend[i, t] and 7 in M.weekend[i, t]]
-#
-#
-# model.DWT_FSwkend_weeklyconservation_LB_idx = pyo.Set(dimen=3,
-#                                                              initialize=DWT_FSwkend_weeklyconservation_LB_idx_rule)
-# model.DWT_FSwkend_weeklyconservation_LB = pyo.Constraint(model.DWT_FSwkend_weeklyconservation_LB_idx,
-#                                                                 rule=DWT_FSwkend_weeklyconservation_LB_rule)
-# model.DWT_FSwkend_cumul_weeklyconservation_LB = pyo.Constraint(
-#     model.DWT_FSwkend_weeklyconservation_LB_idx, rule=DWT_FSwkend_cumul_weeklyconservation_LB_rule)
-
-# TODO: Above constraints need review --------------------------------------------------------------------------
-
-
 # Weekend subset constraints --------------------------------------------------
-# Need constraints to prevent cases such as the following. Consider two people with same tour type working
-# 5 days per week. Assume that consecutive weekends are allowed and that the two weekend patterns for week 1
-# are:  1 0 0 0 0 0 1 and 0 0 0 0 0 0 0. Now consider the following TourTypeDay solution:
+# Need constraints to prevent cases such as the following. Consider two people
+# with same tour type working 5 days per week. Assume that consecutive weekends
+# are allowed and that the two weekend patterns for week 1
+# are:  1 0 0 0 0 0 1 and 0 0 0 0 0 0 0.
+# Now consider the following TourTypeDay solution:
 
 #  1 2 0 2 2 2 1
 
 # The employee with the 1 0 0 0 0 0 1 pattern would be forced to work 6 days.
 
 # TODO: Find the math notes about how these were developed
+
 
 def weekend_subsets_5_4_idx_rule(M):
     """
@@ -2445,7 +2384,7 @@ model.chains_tot_proxy2_con = pyo.Constraint(
     model.chains_tot_proxy2_idx, rule=chains_tot_proxy2_rule)
 
 
-# Chains - coordinates DWS and Shift within each chain for
+# Chains - coordinates TourTypeDayShift and Shift within each chain for
 # intra-tour start-time flexibility
 
 # subject to chains_sweep_l{e in WEEKS, t in okTTYPES, k in tt_length_x[t], (b,j) in bchain[t,k],

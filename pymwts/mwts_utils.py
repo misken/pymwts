@@ -361,7 +361,7 @@ def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
         return param
 
 
-def dailytourtype_to_tourskeleton(inst, isStringIO=True):
+def tourtypeday_to_tourskeleton(inst, isStringIO=True):
     """
     
 

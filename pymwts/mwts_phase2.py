@@ -224,21 +224,20 @@ model.A_mwdw_idx = pyo.Set(dimen=3, ordered=True,
 model.A_mwdw = pyo.Param(model.A_mwdw_idx,
                          within=pyo.NonNegativeIntegers, default=0)
 
-
-
-
-
-
+# Start time windows ----------------------------------------------------------
 
 def activeWIN_init(M):
+    """
+    By default this is all windows but can be overridden in Phase 2 dat file
+    to make Phase 2 debugging easier by isolating specific start windows.
+
+    :param M: Model
+    :return: list of all windows
+    """
     return [i for i in M.WINDOWS]
 
 
 model.activeWIN = pyo.Set(dimen=1, ordered=True, initialize=activeWIN_init)
-
-
-
-
 
 
 # TODO: start windows ---------------------------------------------------------
@@ -651,13 +650,12 @@ model.linkspan = pyo.Set(model.link_idx, dimen=3,
                                 ordered=True, initialize=linkspan_init)
 
 
-# Phase 1 Shift variables --> Phase 2 parameters ------------------------------
+# Phase 1 solution variables --> Phase 2 parameters ---------------------------
 
 model.Shift = pyo.Param(model.okShifts, default=0)
 
 # Shift[i,j,w,k,t] = Number of shifts of length k starting in period i
 # of day j in week w for a tour of type t
-
 
 model.okTourType = model.WINDOWS * model.TTYPES
 
@@ -670,7 +668,6 @@ def TourType_idx_rule(M):
 
 model.TourType_idx = pyo.Set(dimen=2, initialize=TourType_idx_rule)
 model.TourType = pyo.Param(model.TourType_idx, default=0)
-
 
 model.okTourTypeDay = model.WINDOWS * model.TTYPES * model.DAYS
 
@@ -703,8 +700,6 @@ model.TourTypeDayShift_idx = pyo.Set(dimen=5, initialize=TourTypeDayShift_idx_ru
 model.TourTypeDayShift = pyo.Param(model.TourTypeDayShift_idx, default=0)
 
 
-# #### Weekend Days off variables
-
 def weekend_days_worked_idx_rule(M):
     """
     Index is (start window, tour type, weekend pattern)
@@ -724,7 +719,7 @@ def weekend_days_worked_idx_rule(M):
 
 
 model.weekend_days_worked_idx = pyo.Set(dimen=3,
-                                               initialize=weekend_days_worked_idx_rule)
+                                        initialize=weekend_days_worked_idx_rule)
 
 model.WeekendDaysWorked = pyo.Param(model.weekend_days_worked_idx, default=0)
 
@@ -770,7 +765,7 @@ model.WIN_x = pyo.Param(model.TOURS)
 model.TT_x = pyo.Param(model.TOURS)
 
 
-# Decision Variables ----------------------------------------------------------
+# Phase 2 Decision Variables --------------------------------------------------
 
 def TourShifts_idx_rule(M):
     index_list = []
@@ -780,8 +775,9 @@ def TourShifts_idx_rule(M):
                 for w in M.WEEKS:
                     for t in [a for a in M.activeTT if a == M.TT_x[s]]:
                         for k in M.tt_length_x[t]:
-                            for (p, d, q) in [(x, y, z) for (x, y, z) in M.okStartWindowRoots[t, k] if
-                                              x == M.WIN_x[s] and x in M.activeWIN]:
+                            for (p, d, q) \
+                                    in [(x, y, z) for (x, y, z) in M.okStartWindowRoots[t, k]
+                                        if x == M.WIN_x[s] and x in M.activeWIN]:
                                 if (i, j, w) in M.PotentialStartWindow[p, d, q, k, t]:
                                     index_list.append((s, i, j, w, k, t))
 
@@ -793,31 +789,24 @@ model.TourShifts_idx = pyo.Set(dimen=6, initialize=TourShifts_idx_rule)
 model.TourShifts = pyo.Var(model.TourShifts_idx, within=pyo.Boolean)
 
 
-###
-###var tourdof{l in 1..n_tours,d in 1..max_weekend_patterns,i in WINDOWS,t in okTTYPES :
-###       t=TT_x[l] and i=WIN_x[l] and (i,t) in okTourType and d <= num_weekend_patterns[weekend_type[i,t],t] } binary ;
-###    
-###    # tourdof[l,d,i,t] = 1 if an ID[d,i,t] days off variable is assigned to tour l
-###    #            = 0 otherwise
-###    # tourdof ==> "binary days-off"  
-
-def TourWkendDof_idx_rule(M):
+def TourWeekend_idx_rule(M):
     index_list = []
     for s in M.TOURS:
         for i in [a for a in M.activeWIN if a == M.WIN_x[s]]:
             for t in [a for a in M.activeTT if a == M.TT_x[s]]:
-                for pattern in pyo.sequence(M.num_weekend_patterns[M.weekend_type[i, t], t]):
+                for pattern in pyo.sequence(
+                        M.num_weekend_patterns[M.weekend_type[i, t], t]):
                     if (i, t) in M.okTourType:
                         index_list.append((s, pattern, i, t))
 
     return index_list
 
 
-model.TourWkendDof_idx = pyo.Set(dimen=4, initialize=TourWkendDof_idx_rule)
-model.TourWkendDof = pyo.Var(model.TourWkendDof_idx, within=pyo.Boolean)
+model.TourWeekend_idx = pyo.Set(dimen=4, initialize=TourWeekend_idx_rule)
+model.TourWeekend = pyo.Var(model.TourWeekend_idx, within=pyo.Boolean)
 
 
-def Tour_mwdwWkendDof_idx_rule(M):
+def TourMWDW_idx_rule(M):
     index_list = []
     for s in M.TOURS:
         for i in [a for a in M.activeWIN if a == M.WIN_x[s]]:
@@ -830,38 +819,40 @@ def Tour_mwdwWkendDof_idx_rule(M):
     return index_list
 
 
-model.Tour_mwdwWkendDof_idx = pyo.Set(dimen=5, initialize=Tour_mwdwWkendDof_idx_rule)
-model.Tour_mwdwWkendDof = pyo.Var(model.Tour_mwdwWkendDof_idx, within=pyo.Boolean)
+model.TourMWDW_idx = pyo.Set(dimen=5, initialize=TourMWDW_idx_rule)
+model.TourMWDW = pyo.Var(model.TourMWDW_idx, within=pyo.Boolean)
 
 
-# .......................................................Obj. Function
+# Obj. Function ----------------------------------------------------------------
 
-# ## Objective function is just the sum of the tourshift variables - which makes it a search for a feasible solution.
-# ##
-# ##minimize total_cost :
-# ##
-# ## sum {s in 1..n_tours,i in PERIODS,j in DAYS,w in WEEKS,k in LENGTHS, t in TTYPES, p in PERIODS, d in DAYS :
-# ##       t=TT_x[s] and p=WIN_x[s] and k in tt_length_x[t] and (i,j,k,t) in ok_shifts and
-# ##       (i,j) in okWindowWepochs[p,d,k,t]} tourshift[s,i,j,w,k,t,p,d] ;
+# Objective function is just the sum of the tourshift variables, 
+# which makes it a search for a feasible solution.
 
-# Objective function
+
 def objective_rule(M):
     obj1 = sum(M.TourShifts[s, i, j, w, k, t] for (s, i, j, w, k, t) in M.TourShifts_idx)
     return obj1
 
 
-model.total_num_tours = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
+model.total_shifts = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
+
+# Constraints -----------------------------------------------------------------
 
 
-# One weekend days off pattern for each tour
+def Tour_Weekend_conservation_idx_rule(M):
+    """
+    Index is (weekend pattern, window, tour type)
 
+    :param M: Model
+    :return: Constraint index rule
+    """
 
-def Tour_WkendDof_conservation_idx_rule(M):
     index_list = []
     for i in M.activeWIN:
         for t in M.activeTT:
             for pattern in pyo.sequence(M.max_weekend_patterns):
-                if (i, t) in M.okTourType and pattern <= M.num_weekend_patterns[M.weekend_type[i, t], t]:
+                if (i, t) in M.okTourType and pattern <= \
+                        M.num_weekend_patterns[M.weekend_type[i, t], t]:
                     for s in M.TOURS:
                         if i == M.WIN_x[s] and t == M.TT_x[s]:
                             index_list.append((pattern, i, t))
@@ -869,14 +860,21 @@ def Tour_WkendDof_conservation_idx_rule(M):
     return index_list
 
 
-def Tour_mwdw_WkendDof_conservation_idx_rule(M):
+def Tour_MWDW_conservation_idx_rule(M):
+    """
+    Index is (MWDW pattern, weekend pattern, window, tour type)
+    :param M: Model
+    :return: Constraint index rule
+    """
+
     index_list = []
     for i in M.activeWIN:
         for t in M.activeTT:
             for p1 in pyo.sequence(M.max_mwdw_patterns):
                 for p2 in pyo.sequence(M.max_weekend_patterns):
-                    if (i, t) in M.okTourType and p1 <= M.num_mwdw_patterns[t] and p2 <= M.num_weekend_patterns[
-                        M.weekend_type[i, t], t]:
+                    if (i, t) in M.okTourType and \
+                            p1 <= M.num_mwdw_patterns[t] and \
+                            p2 <= M.num_weekend_patterns[M.weekend_type[i, t], t]:
                         for s in M.TOURS:
                             if i == M.WIN_x[s] and t == M.TT_x[s]:
                                 index_list.append((p1, p2, i, t))
@@ -884,39 +882,69 @@ def Tour_mwdw_WkendDof_conservation_idx_rule(M):
     return index_list
 
 
-model.Tour_WkendDof_conservation_idx = pyo.Set(dimen=3, initialize=Tour_WkendDof_conservation_idx_rule)
-model.Tour_mwdw_WkendDof_conservation_idx = pyo.Set(dimen=4, initialize=Tour_mwdw_WkendDof_conservation_idx_rule)
+model.Tour_Weekend_conservation_idx = pyo.Set(
+    dimen=3,
+    initialize=Tour_Weekend_conservation_idx_rule)
+
+model.Tour_MWDW_conservation_idx = pyo.Set(
+    dimen=4,
+    initialize=Tour_MWDW_conservation_idx_rule)
 
 
-def Tour_WkendDof_conservation_rule(M, pattern, i, t):
+def Tour_Weekend_conservation_rule(M, pattern, i, t):
     """
-    Sum over the tours within each (i,t) and make sure they add up to the WeekendDaysWorked variables
+    Sum over the tours within each (i,t) and make sure they add up to
+    the WeekendDaysWorked variables for each weekend pattern
+
+    :param M: Model
+    :param pattern: Weekend pattern
+    :param i: window
+    :param t: tour type
+    :return: Constraint rule
     """
-    return (sum(M.TourWkendDof[s, pattern, i, t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) ==
+
+    return (sum(M.TourWeekend[s, pattern, i, t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) ==
             M.WeekendDaysWorked[i, t, pattern])
 
 
-model.Tour_WkendDof_conservation = pyo.Constraint(model.Tour_WkendDof_conservation_idx,
-                                                         rule=Tour_WkendDof_conservation_rule)
+model.Tour_Weekend_conservation = pyo.Constraint(
+    model.Tour_Weekend_conservation_idx,
+    rule=Tour_Weekend_conservation_rule)
 
 
-def Tour_mwdw_WkendDof_conservation_rule(M, p1, p2, i, t):
+def Tour_MWDW_conservation_rule(M, p1, p2, i, t):
     """
-    Sum over the tours within each (i,t) and make sure they add up to the MultiWeekDaysWorked variables
+    Sum over the tours within each (i,t) and make sure they add
+    up to the MultiWeekDaysWorked variables for each weekend and
+    MWDW pattern.
+
+    :param M: Model
+    :param p1: MWDW pattern
+    :param p2: Weekend pattern
+    :param i: window
+    :param t: tour type
+    :return: Constraint rule
     """
-    return (sum(M.Tour_mwdwWkendDof[s, p1, p2, i, t] for s in M.TOURS if i == M.WIN_x[s] and t == M.TT_x[s]) ==
+
+    return (sum(M.TourMWDW[s, p1, p2, i, t] for s in M.TOURS
+                if i == M.WIN_x[s] and t == M.TT_x[s]) ==
             M.MultiWeekDaysWorked[i, t, p1, p2])
 
 
-model.Tour_mwdw_WkendDof_conservation = pyo.Constraint(model.Tour_mwdw_WkendDof_conservation_idx,
-                                                              rule=Tour_mwdw_WkendDof_conservation_rule)
+model.Tour_MWDW_conservation = pyo.Constraint(
+    model.Tour_MWDW_conservation_idx,
+    rule=Tour_MWDW_conservation_rule)
 
 
 def OnePatternPerTourShift_idx_rule(M):
     """
     Index based on activeTT so that we can create schedules for any subset
     of tour types used in the Phase1 problem.
+
+    :param M: Model
+    :return: Constraint index rule
     """
+
     index_list = []
     for s in M.TOURS:
         if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
@@ -929,7 +957,7 @@ model.OnePatternPerTourShift_idx = pyo.Set(dimen=1, initialize=OnePatternPerTour
 
 
 def OnePatternPerTourShift_rule(M, s):
-    return sum(M.TourWkendDof[s, pattern, M.WIN_x[s], M.TT_x[s]]
+    return sum(M.TourWeekend[s, pattern, M.WIN_x[s], M.TT_x[s]]
                for pattern in
                pyo.sequence(M.num_weekend_patterns[M.weekend_type[M.WIN_x[s], M.TT_x[s]], M.TT_x[s]])) == 1
 
@@ -955,7 +983,7 @@ model.One_mwdwPatternPerTourShift_idx = pyo.Set(dimen=1, initialize=One_mwdwPatt
 
 
 def One_mwdwPatternPerTourShift_rule(M, s):
-    return sum(M.Tour_mwdwWkendDof[s, p1, p2, M.WIN_x[s], M.TT_x[s]]
+    return sum(M.TourMWDW[s, p1, p2, M.WIN_x[s], M.TT_x[s]]
                for p1 in pyo.sequence(M.num_mwdw_patterns[M.TT_x[s]])
                for p2 in
                pyo.sequence(M.num_weekend_patterns[M.weekend_type[M.WIN_x[s], M.TT_x[s]], M.TT_x[s]])) == 1
@@ -1032,7 +1060,7 @@ model.action_check_WeekendDaysWorked_TourTypeDay = \
 def Tour_ShiftWkendDof_integration1_rule(M, s, i, j, w, t):
     return sum(M.TourShifts[s, p, d, q, k, t] for k in M.tt_length_x[t] for (p, d, q) in
                M.PotentialStartWindow[i, j, w, k, t]) == \
-           sum(M.A_wkend_days[pattern, j, w, t, M.weekend_type[i, t]] * M.TourWkendDof[s, pattern, i, t] for pattern in
+           sum(M.A_wkend_days[pattern, j, w, t, M.weekend_type[i, t]] * M.TourWeekend[s, pattern, i, t] for pattern in
                pyo.sequence(M.num_weekend_patterns[M.weekend_type[i, t], t]))
 
 
@@ -1150,7 +1178,7 @@ def Tours_Weekly_rule(M, s, w):
                for j in M.DAYS
                for k in M.tt_length_x[M.TT_x[s]]
                for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) == \
-           sum(M.Tour_mwdwWkendDof[s, p1, p2, M.WIN_x[s], M.TT_x[s]] * M.A_mwdw[
+           sum(M.TourMWDW[s, p1, p2, M.WIN_x[s], M.TT_x[s]] * M.A_mwdw[
                M.TT_x[s], p1, w] for p1 in
                pyo.sequence(M.num_mwdw_patterns[M.TT_x[s]]) for p2 in
                pyo.sequence(M.num_weekend_patterns[M.weekend_type[M.WIN_x[s], M.TT_x[s]], M.TT_x[s]]))
