@@ -405,17 +405,25 @@ def solvemwts(scenario, phase1_dat_file, path,
     logging.info('Phase 2 instance created')
 
     # Activate/deactivate constraints
-    bOnePatternPerTourShift_active = True
+
+    bTour_Weekend_conservation_active = True
+    bTour_MWDW_conservation_active = True
+
+    bOneWeekendPatternPerTour_active = True
+    bOneMWDWPatternPerTour_active = True
+
+    bTourShift_Weekend_integration1_active = True
+    bTourShift_MWDW_integration1_active = True
+
     bTours_Daily_active = True
     bTours_Daily_conservation_active = True
 
-    bTour_WkendDof_conservation_active = True
-    bTour_ShiftWkendDof_integration1_active = True
-
-    bTours_Weekly_LB_active = True
-    bTours_Weekly_UB_active = True
-    bTours_Total_LB_active = True
-    bTours_Total_UB_active = True
+    # The following four constraints shouldn't be needed now that we have
+    # added the Tour_MWDW_con
+    bTours_Weekly_LB_active = False
+    bTours_Weekly_UB_active = False
+    bTours_Total_LB_active = False
+    bTours_Total_UB_active = False
 
     bTours_Shiftlen_Weekly_LB_active = True
     bTours_Shiftlen_Weekly_UB_active = True
@@ -429,14 +437,23 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Deactivate constraints per the above list of binaries
 
-    if not bOnePatternPerTourShift_active:
-        phase2_inst.OnePatternPerTourShift.deactivate()
+    if not bTour_Weekend_conservation_active:
+        phase2_inst.Tour_Weekend_conservation.deactivate()
 
-    if not bTour_WkendDof_conservation_active:
-        phase2_inst.Tour_WkendDof_conservation.deactivate()
+    if not bTour_MWDW_conservation_active:
+        phase2_inst.Tour_MWDW_conservation.deactivate()
 
-    if not bTour_ShiftWkendDof_integration1_active:
-        phase2_inst.Tour_ShiftWkendDof_integration1.deactivate()
+    if not bOneMWDWPatternPerTour_active:
+        phase2_inst.OneMWDWPatternPerTour.deactivate()
+
+    if not bOneWeekendPatternPerTour_active:
+        phase2_inst.OneWeekendPatternPerTour.deactivate()
+
+    if not bTourShift_Weekend_integration1_active:
+        phase2_inst.Tour_MWDW_integration1.deactivate()
+
+    if not bTourShift_MWDW_integration1_active:
+        phase2_inst.Tour_MWDW_integration1.deactivate()
 
     if not bTours_Daily_active:
         phase2_inst.Tours_Daily.deactivate()
@@ -528,7 +545,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Create the multi-week tour file
     idx_copy = []
-    for idx in phase2_inst.TourShifts:
+    for idx in phase2_inst.TourShift:
         idx_copy.append(idx)
     idx_sorted = sorted(idx_copy)
 
@@ -538,7 +555,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         f2_tour.write('PP4\n')
 
         for idx in idx_sorted:
-            if phase2_inst.TourShifts[idx].value > 0:
+            if phase2_inst.TourShift[idx].value > 0:
                 f2_tour.write(
                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
                                                     phase2_inst.lengths[idx[4]],
@@ -637,14 +654,21 @@ def probe_phase2(scenario, phase2_dat_file, path,
 
     # Activate/deactivate constraints
 
-    bOnePatternPerTourShift_active = True
+    bTour_Weekend_conservation_active = True
+    bTour_MWDW_conservation_active = True
+
+    bOneWeekendPatternPerTour_active = True
+    bOneMWDWPatternPerTour_active = True
+
+    bTourShift_Weekend_integration1_active = True
+    bTourShift_MWDW_integration1_active = True
+
     bTours_Daily_active = True
     bTours_Daily_conservation_active = True
 
     bTour_WkendDof_conservation_active = True
-    bTour_ShiftWkendDof_integration1_active = True
 
-    bTours_Weekly_active = True
+
     bTours_Weekly_LB_active = False
     bTours_Weekly_UB_active = False
     bTours_Total_LB_active = True
@@ -662,17 +686,35 @@ def probe_phase2(scenario, phase2_dat_file, path,
 
     # Deactivate constraints per the above list of binaries
 
-    if not bOnePatternPerTourShift_active:
-        phase2_inst.OnePatternPerTourShift.deactivate()
+    if bTour_Weekend_conservation_active:
+        phase2_inst.Tour_Weekend_conservation.deactivate()
+
+    if bTour_MWDW_conservation_active:
+        phase2_inst.Tour_MWDW_conservation.deactivate()
+
+    if not bOneWeekendPatternPerTour_active:
+        phase2_inst.OneWeekendPatternPerTour.deactivate()
+
+    if not bOneMWDWPatternPerTour_active:
+        phase2_inst.OneMWDWPatternPerTour.deactivate()
+
+    if not bTourShift_Weekend_integration1_active:
+        phase2_inst.TourShift_Weekend_integration1.deactivate()
+
+    if not bTourShift_MWDW_integration1_active:
+        phase2_inst.TourShift_MWDW_integration1.deactivate()
+
+    if not bTours_Daily_active:
+        phase2_inst.Tours_Daily.deactivate()
+
+
 
     if not bTour_WkendDof_conservation_active:
         phase2_inst.Tour_WkendDof_conservation.deactivate()
 
-    if not bTour_ShiftWkendDof_integration1_active:
-        phase2_inst.Tour_ShiftWkendDof_integration1.deactivate()
 
-    if not bTours_Daily_active:
-        phase2_inst.Tours_Daily.deactivate()
+
+
 
     if not bTours_Daily_conservation_active:
         phase2_inst.Tours_Daily_conservation.deactivate()
@@ -734,7 +776,7 @@ def probe_phase2(scenario, phase2_dat_file, path,
     # Create the multi-week tour file
     tour_file = path + scenario + '.tur'
     idxcopy = []
-    for idx in phase2_inst.TourShifts:
+    for idx in phase2_inst.TourShift:
         idxcopy.append(idx)
     idxsorted = sorted(idxcopy)
 
@@ -744,7 +786,7 @@ def probe_phase2(scenario, phase2_dat_file, path,
         f2_tour.write('PP4\n')
 
         for idx in idxsorted:
-            if phase2_inst.TourShifts[idx].value > 0:
+            if phase2_inst.TourShift[idx].value > 0:
                 f2_tour.write(
                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
                                                     phase2_inst.lengths[idx[4]],
