@@ -666,13 +666,10 @@ def probe_phase2(scenario, phase2_dat_file, path,
     bTours_Daily_active = True
     bTours_Daily_conservation_active = True
 
-    bTour_WkendDof_conservation_active = True
-
-
     bTours_Weekly_LB_active = False
     bTours_Weekly_UB_active = False
-    bTours_Total_LB_active = True
-    bTours_Total_UB_active = True
+    bTours_Total_LB_active = False
+    bTours_Total_UB_active = False
 
     bTours_Shiftlen_Weekly_LB_active = True
     bTours_Shiftlen_Weekly_UB_active = True
@@ -707,20 +704,8 @@ def probe_phase2(scenario, phase2_dat_file, path,
     if not bTours_Daily_active:
         phase2_inst.Tours_Daily.deactivate()
 
-
-
-    if not bTour_WkendDof_conservation_active:
-        phase2_inst.Tour_WkendDof_conservation.deactivate()
-
-
-
-
-
     if not bTours_Daily_conservation_active:
         phase2_inst.Tours_Daily_conservation.deactivate()
-
-    if not bTours_Weekly_active:
-        phase2_inst.Tours_Weekly.deactivate()
 
     if not bTours_Weekly_LB_active:
         phase2_inst.Tours_Weekly_LB.deactivate()
