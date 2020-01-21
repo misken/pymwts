@@ -1237,9 +1237,6 @@ model.Tours_Daily_conservation = \
 # == For each (tour type) make sure the number of shifts assigned each week
 # == satisfies associated lower and upper bounds.
 
-
-
-
 def Tours_Weekly_LB_rule(M, s, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
                for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]]
@@ -1247,7 +1244,7 @@ def Tours_Weekly_LB_rule(M, s, w):
                M.TT_x[s], w]
 
 
-model.Tours_Weekly_LB = pyo.Constraint(model.Tours_Weekly_idx,
+model.Tours_Weekly_LB = pyo.Constraint(model.TourShift_MWDW_integration1_idx,
                                        rule=Tours_Weekly_LB_rule)
 
 
