@@ -1,14 +1,12 @@
-'''
-Created on July 8, 2011
+"""
+Read input files for mwts problems and create a GMPL data file.
+"""
 
-@author: isken
-'''
-import re           # Import the regex module
-import sys          # Import the system module
-import json   # Experimenting with json for outputing tours
-from os import chdir
+# Author: misken
+# License: TBD
 
-
+import re
+import json
 
 def create_mwt(filenameInput,stubOutput,output_path):
     pattLineType = re.compile('^(TTS|PP4|n_weeks|n_tours)')    # The regex to match the file section headers

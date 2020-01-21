@@ -594,7 +594,7 @@ def chain_init(M, t, k, i, j, w):
 
 
 model.chain = pyo.Set(model.chain_idx, ordered=True,
-                             dimen=3, initialize=chain_init)
+                      dimen=3, initialize=chain_init)
 
 
 def link_idx_rule(M):
@@ -627,12 +627,13 @@ def link_init(M, t, k, i, j, w, m):
 
 
 model.link = pyo.Set(model.link_idx, ordered=True,
-                            dimen=3, initialize=link_init)
+                     dimen=3, initialize=link_init)
 
 
 def linkspan_init(M, t, k, i, j, w, m):
     """
-    Returns the start windows spanned by the m'th link (a (period,day,week) tuple)
+    Returns the start windows spanned by the m'th link
+    (a (period,day,week) tuple)
     of the chain starting in period (i,j,w)
     """
     window_list = []
@@ -647,7 +648,7 @@ def linkspan_init(M, t, k, i, j, w, m):
 
 
 model.linkspan = pyo.Set(model.link_idx, dimen=3,
-                                ordered=True, initialize=linkspan_init)
+                         ordered=True, initialize=linkspan_init)
 
 
 # Phase 1 solution variables --> Phase 2 parameters ---------------------------
@@ -1240,8 +1241,9 @@ model.Tours_Daily_conservation = \
 def Tours_Weekly_LB_rule(M, s, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
                for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]]
-               for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) >= M.tt_min_dys_weeks[
-               M.TT_x[s], w]
+               for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) >= \
+           M.tt_min_dys_weeks[M.TT_x[s], w]
 
 
 model.Tours_Weekly_LB = pyo.Constraint(model.TourShift_MWDW_integration1_idx,
@@ -1249,21 +1251,24 @@ model.Tours_Weekly_LB = pyo.Constraint(model.TourShift_MWDW_integration1_idx,
 
 
 def Tours_Weekly_UB_idx_rule(M):
-    return [(s, w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    return [(s, w) for s in M.TOURS for w in M.WEEKS
+            if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
 
 model.Tours_Weekly_UB_idx = pyo.Set(dimen=2,
-                                           initialize=Tours_Weekly_UB_idx_rule)
+                                    initialize=Tours_Weekly_UB_idx_rule)
 
 
 def Tours_Weekly_UB_rule(M, s, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p, d, q) in
-               M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) <= M.tt_max_dys_weeks[M.TT_x[s], w]
+               for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]]
+               for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) <=\
+           M.tt_max_dys_weeks[M.TT_x[s], w]
 
 
 model.Tours_Weekly_UB = pyo.Constraint(model.Tours_Weekly_UB_idx,
-                                              rule=Tours_Weekly_UB_rule)
+                                       rule=Tours_Weekly_UB_rule)
 
 
 # =============== Tours_Total Lower and Upper Bounds on Days Worked ======================================================
@@ -1287,41 +1292,46 @@ model.Tours_Weekly_UB = pyo.Constraint(model.Tours_Weekly_UB_idx,
 
 
 def Tours_Total_LB_idx_rule(M):
-    return [(s, w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    return [(s, w) for s in M.TOURS for w in M.WEEKS
+            if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
 
 model.Tours_Total_LB_idx = pyo.Set(dimen=2,
-                                          initialize=Tours_Total_LB_idx_rule)
+                                   initialize=Tours_Total_LB_idx_rule)
 
 
 def Tours_Total_LB_rule(M, s, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for W in pyo.sequence(w) for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]] for (p, d, q) in
-               M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) >= M.tt_min_cumul_dys_weeks[M.TT_x[s], w]
+               for W in pyo.sequence(w) for j in M.DAYS
+               for k in M.tt_length_x[M.TT_x[s]]
+               for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) >=\
+           M.tt_min_cumul_dys_weeks[M.TT_x[s], w]
 
 
 model.Tours_Total_LB = pyo.Constraint(model.Tours_Total_LB_idx,
-                                             rule=Tours_Total_LB_rule)
+                                      rule=Tours_Total_LB_rule)
 
 
 def Tours_Total_UB_idx_rule(M):
-    return [(s, w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    return [(s, w) for s in M.TOURS for w in M.WEEKS
+            if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
 
 
 model.Tours_Total_UB_idx = pyo.Set(dimen=2,
-                                          initialize=Tours_Total_UB_idx_rule)
+                                   initialize=Tours_Total_UB_idx_rule)
 
 
 def Tours_Total_UB_rule(M, s, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
                for W in pyo.sequence(w)
                for j in M.DAYS for k in M.tt_length_x[M.TT_x[s]]
-               for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) <= M.tt_max_cumul_dys_weeks[
-               M.TT_x[s], w]
+               for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) <=\
+           M.tt_max_cumul_dys_weeks[M.TT_x[s], w]
 
 
 model.Tours_Total_UB = pyo.Constraint(model.Tours_Total_UB_idx,
-                                             rule=Tours_Total_UB_rule)
+                                      rule=Tours_Total_UB_rule)
 
 
 # =============== Tours_Shiftlen_Weekly Lower and Upper Bounds on Days Worked ================================================
@@ -1346,22 +1356,22 @@ def Tours_Shiftlen_Weekly_LB_idx_rule(M):
         for k in M.tt_length_x[M.TT_x[s]]:
             for w in M.WEEKS:
                 if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
-                    if any((s, p, d, q, k, M.TT_x[s]) in model.TourShift_idx for j in M.DAYS for (p, d, q)
+                    if any((s, p, d, q, k, M.TT_x[s])
+                           in model.TourShift_idx for j in M.DAYS for (p, d, q)
                            in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
                         index_list.append((s, k, w))
 
     return index_list
 
 
-#    return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
-
 model.Tours_Shiftlen_Weekly_LB_idx = pyo.Set(dimen=3,
-                                                    initialize=Tours_Shiftlen_Weekly_LB_idx_rule)
+                                             initialize=Tours_Shiftlen_Weekly_LB_idx_rule)
 
 
 def Tours_Shiftlen_Weekly_LB_rule(M, s, k, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for j in M.DAYS for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) >= \
+               for j in M.DAYS
+               for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) >= \
            M.tt_shiftlen_min_dys_weeks[M.TT_x[s], k, w]
 
 
@@ -1371,7 +1381,7 @@ model.Tours_Shiftlen_Weekly_LB = \
 
 
 def Tours_Shiftlen_Weekly_UB_idx_rule(M):
-    # return [(s,k,w) for s in M.TOURS for k in M.tt_length_x[M.TT_x[s]] for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+
     index_list = []
     for s in M.TOURS:
         for k in M.tt_length_x[M.TT_x[s]]:
@@ -1390,12 +1400,13 @@ model.Tours_Shiftlen_Weekly_UB_idx = \
 
 def Tours_Shiftlen_Weekly_UB_rule(M, s, k, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for j in M.DAYS for (p, d, q) in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) <= \
+               for j in M.DAYS for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]) <= \
            M.tt_shiftlen_max_dys_weeks[M.TT_x[s], k, w]
 
 
 model.Tours_Shiftlen_Weekly_UB = pyo.Constraint(model.Tours_Shiftlen_Weekly_UB_idx,
-                                                       rule=Tours_Shiftlen_Weekly_UB_rule)
+                                                rule=Tours_Shiftlen_Weekly_UB_rule)
 
 
 # =============== Tours_Shiftlen_Total Lower and Upper Bounds on Days Worked ==============================================
@@ -1418,7 +1429,8 @@ def Tours_Shiftlen_Total_LB_idx_rule(M):
         for k in M.tt_length_x[M.TT_x[s]]:
             for w in M.WEEKS:
                 if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
-                    if any((s, p, d, q, k, M.TT_x[s]) in model.TourShift_idx for j in M.DAYS for (p, d, q)
+                    if any((s, p, d, q, k, M.TT_x[s])
+                           in model.TourShift_idx for j in M.DAYS for (p, d, q)
                            in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
                         index_list.append((s, k, w))
 
@@ -1432,9 +1444,9 @@ model.Tours_Shiftlen_Total_LB_idx = \
 
 def Tours_Shiftlen_Total_LB_rule(M, s, k, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for W in range(1, w + 1) for j in M.DAYS for (p, d, q) in
-               M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) >= M.tt_shiftlen_min_cumul_dys_weeks[
-               M.TT_x[s], k, w]
+               for W in range(1, w + 1) for j in M.DAYS for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) >=\
+           M.tt_shiftlen_min_cumul_dys_weeks[M.TT_x[s], k, w]
 
 
 model.Tours_Shiftlen_Total_LB = \
@@ -1448,7 +1460,8 @@ def Tours_Shiftlen_Total_UB_idx_rule(M):
         for k in M.tt_length_x[M.TT_x[s]]:
             for w in M.WEEKS:
                 if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN:
-                    if any((s, p, d, q, k, M.TT_x[s]) in model.TourShift_idx for j in M.DAYS for (p, d, q)
+                    if any((s, p, d, q, k, M.TT_x[s])
+                           in model.TourShift_idx for j in M.DAYS for (p, d, q)
                            in M.PotentialStartWindow[M.WIN_x[s], j, w, k, M.TT_x[s]]):
                         index_list.append((s, k, w))
 
@@ -1462,13 +1475,13 @@ model.Tours_Shiftlen_Total_UB_idx = \
 
 def Tours_Shiftlen_Total_UB_rule(M, s, k, w):
     return sum(M.TourShift[s, p, d, q, k, M.TT_x[s]]
-               for W in range(1, w + 1) for j in M.DAYS for (p, d, q) in
-               M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) <= M.tt_shiftlen_max_cumul_dys_weeks[
-               M.TT_x[s], k, w]
+               for W in range(1, w + 1) for j in M.DAYS for (p, d, q)
+               in M.PotentialStartWindow[M.WIN_x[s], j, W, k, M.TT_x[s]]) <=\
+           M.tt_shiftlen_max_cumul_dys_weeks[M.TT_x[s], k, w]
 
 
 model.Tours_Shiftlen_Total_UB = pyo.Constraint(model.Tours_Shiftlen_Total_UB_idx,
-                                                      rule=Tours_Shiftlen_Total_UB_rule)
+                                               rule=Tours_Shiftlen_Total_UB_rule)
 
 
 # Tours_Weekly Lower and Upper Bounds on Periods Worked -----------------------

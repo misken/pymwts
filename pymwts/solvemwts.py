@@ -8,17 +8,19 @@ phase 1 DAT file and these additional parameters.
 """
 
 import sys
+import io
 import sqlite3
 import datetime
 import logging
 
 import pyomo.opt
-from pyomo.environ import *
+import pyomo.environ as pyo
 
 import mwts_phase1
 import mwts_phase2
 from mwts_utils import *
 from pymwtsio.mwts_process_out_tour import create_mwt
+from pymwtsio.mwts_makedat import scalar_to_param
 
 # Possible input parameters
 
@@ -36,13 +38,13 @@ from pymwtsio.mwts_process_out_tour import create_mwt
 
 def solvemwts(scenario, phase1_dat_file, path,
               which_solver, timelimit, mipgap,
-              phase1_mod_file = 'mwts_phase1.py',
-              phase2_mod_file = 'mwts_phase2.py',
-              results_db = None,
-              bWriteStartWinDebug = False,
-              bWritePhase1Instance = False,
-              bWritePhase2Instance = False,
-              force_solve = False):
+              phase1_mod_file='mwts_phase1.py',
+              phase2_mod_file='mwts_phase2.py',
+              results_db=None,
+              bWriteStartDebugWindows=False,
+              bWritePhase1Instance=False,
+              bWritePhase2Instance=False,
+              force_solve=False):
     """
 
     :param scenario:
@@ -54,7 +56,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param phase1_mod_file:
     :param phase2_mod_file:
     :param results_db:
-    :param bWriteStartWinDebug:
+    :param bWriteStartDebugWindows:
     :param bWritePhase1Instance:
     :param bWritePhase2Instance:
     :return:
@@ -65,7 +67,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not force_solve and (results_db is not None):
         conn = sqlite3.connect(results_db)
         cur = conn.cursor()
-        row = cur.execute('SELECT Problem, sol_status FROM problem_list WHERE Problem=?', (scenario,))
+        row = cur.execute('SELECT Problem, sol_status FROM problem_list WHERE Problem=?',
+                          (scenario,))
 
         result = row.fetchone()
         if result[1] != 'not run':
@@ -157,7 +160,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
         phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
 
-    # Post Phase 1 construction taks ------------------------------------------
+    # Post Phase 1 construction tasks ------------------------------------------
 
     # Optionally write out out phase 1 instance
     if bWritePhase1Instance:
@@ -170,11 +173,11 @@ def solvemwts(scenario, phase1_dat_file, path,
         tot_cons = 0
         tot_vars = 0
         f1_sum.write("\n\nConstraint summary \n------------------\n")
-        for c in phase1_inst.component_objects(Constraint, active=True):
+        for c in phase1_inst.component_objects(pyo.Constraint, active=True):
             f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
         f1_sum.write("\n\nVariable summary \n------------------\n")
-        for v in phase1_inst.component_objects(Var):
+        for v in phase1_inst.component_objects(pyo.Var):
             f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
 
@@ -183,73 +186,71 @@ def solvemwts(scenario, phase1_dat_file, path,
         msg = "total vars = " + str(tot_vars) + "\n"
         f1_sum.write(msg)
 
-    # Optionally write out detailed debugging info for start windows (only if width > 0)
-    if bWriteStartWinDebug:
+    # Optionally write out detailed debugging info for start 
+    # windows (only if width > 0)
+    if bWriteStartDebugWindows:
         start_win_debug_file = path + scenario + '_debugwin.txt'
-        with open(start_win_debug_file,"w") as f_windebug:
+        with open(start_win_debug_file, "w") as f_debug_win:
             for w in phase1_inst.WEEKS:
                 for j in phase1_inst.DAYS:
                     for i in phase1_inst.PERIODS:
-                        f_windebug.write(
+                        f_debug_win.write(
                             'b_window_epoch[{0},{1},{2}] = {3}, '
                             'e_window_epoch[{0},{1},{2}] = {4}'.format(
-                                i, j, w,phase1_inst.b_window_epoch[i, j, w].value,
+                                i, j, w, phase1_inst.b_window_epoch[i, j, w].value,
                                 phase1_inst.e_window_epoch[i, j, w].value))
 
             for (i, j, w) in phase1_inst.PotentialGlobalStartWindow_index:
                 if phase1_inst.PotentialGlobalStartWindow[i, j, w]:
-                    f_windebug.write(
+                    f_debug_win.write(
                         'PotentialGlobalStartWindow[{},{},{}] = {}'.format(
                             i, j, w, phase1_inst.PotentialGlobalStartWindow[i, j, w].value))
 
             for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_index:
                 if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
-                    f_windebug.write(
+                    f_debug_win.write(
                         'PotentialStartWindow[{},{},{},{},{}] = {}'.format(
-                            i, j, w, k, t, phase1_inst.PotentialStartWindow[i, j, w, k, t].value))
+                            i, j, w, k, t,
+                            phase1_inst.PotentialStartWindow[i, j, w, k, t].value))
 
-            f_windebug.write('okStartWindowRoots_index = ')
+            f_debug_win.write('okStartWindowRoots_index = ')
             for (t, k) in phase1_inst.okStartWindowRoots_index:
-                f_windebug.write(str((t, k)))
+                f_debug_win.write(str((t, k)))
 
-            for (t,k) in phase1_inst.okStartWindowRoots_index:
-                f_windebug.write('okStartWindowRoots[{},{}] = '.format(t, k))
+            for (t, k) in phase1_inst.okStartWindowRoots_index:
+                f_debug_win.write('okStartWindowRoots[{},{}] = '.format(t, k))
                 for (i, j, w) in phase1_inst.okStartWindowRoots[t, k]:
-                    f_windebug.write(str(i, j, w))
+                    f_debug_win.write(str(i, j, w))
 
-            f_windebug.write('okTourType = ')
-            for (i,t) in phase1_inst.okTourType:
-                f_windebug.write(str(i, t))
+            f_debug_win.write('okTourType = ')
+            for (i, t) in phase1_inst.okTourType:
+                f_debug_win.write(str(i, t))
 
-            f_windebug.write('okTourTypeDay = ')
-            for (i,t,d) in phase1_inst.okTourTypeDay:
-                f_windebug.write(str(i, t, d))
+            f_debug_win.write('okTourTypeDay = ')
+            for (i, t, d) in phase1_inst.okTourTypeDay:
+                f_debug_win.write(str(i, t, d))
 
-            f_windebug.write('bchain echain #links = ')
-            for (t,k) in phase1_inst.okStartWindowRoots_index:
-                f_windebug.write('(t,k) = [{},{}] = '.format(t, k))
+            f_debug_win.write('bchain echain #links = ')
+            for (t, k) in phase1_inst.okStartWindowRoots_index:
+                f_debug_win.write('(t,k) = [{},{}] = '.format(t, k))
                 for (i, j, w) in phase1_inst.bchain[t, k]:
-                    out = '({},{},{})'.format(i,j,w)
+                    out = '({},{},{})'.format(i, j, w)
                     for (x, y, z) in phase1_inst.echain[t, k, i, j, w]:
-                        out = out + '({},{},{}) {}\n'.format(x,y,z,phase1_inst.n_links[t, k, i, j, w].value)
-                    f_windebug.write(out)
+                        out = out + '({},{},{}) {}\n'.format(
+                            x, y, z, phase1_inst.n_links[t, k, i, j, w].value)
+                    f_debug_win.write(out)
 
             for (t, k, i, j, w) in phase1_inst.chain_index:
                 out = ''
-                f_windebug.write('chain[{},{},{},{},{}]='.format(t, k, i, j, w))
+                f_debug_win.write('chain[{},{},{},{},{}]='.format(t, k, i, j, w))
                 for (x, y, z) in phase1_inst.chain[t, k, i, j, w]:
                     out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w].value)
-                f_windebug.write(out)
+                f_debug_win.write(out)
 
             for (t, k, i, j, w, m) in phase1_inst.link_index:
-                f_windebug.write('link[{},{},{},{},{},{}]='.format(t, k, i, j, w, m))
+                f_debug_win.write('link[{},{},{},{},{},{}]='.format(t, k, i, j, w, m))
 
             logging.info('Windows debug info written')
-
-    # solver = pyomo.opt.SolverFactory('cplex')
-    # results = solver.solve(self.m, tee=True, keepfiles=False,
-    #                        options_string="mip_tolerances_integrality=1e-9 mip_tolerances_mipgap=0")
-    #
 
     # TODO - add status messages during overall model generation and solution process
 
@@ -261,7 +262,8 @@ def solvemwts(scenario, phase1_dat_file, path,
         solver = pyomo.opt.SolverFactory('cbc')
         solver.options.seconds = timelimit
         solver.options.ratioGap = mipgap
-    # solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
+    # solver.options.solution = '../tests/solution.sol'
+    # This is NOT the correct way to specify this option
 
     if which_solver == 'glpk':
         solver = pyomo.opt.SolverFactory('glpk')
@@ -294,11 +296,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     # By default, results are automatically loaded into model instance
     # See https://groups.google.com/forum/#!topic/pyomo-forum/wjjY2XvmG2w
 
-    try:
-        phase1_solution_value = phase1_inst.total_cost()
+    if pyo.value(phase1_inst.total_cost, exception=False) is not None:
+        phase1_solution_value = pyo.value(phase1_inst.total_cost)
         logging.info('Phase 1 solved successfully')
         logging.info('Phase 1 solution = %s', phase1_solution_value)
-    except:
+    else:
         logging.critical('Phase 1 problem not solved successfully.')
         phase1_solution_status = phase1_results.solver.status
         logging.critical('Status: %s', str(phase1_solution_status))
@@ -309,12 +311,12 @@ def solvemwts(scenario, phase1_dat_file, path,
         tot_cons = 0
         tot_vars = 0
         f1_sum.write("\n\nConstraint summary \n------------------\n")
-        for c in phase1_inst.component_objects(Constraint, active=True):
+        for c in phase1_inst.component_objects(pyo.Constraint, active=True):
             # conobj = getattr(phase1_inst, str(c))
             f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
         f1_sum.write("\n\nVariable summary \n------------------\n")
-        for v in phase1_inst.component_objects(Var):
+        for v in phase1_inst.component_objects(pyo.Var):
             # vobj = getattr(phase1_inst, str(v))
             f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
@@ -334,19 +336,20 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Write shift summary
     phase1_shiftsummary = write_phase1_shiftsummary(phase1_inst)
-    with open(phase1_shiftsum_file,'w') as f1_shiftsum:
+    with open(phase1_shiftsum_file, 'w') as f1_shiftsum:
         print(phase1_shiftsummary, file=f1_shiftsum)
 
     # Write tour skeleton
     phase1_tourskeleton = weekenddaysworked_to_tourskeleton(phase1_inst)
-    with open(phase1_tourskeleton_file,'w') as f1_tourskeleton:
+    with open(phase1_tourskeleton_file, 'w') as f1_tourskeleton:
         print(phase1_tourskeleton, file=f1_tourskeleton)
         phase1_tourskeleton = tourtypeday_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
 
     # Phase 2 model construction ----------------------------------------------
 
-    # If phase 1 solved, create phase 2 params from phase 1 vars and solve phase 2 problem.
+    # If phase 1 solved, create phase 2 params from phase 1 vars and solve
+    # phase 2 problem.
     # TODO - how to check for status other than 'optimal'?
 
     # Need to convert the phase2 instance to concrete mode before we can add constraints, fix values, etc.
@@ -358,20 +361,28 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # phase_1_2_integrate(phase1_inst, phase2_inst)
 
-    tot_cap = value(sum(phase1_inst.cov[i,j,w].value for (i,j,w) in phase1_inst.epoch_tuples))
-    us1_cost = value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value for (i,j,w) in phase1_inst.epoch_tuples))
-    us2_cost = value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value for (i,j,w) in phase1_inst.epoch_tuples))
+    tot_cap = pyo.value(sum(phase1_inst.cov[i,j,w].value
+                            for (i,j,w) in phase1_inst.epoch_tuples))
+    us1_cost = pyo.value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value
+                             for (i,j,w) in phase1_inst.epoch_tuples))
+    us2_cost = pyo.value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value
+                             for (i,j,w) in phase1_inst.epoch_tuples))
 
-    n_tours = int(round(sum((phase1_inst.TourType[i,t].value for (i,t) in phase1_inst.okTourType))))
+    n_tours = int(round(sum((phase1_inst.TourType[i, t].value
+                             for (i,t) in phase1_inst.okTourType))))
 
-    param_n_tours = scalar_to_param('n_tours',n_tours)
+    param_n_tours = scalar_to_param('n_tours', n_tours)
 
-    param_Shift = shift_to_param('Shift',phase1_inst)
-    param_TourType = tourtype_to_param('TourType',phase1_inst)
-    param_TourTypeDay = tourtypeday_to_param('TourTypeDay',phase1_inst)
-    param_TourTypeDayShift = tourtypedayshift_to_param('TourTypeDayShift',phase1_inst)
-    param_WeekendDaysWorked = weekenddaysworked_to_param('WeekendDaysWorked',phase1_inst)
-    param_MultiWeekDaysWorked = multiweekdaysworked_to_param('MultiWeekDaysWorked', phase1_inst)
+    param_Shift = shift_to_param('Shift', phase1_inst)
+    param_TourType = tourtype_to_param('TourType', phase1_inst)
+    param_TourTypeDay = tourtypeday_to_param(
+        'TourTypeDay', phase1_inst)
+    param_TourTypeDayShift = tourtypedayshift_to_param(
+        'TourTypeDayShift', phase1_inst)
+    param_WeekendDaysWorked = weekenddaysworked_to_param(
+        'WeekendDaysWorked', phase1_inst)
+    param_MultiWeekDaysWorked = multiweekdaysworked_to_param(
+        'MultiWeekDaysWorked', phase1_inst)
 
     param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
 
@@ -397,263 +408,12 @@ def solvemwts(scenario, phase1_dat_file, path,
         logging.info('Phase 2 dat file created')
 
     # Initialize the phase 2 instance
-
-    # phase2_mdl = import_file(phase2_mod_file).model_phase2
     phase2_mdl = mwts_phase2.model
-    phase2_inst = phase2_mdl.create_instance(filename = phase2_dat_file)
-    phase2_inst.name = 'mwts_phase2_inst'
-    logging.info('Phase 2 instance created')
-
-    # Activate/deactivate constraints
-
-    bTour_Weekend_conservation_active = True
-    bTour_MWDW_conservation_active = True
-
-    bOneWeekendPatternPerTour_active = True
-    bOneMWDWPatternPerTour_active = True
-
-    bTourShift_Weekend_integration1_active = True
-    bTourShift_MWDW_integration1_active = True
-
-    bTours_Daily_active = True
-    bTours_Daily_conservation_active = True
-
-    # The following four constraints shouldn't be needed now that we have
-    # added the Tour_MWDW_con
-    bTours_Weekly_LB_active = False
-    bTours_Weekly_UB_active = False
-    bTours_Total_LB_active = False
-    bTours_Total_UB_active = False
-
-    bTours_Shiftlen_Weekly_LB_active = True
-    bTours_Shiftlen_Weekly_UB_active = True
-    bTours_Shiftlen_Total_LB_active = True
-    bTours_Shiftlen_Total_UB_active = True
-
-    bTours_Weekly_Prds_LB_active = True
-    bTours_Weekly_Prds_UB_active = True
-    bTours_Total_Prds_LB_active = True
-    bTours_Total_Prds_UB_active = True
-
-    # Deactivate constraints per the above list of binaries
-
-    if not bTour_Weekend_conservation_active:
-        phase2_inst.Tour_Weekend_conservation.deactivate()
-
-    if not bTour_MWDW_conservation_active:
-        phase2_inst.Tour_MWDW_conservation.deactivate()
-
-    if not bOneMWDWPatternPerTour_active:
-        phase2_inst.OneMWDWPatternPerTour.deactivate()
-
-    if not bOneWeekendPatternPerTour_active:
-        phase2_inst.OneWeekendPatternPerTour.deactivate()
-
-    if not bTourShift_Weekend_integration1_active:
-        phase2_inst.Tour_MWDW_integration1.deactivate()
-
-    if not bTourShift_MWDW_integration1_active:
-        phase2_inst.Tour_MWDW_integration1.deactivate()
-
-    if not bTours_Daily_active:
-        phase2_inst.Tours_Daily.deactivate()
-
-    if not bTours_Daily_conservation_active:
-        phase2_inst.Tours_Daily_conservation.deactivate()
-
-    if not bTours_Weekly_LB_active:
-        phase2_inst.Tours_Weekly_LB.deactivate()
-
-    if not bTours_Weekly_UB_active:
-        phase2_inst.Tours_Weekly_UB.deactivate()
-
-    if not bTours_Total_LB_active:
-        phase2_inst.Tours_Total_LB.deactivate()
-
-    if not bTours_Total_UB_active:
-        phase2_inst.Tours_Total_UB.deactivate()
-
-    if not bTours_Shiftlen_Weekly_LB_active:
-        phase2_inst.Tours_Shiftlen_Weekly_LB.deactivate()
-
-    if not bTours_Shiftlen_Weekly_UB_active:
-        phase2_inst.Tours_Shiftlen_Weekly_UB.deactivate()
-
-    if not bTours_Shiftlen_Total_LB_active:
-        phase2_inst.Tours_Shiftlen_Total_LB.deactivate()
-
-    if not bTours_Shiftlen_Total_UB_active:
-        phase2_inst.Tours_Shiftlen_Total_UB.deactivate()
-
-    if not bTours_Weekly_Prds_LB_active:
-        phase2_inst.Tours_Weekly_Prds_LB.deactivate()
-
-    if not bTours_Weekly_Prds_UB_active:
-        phase2_inst.Tours_Weekly_Prds_UB.deactivate()
-
-    if not bTours_Total_Prds_LB_active:
-        phase2_inst.Tours_Total_Prds_LB.deactivate()
-
-    if not bTours_Total_Prds_UB_active:
-        phase2_inst.Tours_Total_Prds_UB.deactivate()
-
-    # Optionally write out phase 2 problem instance
-    if bWritePhase2Instance:
-
-        with open(phase2_inst_file, 'w') as f2_inst:
-            phase2_inst.pprint(ostream=f2_inst)
-            logging.info('Phase 2 instance written')
-
-    # Write out phase 2 problem size summary info
-
-    with open(phase2_summary_file,'w') as f2_sum:
-        tot_cons = 0
-        tot_vars = 0
-        f2_sum.write("\n\nConstraint summary \n------------------\n")
-        for c in phase2_inst.component_objects(Constraint, active=True):
-            # conobj = getattr(phase2_inst, str(c))
-            f2_sum.write(c.name + " --> " + str(len(c)) + '\n')
-            tot_cons += len(c)
-        f2_sum.write("\n\nVariable summary \n------------------\n")
-        for v in phase2_inst.component_objects(Var):
-            # vobj = getattr(phase2_inst, str(v))
-            f2_sum.write(v.name + " --> " + str(len(v)) + '\n')
-            tot_vars += len(v)
-
-        msg = "\ntotal cons = " + str(tot_cons)
-        f2_sum.write(msg)
-        msg = "\ntotal vars = " + str(tot_vars)
-        f2_sum.write(msg)
-
-    # Solve phase 2
-    stream_solver = True
-    phase2_results = solver.solve(phase2_inst, tee=stream_solver)
-    phase2_solution_status = str(phase2_results.solver.status)
-    logging.info('Phase 2 solution status = %s', str(phase2_solution_status))
-
-    if str(phase2_results.Solution.Status) != 'unknown':
-
-        phase2_solution_status = phase2_results.solver.status
-        print(phase2_solution_status)
-        print(str(value(phase2_inst.total_num_tours)))
-        phase2_solution_value = value(phase2_inst.total_num_tours())
-
-        # Write results file
-        with open(phase2_results_file, "w") as f2_res:
-            phase2_inst.display(ostream=f2_res)
-            logging.info('Phase 2 summary and results written')
-
-    # Create the multi-week tour file
-    idx_copy = []
-    for idx in phase2_inst.TourShift:
-        idx_copy.append(idx)
-    idx_sorted = sorted(idx_copy)
-
-    with open(tour_file, "w") as f2_tour:
-        f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
-        f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
-        f2_tour.write('PP4\n')
-
-        for idx in idx_sorted:
-            if phase2_inst.TourShift[idx].value > 0:
-                f2_tour.write(
-                    '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
-                                                    phase2_inst.lengths[idx[4]],
-                                                    phase2_inst.WIN_x[idx[0]]))
-
-        f2_tour.write('TTS\n')
-        for tour in phase2_inst.TOURS:
-            f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
-
-    create_mwt(tour_file, scenario, path)
-    logging.info('Tour related output files created')
-    ts_now = datetime.datetime.now()
-    var_tuple = (scenario, phase1_solution_value, tot_cap,
-                 str(phase1_solution_status), str(phase2_solution_status),
-                 us1_cost, us2_cost, phase2_solution_value,
-                 str(ts_now))
-    logging.info('Solution log record %s', str(var_tuple))
-
-    # Connect to the problem solution log database.
-    if results_db is not None:
-        conn = sqlite3.connect(results_db)
-        cur = conn.cursor()
-        now = datetime.datetime.now()
-        field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,' \
-                           'us1_cost,us2_cost,phase2_obj,timestamp)'
-        var_tuple = (scenario, phase1_solution_value, tot_cap,
-                     str(phase1_solution_status), str(phase2_solution_status), us1_cost, us2_cost,
-                     phase2_solution_value, str(now))
-        sql_insert = 'insert into solution_log ' + field_name_tuple + ' values ' + str(var_tuple)
-        print(sql_insert)
-        cur.execute(sql_insert)
-        conn.commit()
-
-        # Update the problem list table
-        cur = conn.cursor()
-        conn.row_factory = sqlite3.Row
-        sql_update = 'update problem_list set sol_status="' + str(phase1_solution_status) + ':' + str(
-            phase2_solution_status) + '" where problem="' + scenario + '"'
-        cur.execute(sql_update)
-        print(sql_update)
-        conn.commit()
-        conn.close()
-
-
-def probe_phase2(scenario, phase2_dat_file, path,
-                 which_solver, timelimit, mipgap, wintt_filter=None):
-    """
-    Created this to make it easy to try out limited combinations of windows and tour
-    types to try to debug model. Needed to manually add lines such as
-
-    set activeTT := 8;
-    set activeWIN := 44;
-
-    to Phase 2 dat file and then resolve Phase 2. Couldn't find easy way to integrate with
-    main model above, so created this probe_phase2() function.
-
-    :param scenario:
-    :param phase2_dat_file:
-    :param path:
-    :param which_solver:
-    :param timelimit:
-    :param mipgap:
-    :param phase2_results_file:
-    :return:
-    """
-
-    # Setup the solver
-
-    solver = None
-    if which_solver == 'cbc':
-        solver = pyomo.opt.SolverFactory('cbc')
-        solver.options.seconds = timelimit
-        solver.options.ratioGap = mipgap
-    # solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
-
-    if which_solver == 'glpk':
-        solver = pyomo.opt.SolverFactory('glpk')
-        solver.options.tmlim = timelimit
-        solver.options.mipgap = mipgap
-
-    if which_solver == 'gurobi':
-        solver = pyomo.opt.SolverFactory('gurobi')
-        solver.options.timelimit = timelimit
-        solver.options.mipgap = mipgap
-
-    # Initialize the phase 2 instance
-
-    # phase2_mdl = import_file(phase2_mod_file).model_phase2
-    phase2_mdl = mwts_phase2.model_phase2
     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')
 
-    # Optionally limit which windows and tour types
-
-
     # Activate/deactivate constraints
-
     bTour_Weekend_conservation_active = True
     bTour_MWDW_conservation_active = True
 
@@ -743,34 +503,61 @@ def probe_phase2(scenario, phase2_dat_file, path,
     if not bTours_Total_Prds_UB_active:
         phase2_inst.Tours_Total_Prds_UB.deactivate()
 
+    # Optionally write out phase 2 problem instance
+    if bWritePhase2Instance:
+
+        with open(phase2_inst_file, 'w') as f2_inst:
+            phase2_inst.pprint(ostream=f2_inst)
+            logging.info('Phase 2 instance written')
+
+    # Write out phase 2 problem size summary info
+
+    with open(phase2_summary_file,'w') as f2_sum:
+        tot_cons = 0
+        tot_vars = 0
+        f2_sum.write("\n\nConstraint summary \n------------------\n")
+        for c in phase2_inst.component_objects(pyo.Constraint, active=True):
+            f2_sum.write(c.name + " --> " + str(len(c)) + '\n')
+            tot_cons += len(c)
+        f2_sum.write("\n\nVariable summary \n------------------\n")
+        for v in phase2_inst.component_objects(pyo.Var):
+            f2_sum.write(v.name + " --> " + str(len(v)) + '\n')
+            tot_vars += len(v)
+
+        msg = "\ntotal cons = " + str(tot_cons)
+        f2_sum.write(msg)
+        msg = "\ntotal vars = " + str(tot_vars)
+        f2_sum.write(msg)
+
     # Solve phase 2
     stream_solver = True
     phase2_results = solver.solve(phase2_inst, tee=stream_solver)
+    phase2_solution_status = str(phase2_results.solver.status)
+    logging.info('Phase 2 solution status = %s', str(phase2_solution_status))
 
-    phase2_solution_status = phase2_results.solver.status
-    print(phase2_solution_status)
-    print(str(value(phase2_inst.total_num_tours)))
-    phase2_solution_value = value(phase2_inst.total_num_tours())
+    if str(phase2_results.Solution.Status) != 'unknown':
 
-    # Write results file
-    phase2_results_file = path + scenario + '.yml'
-    with open(phase2_results_file, "w") as f2_res:
-        phase2_inst.display(ostream=f2_res)
-        logging.info('Phase 2 summary and results written')
+        phase2_solution_status = phase2_results.solver.status
+        print(phase2_solution_status)
+        print(str(pyo.value(phase2_inst.total_num_tours)))
+        phase2_solution_value = pyo.value(phase2_inst.total_num_tours())
+        # Write results file
+        with open(phase2_results_file, "w") as f2_res:
+            phase2_inst.display(ostream=f2_res)
+            logging.info('Phase 2 summary and results written')
 
     # Create the multi-week tour file
-    tour_file = path + scenario + '.tur'
-    idxcopy = []
+    idx_copy = []
     for idx in phase2_inst.TourShift:
-        idxcopy.append(idx)
-    idxsorted = sorted(idxcopy)
+        idx_copy.append(idx)
+    idx_sorted = sorted(idx_copy)
 
     with open(tour_file, "w") as f2_tour:
         f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
         f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
         f2_tour.write('PP4\n')
 
-        for idx in idxsorted:
+        for idx in idx_sorted:
             if phase2_inst.TourShift[idx].value > 0:
                 f2_tour.write(
                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
@@ -782,3 +569,219 @@ def probe_phase2(scenario, phase2_dat_file, path,
             f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
 
     create_mwt(tour_file, scenario, path)
+    logging.info('Tour related output files created')
+    ts_now = datetime.datetime.now()
+    var_tuple = (scenario, phase1_solution_value, tot_cap,
+                 str(phase1_solution_status), str(phase2_solution_status),
+                 us1_cost, us2_cost, phase2_solution_value,
+                 str(ts_now))
+    logging.info('Solution log record %s', str(var_tuple))
+
+    # Connect to the problem solution log database.
+    if results_db is not None:
+        conn = sqlite3.connect(results_db)
+        cur = conn.cursor()
+        now = datetime.datetime.now()
+        field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,' \
+                           'us1_cost,us2_cost,phase2_obj,timestamp)'
+        var_tuple = (scenario, phase1_solution_value, tot_cap,
+                     str(phase1_solution_status), str(phase2_solution_status), us1_cost, us2_cost,
+                     phase2_solution_value, str(now))
+        sql_insert = 'insert into solution_log ' + field_name_tuple + ' values ' + str(var_tuple)
+        print(sql_insert)
+        cur.execute(sql_insert)
+        conn.commit()
+
+        # Update the problem list table
+        cur = conn.cursor()
+        conn.row_factory = sqlite3.Row
+        sql_update = 'update problem_list set sol_status="' + str(phase1_solution_status) + ':' + str(
+            phase2_solution_status) + '" where problem="' + scenario + '"'
+        cur.execute(sql_update)
+        print(sql_update)
+        conn.commit()
+        conn.close()
+
+
+# def probe_phase2(scenario, phase2_dat_file, path,
+#                  which_solver, timelimit, mipgap, wintt_filter=None):
+#     """
+#     Created this to make it easy to try out limited combinations of windows and tour
+#     types to try to debug model. Needed to manually add lines such as
+#
+#     set activeTT := 8;
+#     set activeWIN := 44;
+#
+#     to Phase 2 dat file and then resolve Phase 2. Couldn't find easy way to integrate with
+#     main model above, so created this probe_phase2() function.
+#
+#     :param scenario:
+#     :param phase2_dat_file:
+#     :param path:
+#     :param which_solver:
+#     :param timelimit:
+#     :param mipgap:
+#     :param phase2_results_file:
+#     :return:
+#     """
+#
+#     # Setup the solver
+#
+#     solver = None
+#     if which_solver == 'cbc':
+#         solver = pyomo.opt.SolverFactory('cbc')
+#         solver.options.seconds = timelimit
+#         solver.options.ratioGap = mipgap
+#     # solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
+#
+#     if which_solver == 'glpk':
+#         solver = pyomo.opt.SolverFactory('glpk')
+#         solver.options.tmlim = timelimit
+#         solver.options.mipgap = mipgap
+#
+#     if which_solver == 'gurobi':
+#         solver = pyomo.opt.SolverFactory('gurobi')
+#         solver.options.timelimit = timelimit
+#         solver.options.mipgap = mipgap
+#
+#     # Initialize the phase 2 instance
+#
+#     # phase2_mdl = import_file(phase2_mod_file).model_phase2
+#     phase2_mdl = mwts_phase2.model_phase2
+#     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
+#     phase2_inst.name = 'mwts_phase2_inst'
+#     logging.info('Phase 2 instance created')
+#
+#     # Optionally limit which windows and tour types
+#
+#
+#     # Activate/deactivate constraints
+#
+#     bTour_Weekend_conservation_active = True
+#     bTour_MWDW_conservation_active = True
+#
+#     bOneWeekendPatternPerTour_active = True
+#     bOneMWDWPatternPerTour_active = True
+#
+#     bTourShift_Weekend_integration1_active = True
+#     bTourShift_MWDW_integration1_active = True
+#
+#     bTours_Daily_active = True
+#     bTours_Daily_conservation_active = True
+#
+#     bTours_Weekly_LB_active = False
+#     bTours_Weekly_UB_active = False
+#     bTours_Total_LB_active = False
+#     bTours_Total_UB_active = False
+#
+#     bTours_Shiftlen_Weekly_LB_active = True
+#     bTours_Shiftlen_Weekly_UB_active = True
+#     bTours_Shiftlen_Total_LB_active = True
+#     bTours_Shiftlen_Total_UB_active = True
+#
+#     bTours_Weekly_Prds_LB_active = True
+#     bTours_Weekly_Prds_UB_active = True
+#     bTours_Total_Prds_LB_active = True
+#     bTours_Total_Prds_UB_active = True
+#
+#     # Deactivate constraints per the above list of binaries
+#
+#     if bTour_Weekend_conservation_active:
+#         phase2_inst.Tour_Weekend_conservation.deactivate()
+#
+#     if bTour_MWDW_conservation_active:
+#         phase2_inst.Tour_MWDW_conservation.deactivate()
+#
+#     if not bOneWeekendPatternPerTour_active:
+#         phase2_inst.OneWeekendPatternPerTour.deactivate()
+#
+#     if not bOneMWDWPatternPerTour_active:
+#         phase2_inst.OneMWDWPatternPerTour.deactivate()
+#
+#     if not bTourShift_Weekend_integration1_active:
+#         phase2_inst.TourShift_Weekend_integration1.deactivate()
+#
+#     if not bTourShift_MWDW_integration1_active:
+#         phase2_inst.TourShift_MWDW_integration1.deactivate()
+#
+#     if not bTours_Daily_active:
+#         phase2_inst.Tours_Daily.deactivate()
+#
+#     if not bTours_Daily_conservation_active:
+#         phase2_inst.Tours_Daily_conservation.deactivate()
+#
+#     if not bTours_Weekly_LB_active:
+#         phase2_inst.Tours_Weekly_LB.deactivate()
+#
+#     if not bTours_Weekly_UB_active:
+#         phase2_inst.Tours_Weekly_UB.deactivate()
+#
+#     if not bTours_Total_LB_active:
+#         phase2_inst.Tours_Total_LB.deactivate()
+#
+#     if not bTours_Total_UB_active:
+#         phase2_inst.Tours_Total_UB.deactivate()
+#
+#     if not bTours_Shiftlen_Weekly_LB_active:
+#         phase2_inst.Tours_Shiftlen_Weekly_LB.deactivate()
+#
+#     if not bTours_Shiftlen_Weekly_UB_active:
+#         phase2_inst.Tours_Shiftlen_Weekly_UB.deactivate()
+#
+#     if not bTours_Shiftlen_Total_LB_active:
+#         phase2_inst.Tours_Shiftlen_Total_LB.deactivate()
+#
+#     if not bTours_Shiftlen_Total_UB_active:
+#         phase2_inst.Tours_Shiftlen_Total_UB.deactivate()
+#
+#     if not bTours_Weekly_Prds_LB_active:
+#         phase2_inst.Tours_Weekly_Prds_LB.deactivate()
+#
+#     if not bTours_Weekly_Prds_UB_active:
+#         phase2_inst.Tours_Weekly_Prds_UB.deactivate()
+#
+#     if not bTours_Total_Prds_LB_active:
+#         phase2_inst.Tours_Total_Prds_LB.deactivate()
+#
+#     if not bTours_Total_Prds_UB_active:
+#         phase2_inst.Tours_Total_Prds_UB.deactivate()
+#
+#     # Solve phase 2
+#     stream_solver = True
+#     phase2_results = solver.solve(phase2_inst, tee=stream_solver)
+#
+#     phase2_solution_status = phase2_results.solver.status
+#     print(phase2_solution_status)
+#     print(str(value(phase2_inst.total_num_tours)))
+#     phase2_solution_value = value(phase2_inst.total_num_tours())
+#
+#     # Write results file
+#     phase2_results_file = path + scenario + '.yml'
+#     with open(phase2_results_file, "w") as f2_res:
+#         phase2_inst.display(ostream=f2_res)
+#         logging.info('Phase 2 summary and results written')
+#
+#     # Create the multi-week tour file
+#     tour_file = path + scenario + '.tur'
+#     idxcopy = []
+#     for idx in phase2_inst.TourShift:
+#         idxcopy.append(idx)
+#     idxsorted = sorted(idxcopy)
+#
+#     with open(tour_file, "w") as f2_tour:
+#         f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
+#         f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
+#         f2_tour.write('PP4\n')
+#
+#         for idx in idxsorted:
+#             if phase2_inst.TourShift[idx].value > 0:
+#                 f2_tour.write(
+#                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
+#                                                     phase2_inst.lengths[idx[4]],
+#                                                     phase2_inst.WIN_x[idx[0]]))
+#
+#         f2_tour.write('TTS\n')
+#         for tour in phase2_inst.TOURS:
+#             f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
+#
+#     create_mwt(tour_file, scenario, path)
