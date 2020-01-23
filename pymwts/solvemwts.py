@@ -280,21 +280,32 @@ def solvemwts(scenario, phase1_dat_file, path,
         print("Could not get solver: " + which_solver)
         sys.exit(1)
 
-    stream_solver = True
-    phase1_results = solver.solve(phase1_inst, tee=stream_solver)
+    # By default, results are automatically loaded into model instance
+    # See https://groups.google.com/forum/#!topic/pyomo-forum/wjjY2XvmG2w
+    # In order to check if we found a solution before time limit reached,
+    # need to override this default behavior with load_solutions=False.
 
-    # TODO - check if phase 1 solved
+    stream_solver = True
+    phase1_results = solver.solve(phase1_inst, tee=stream_solver,
+                                  load_solutions=False)
+
+    if len(phase1_results.solution) == 0:
+        logging.warning('No Phase 1 solution found. Status = %s Termination condition = %s',
+                        phase1_results.solver.status, phase1_results.solver.termination_condition)
+        sys.exit(1)
+    else:
+        logging.info('Phase 1 solution found. Status = %s Termination condition = %s',
+                     phase1_results.solver.status, phase1_results.solver.termination_condition)
+
+    # Some sort of Phase 1 solution was found, let's load the results into model
+    phase1_inst.solutions.load_from(phase1_results)
+
     if phase1_results.solver.status != pyomo.opt.SolverStatus.ok:
         logging.warning('Check solver not ok? Status = %s', phase1_results.solver.status)
 
     if phase1_results.solver.termination_condition != pyomo.opt.TerminationCondition.optimal:
         logging.warning('Check solver optimality? Term condition = %s',
                         phase1_results.solver.termination_condition)
-
-    logging.info('Phase 1 solution status = %s', phase1_results.solver.status)
-
-    # By default, results are automatically loaded into model instance
-    # See https://groups.google.com/forum/#!topic/pyomo-forum/wjjY2XvmG2w
 
     if pyo.value(phase1_inst.total_cost, exception=False) is not None:
         phase1_solution_value = pyo.value(phase1_inst.total_cost)
@@ -312,12 +323,10 @@ def solvemwts(scenario, phase1_dat_file, path,
         tot_vars = 0
         f1_sum.write("\n\nConstraint summary \n------------------\n")
         for c in phase1_inst.component_objects(pyo.Constraint, active=True):
-            # conobj = getattr(phase1_inst, str(c))
             f1_sum.write(c.name + " --> " + str(len(c)) + "\n")
             tot_cons += len(c)
         f1_sum.write("\n\nVariable summary \n------------------\n")
         for v in phase1_inst.component_objects(pyo.Var):
-            # vobj = getattr(phase1_inst, str(v))
             f1_sum.write(v.name + " --> " + str(len(v)) + "\n")
             tot_vars += len(v)
 
@@ -531,16 +540,25 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Solve phase 2
     stream_solver = True
-    phase2_results = solver.solve(phase2_inst, tee=stream_solver)
-    phase2_solution_status = str(phase2_results.solver.status)
-    logging.info('Phase 2 solution status = %s', str(phase2_solution_status))
+    phase2_results = solver.solve(phase2_inst, tee=stream_solver,
+                                  load_solutions=False)
+
+    if len(phase2_results.solution) == 0:
+        logging.warning('No Phase 2 solution found. Status = %s Termination condition = %s',
+                        phase2_results.solver.status, phase2_results.solver.termination_condition)
+    else:
+        logging.info('Phase 2 solution found. Status = %s Termination condition = %s',
+                     phase2_results.solver.status, phase2_results.solver.termination_condition)
+
+    # Some sort of Phase 2 solution was found, let's load the results into model
+    phase2_inst.solutions.load_from(phase2_results)
 
     if str(phase2_results.Solution.Status) != 'unknown':
 
         phase2_solution_status = phase2_results.solver.status
         print(phase2_solution_status)
-        print(str(pyo.value(phase2_inst.total_num_tours)))
-        phase2_solution_value = pyo.value(phase2_inst.total_num_tours())
+        print(str(pyo.value(phase2_inst.total_shifts)))
+        phase2_solution_value = pyo.value(phase2_inst.total_shifts())
         # Write results file
         with open(phase2_results_file, "w") as f2_res:
             phase2_inst.display(ostream=f2_res)
@@ -752,8 +770,8 @@ def solvemwts(scenario, phase1_dat_file, path,
 #
 #     phase2_solution_status = phase2_results.solver.status
 #     print(phase2_solution_status)
-#     print(str(value(phase2_inst.total_num_tours)))
-#     phase2_solution_value = value(phase2_inst.total_num_tours())
+#     print(str(value(phase2_inst.total_shifts)))
+#     phase2_solution_value = value(phase2_inst.total_shifts())
 #
 #     # Write results file
 #     phase2_results_file = path + scenario + '.yml'
