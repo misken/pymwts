@@ -78,8 +78,7 @@ def main(argv=None):
     # application code here, like:
     # run(settings, args)
     solve.solvemwts(args.scenario, args.phase1dat, args.path,
-                    args.solver, args.timelimit, args.mipGap,
-                    args.windebug)
+                    args.solver, args.timelimit, args.mipGap)
     return 0  # success
 
 

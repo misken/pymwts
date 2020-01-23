@@ -38,12 +38,10 @@ from pymwtsio.mwts_makedat import scalar_to_param
 
 def solvemwts(scenario, phase1_dat_file, path,
               which_solver, timelimit, mipgap,
-              phase1_mod_file='mwts_phase1.py',
-              phase2_mod_file='mwts_phase2.py',
               results_db=None,
-              bWriteStartDebugWindows=False,
-              bWritePhase1Instance=False,
-              bWritePhase2Instance=False,
+              debug_start_windows=False,
+              write_phase1_instance=False,
+              write_phase2_instance=False,
               force_solve=False):
     """
 
@@ -53,12 +51,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param which_solver:
     :param timelimit:
     :param mipgap:
-    :param phase1_mod_file:
-    :param phase2_mod_file:
     :param results_db:
-    :param bWriteStartDebugWindows:
-    :param bWritePhase1Instance:
-    :param bWritePhase2Instance:
+    :param debug_start_windows:
+    :param write_phase1_instance:
+    :param write_phase2_instance:
+    :param force_solve:
     :return:
     """
 
@@ -163,7 +160,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     # Post Phase 1 construction tasks ------------------------------------------
 
     # Optionally write out out phase 1 instance
-    if bWritePhase1Instance:
+    if write_phase1_instance:
         with open(phase1_inst_file, 'w') as f1_inst:
             phase1_inst.pprint(ostream=f1_inst)
             logging.info('Phase 1 instance written')
@@ -188,7 +185,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Optionally write out detailed debugging info for start 
     # windows (only if width > 0)
-    if bWriteStartDebugWindows:
+    if debug_start_windows:
         start_win_debug_file = path + scenario + '_debugwin.txt'
         with open(start_win_debug_file, "w") as f_debug_win:
             for w in phase1_inst.WEEKS:
@@ -513,7 +510,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase2_inst.Tours_Total_Prds_UB.deactivate()
 
     # Optionally write out phase 2 problem instance
-    if bWritePhase2Instance:
+    if write_phase2_instance:
 
         with open(phase2_inst_file, 'w') as f2_inst:
             phase2_inst.pprint(ostream=f2_inst)

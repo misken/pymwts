@@ -661,7 +661,7 @@ def okStartWindowRoots_init(M, t, k):
 
 
 model.okStartWindowRoots = pyo.Set(model.okStartWindowRoots_idx,
-                                   dimen=3, ordered=True,
+                                   dimen=3,
                                    initialize=okStartWindowRoots_init)
 
 
@@ -685,8 +685,9 @@ def bchain_init(M, t, k):
     window_list = []
     if M.g_start_window_width > 0:
         for (i, j, w) in M.okStartWindowRoots[t, k]:
-            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
-                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t]:
+            for (p, q, r) in M.okStartWindowRoots[t, k]:
+#            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
+                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t] and (i, j, w) != (p, q, r):
                     window_list.append((i, j, w))
 
     return window_list
@@ -2300,8 +2301,8 @@ model.max_ptfrac_con = pyo.Constraint(rule=max_ptfrac_rule)
 
 # Chains for intra-tour start time flexibility --------------------------------
 
-# TODO - the follow proxy constraints are only case of no
-#  intra-tour start time flexibility
+# The follow proxy constraints are only case of no
+# intra-tour start time flexibility
 # Coordinate Shift variables with TourTypeDayShift for start window width=0.
 # In this case, shift start time periods are same as start time windows
 
@@ -2328,11 +2329,15 @@ def chains_tot_proxy1_idx_rule(M):
     :param M: Model
     :return: Constraint index rule
     """
-    return [(w, t, k, i, j) for w in M.WEEKS
-            for t in M.activeTT
-            for k in M.tt_length_x[t]
-            for i in M.PERIODS
-            for j in M.DAYS if (i, j, w, k, t) in M.okShifts]
+
+    if M.g_start_window_width == 0:
+        return [(w, t, k, i, j) for w in M.WEEKS
+                for t in M.activeTT
+                for k in M.tt_length_x[t]
+                for i in M.PERIODS
+                for j in M.DAYS if (i, j, w, k, t) in M.okShifts]
+    else:
+        return []
 
 
 model.chains_tot_proxy1_idx = pyo.Set(
@@ -2367,12 +2372,16 @@ def chains_tot_proxy2_idx_rule(M):
     :return: Constraint index rule
     """
 
-    return [(w, t, k, i, j) for w in M.WEEKS
-            for t in M.activeTT
-            for k in M.tt_length_x[t]
-            for i in M.PERIODS
-            for j in M.DAYS
-            if (i, t, j) in M.okTourTypeDay and M.allow_start[i, j, k, t] == 0]
+    if M.g_start_window_width == 0:
+        return [(w, t, k, i, j) for w in M.WEEKS
+                for t in M.activeTT
+                for k in M.tt_length_x[t]
+                for i in M.PERIODS
+                for j in M.DAYS
+                if (i, t, j) in M.okTourTypeDay and M.allow_start[i, j, k, t] == 0]
+    else:
+        return []
+
 
 
 model.chains_tot_proxy2_idx = pyo.Set(
@@ -2401,9 +2410,9 @@ def chains_sweep_l_rule(M, t, k, b, j, w, p, v):
     # lhs = sum(M.Shift[l,m,n,k,t] for (l,m,n) in M.linkspan[t,k,b,j,w,v+1] if (l,m,n,k,t) in M.okShifts)
 
     return sum(
-        M.Shift[l, m, n, k, t]
-        for (l, m, n) in M.linkspan[t, k, b, j, w, v + 1]
-        if (l, m, n, k, t) in M.okShifts) >= \
+        M.Shift[prd, day, wk, k, t]
+        for (prd, day, wk) in M.linkspan[t, k, b, j, w, v + 1]
+        if (prd, day, wk, k, t) in M.okShifts) >= \
            sum(M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
                for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
                          if (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2])
@@ -2421,10 +2430,10 @@ def chains_sweep_l_idx_rule(M):
                 for b in M.PERIODS:
                     for j in M.DAYS:
                         for w in M.WEEKS:
-                            for p in range(M.epoch[b, j, w].value, M.epoch[b, j, w] + 1):
+                            for p in range(M.epoch[b, j, w], M.epoch[b, j, w] + 1):
                                 if (b, j, w) in M.bchain[t, k]:
                                     for m in range(0,
-                                                   M.n_links[t, k, b, j, w].value - 1 - (p - M.epoch[b, j, w]) + 1):
+                                                   M.n_links[t, k, b, j, w] - 1 - (p - M.epoch[b, j, w]) + 1):
                                         index_list.append((t, k, b, j, w, p, m))
 
     return index_list
@@ -2468,7 +2477,7 @@ def chains_sweep_u_idx_rule(M):
                 for b in M.PERIODS:
                     for j in M.DAYS:
                         for w in M.WEEKS:
-                            for p in range(M.epoch[b, j, w].value, M.epoch[b, j, w] + 1):
+                            for p in range(M.epoch[b, j, w], M.epoch[b, j, w] + 1):
                                 if (b, j, w) in M.bchain[t, k]:
                                     for m in range(0, M.n_links[t, k, b, j, w] - 1):
                                         index_list.append((t, k, b, j, w, p, m))
@@ -2503,7 +2512,7 @@ def chains_tot_rule(M, t, k, b, j, w):
            sum(M.TourTypeDayShift[x, t, k, y, z]
                for (x, y, z) in [(u, v, xx) for (u, v, xx) in M.chain[t, k, b, j, w]
                                  if sum(
-                   M.allow_start[p, q, k, t] for (p, q, r) in M.PotentialGlobalStartWindow[u, v, x]) > 0]) == 0
+                   M.allow_start[p, q, k, t] for (p, q, r) in M.PotentialGlobalStartWindow[u, v, xx]) > 0]) == 0
 
 
 def chains_tot_idx_rule(M):

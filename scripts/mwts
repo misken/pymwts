@@ -75,9 +75,8 @@ def main(argv=None):
     print args
     # application code here, like:
     # run(settings, args)
-    solve.solvemwts(args.scenario,args.phase1dat,args.path,
-                        args.solver,args.timelimit,args.mipGap,
-                        args.windebug)
+    solve.solvemwts(args.scenario, args.phase1dat, args.path,
+                    args.solver, args.timelimit, args.mipGap)
     return 0        # success
 
 if __name__ == '__main__':
