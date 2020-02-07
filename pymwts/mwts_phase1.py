@@ -662,13 +662,14 @@ def okStartWindowRoots_init(M, t, k):
 
 model.okStartWindowRoots = pyo.Set(model.okStartWindowRoots_idx,
                                    dimen=3,
+                                   ordered=True,
                                    initialize=okStartWindowRoots_init)
 
 
 # #
 # #
 # ## CHAINS - NON-OVERLAPPING SEQUENCES OF (i,j) period,day PAIRS THAT
-# ##          CAN BE ISOLATED FOR COORDINATING ix AND DWT pyo.VarIABLES.
+# ##          CAN BE ISOLATED FOR COORDINATING Shift AND TourTypeDayShift variables
 # ##
 # ## Let's wait on generalizing these for multiple weeks. Get model working
 # ## for start window width of 0.
@@ -686,8 +687,9 @@ def bchain_init(M, t, k):
     if M.g_start_window_width > 0:
         for (i, j, w) in M.okStartWindowRoots[t, k]:
             for (p, q, r) in M.okStartWindowRoots[t, k]:
-#            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
-                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t] and (i, j, w) != (p, q, r):
+                #            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
+                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t] and \
+                        (i, j, w) != (p, q, r) and (i, j, w) not in window_list:
                     window_list.append((i, j, w))
 
     return window_list
@@ -745,7 +747,9 @@ def echain_init(M, t, k, i, j, w):
     # Once we leave the while loop, g_prd should correspond to echain. Need
     # to convert it back to a tuple from a epoch number.
 
-    window_list.append(prd)
+    if prd not in window_list:
+        window_list.append(prd)
+
     return window_list
 
 
@@ -827,10 +831,12 @@ def linkspan_init(M, t, k, i, j, w, m):
     window_list = []
     for (p, d, q) in M.link[t, k, i, j, w, m]:
         for (a, b, c) in M.PotentialGlobalStartWindow[p, d, q]:
-            window_list.append((a, b, c))
+            if (a, b, c) not in window_list:
+                window_list.append((a, b, c))
         if m > 1:
             for (a, b, c) in M.linkspan[t, k, i, j, w, m - 1]:
-                window_list.append((a, b, c))
+                if (a, b, c) not in window_list:
+                    window_list.append((a, b, c))
 
     return window_list
 
@@ -1530,34 +1536,6 @@ model.TTD_TTDS_con = pyo.Constraint(
     model.shift_TTD_dailyconservation_idx, rule=TTD_TTDS_rule)
 
 
-# Bounds on days worked each week (TTD and TT integration and conservation)
-
-# TODO - actually need to think through possible redundancy of the weekly and cumulative weekly
-# constraints on TTD and TT now that the mwdw vars explicitly determine the number of people
-# working each day - i.e. the TTD values. Still need these constraints on TTDS_TT since those
-# are shift length specific variables.
-
-# Index for both lower and upper bound versions of these constraints are the same
-
-
-def TTD_TT_weeklyconservation_idx_rule(M):
-    """
-    Index is (window, tour type, week).
-
-    This index is used in several sets of TTD_TT related constraints.
-
-    :param M: Model
-    :return: Constraint index rule
-    """
-
-    return [(i, t, w) for (i, t) in M.okTourType
-            for w in M.WEEKS]
-
-
-model.TTD_TT_weeklyconservation_idx = pyo.Set(
-    dimen=3, initialize=TTD_TT_weeklyconservation_idx_rule)
-
-
 # Now that mwdw vars added, we can directly determine TTD sum over each
 # week instead of using the LB, UBs.
 def TTD_MWDW_idx_rule(M):
@@ -1583,8 +1561,6 @@ def TTD_MWDW_rule(M, i, t, w):
     """
     Coordinate TTD and MWDW vars for each week by summing over the days.
 
-    Could actually eliminate the weekend variables but convenient for use in constraints.
-
     :param i: start window
     :param t: tour type
     :param w: week
@@ -1602,114 +1578,6 @@ model.TTD_MWDW_idx = pyo.Set(dimen=3, initialize=TTD_MWDW_idx_rule)
 
 model.TTD_MWDW_con = pyo.Constraint(model.TTD_MWDW_idx,
                                     rule=TTD_MWDW_rule)
-
-
-# Lower bound on TTD vars based on minimum number of days worked per week
-# TODO: These bounds seem redundant given TTD_MWDW constraints. Binary deactivation code already added.
-def TTD_TT_weeklyconservation_LB_rule(M, i, t, w):
-    return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) >= M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
-
-
-model.TTD_TT_weeklyconservation_LB = \
-    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_weeklyconservation_LB_rule)
-
-
-# Upper bound on TTD vars based on maximum number of days worked per week
-# TODO: These bounds seem redundant given TTD_MWDW constraints Binary deactivation code already added.
-def TTD_TT_weeklyconservation_UB_rule(M, i, t, w):
-    return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) <= M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
-
-
-model.TTD_TT_weeklyconservation_UB = \
-    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_weeklyconservation_UB_rule)
-
-
-# Cumulative (over weeks) versions of the lower and upper bound constraints immediately above
-# TODO: These bounds seem redundant given TTD_MWDW constraints
-def TTD_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
-    return sum(M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) >= \
-           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
-
-
-model.TTD_TT_cumul_weeklyconservation_LB = \
-    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_cumul_weeklyconservation_LB_rule)
-
-
-def TTD_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
-    return sum(M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) <= \
-           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
-
-
-model.TTD_TT_cumul_weeklyconservation_UB = \
-    pyo.Constraint(model.TTD_TT_weeklyconservation_idx,
-                   rule=TTD_TT_cumul_weeklyconservation_UB_rule)
-
-
-# The TTDS_TT_weeklyconservation constraints feel redundant given that TTDS summed over lengths is
-# equal to TTD and we've already got TTD_TT constraints above.
-# TODO - test for redundancy. Binary deactivation code already added.
-
-
-def TTDS_TT_weeklyconservation_idx_rule(M):
-    return [(i, t, w) for (i, t) in M.okTourType for w in M.WEEKS]
-
-
-model.TTDS_TT_weeklyconservation_idx = pyo.Set(
-    dimen=3, initialize=TTDS_TT_weeklyconservation_idx_rule)
-
-
-def TTDS_TT_weeklyconservation_LB_rule(M, i, t, w):
-    return sum(M.TourTypeDayShift[i, t, k, d, w]
-               for d in M.DAYS for k in M.tt_length_x[t] if
-               (i, t, k, d, w) in M.TourTypeDayShift_idx) >= \
-           M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
-
-
-model.TTDS_TT_weeklyconservation_LB = \
-    pyo.Constraint(
-        model.TTDS_TT_weeklyconservation_idx,
-        rule=TTDS_TT_weeklyconservation_LB_rule)
-
-
-def TTDS_TT_weeklyconservation_UB_rule(M, i, t, w):
-    return sum(M.TourTypeDayShift[i, t, k, d, w]
-               for d in M.DAYS for k in M.tt_length_x[t] if
-               (i, t, k, d, w) in M.TourTypeDayShift_idx) <= \
-           M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
-
-
-model.TTDS_TT_weeklyconservation_UB = \
-    pyo.Constraint(
-        model.TTDS_TT_weeklyconservation_idx,
-        rule=TTDS_TT_weeklyconservation_UB_rule)
-
-
-def TTDS_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
-    return sum(M.TourTypeDayShift[i, t, k, d, z]
-               for d in M.DAYS for k in M.tt_length_x[t]
-               for z in pyo.sequence(w)
-               if (i, t, k, d, z) in M.TourTypeDayShift_idx) >= \
-           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
-
-
-model.TTDS_TT_cumul_weeklyconservation_LB = \
-    pyo.Constraint(
-        model.TTDS_TT_weeklyconservation_idx,
-        rule=TTDS_TT_cumul_weeklyconservation_LB_rule)
-
-
-def TTDS_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
-    return sum(M.TourTypeDayShift[i, t, k, d, z]
-               for d in M.DAYS for k in M.tt_length_x[t]
-               for z in pyo.sequence(w)
-               if (i, t, k, d, z) in M.TourTypeDayShift_idx) <= \
-           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
-
-
-model.TTDS_TT_cumul_weeklyconservation_UB = \
-    pyo.Constraint(
-        model.TTDS_TT_weeklyconservation_idx,
-        rule=TTDS_TT_cumul_weeklyconservation_UB_rule)
 
 
 # Shiftlen versions of the TTD_TT constraints using the TTDS vars.
@@ -1919,6 +1787,8 @@ model.prds_worked_cumul_weekly_UB = \
 
 
 # These should be the shift length specific versions of the above 4 constraints
+# TODO: Aren't these redundant given shiftlen versions of num days worked constraints
+# like this? period level constraints only seem relevant in an overall sense.
 def prds_worked_shiflen_weekly_idx_rule(M):
     """
     Index is (window, tour type, shift length, week).
@@ -2383,7 +2253,6 @@ def chains_tot_proxy2_idx_rule(M):
         return []
 
 
-
 model.chains_tot_proxy2_idx = pyo.Set(
     dimen=5,
     initialize=chains_tot_proxy2_idx_rule)
@@ -2391,9 +2260,14 @@ model.chains_tot_proxy2_idx = pyo.Set(
 model.chains_tot_proxy2_con = pyo.Constraint(
     model.chains_tot_proxy2_idx, rule=chains_tot_proxy2_rule)
 
-
 # Chains - coordinates TourTypeDayShift and Shift within each chain for
 # intra-tour start-time flexibility
+
+# Chain debugging
+is_chains_sweep_l_con_active = True
+is_chains_sweep_u_con_active = False
+is_chains_tot_con_active = True
+
 
 # subject to chains_sweep_l{e in WEEKS, t in okTTYPES, k in tt_length_x[t], (b,j) in bchain[t,k],
 #             p in period[b,j]..period[b,j],
@@ -2442,8 +2316,9 @@ def chains_sweep_l_idx_rule(M):
 model.chains_sweep_l_idx = pyo.Set(dimen=7, ordered=True,
                                    initialize=chains_sweep_l_idx_rule)
 
-model.chains_sweep_l_con = pyo.Constraint(
-    model.chains_sweep_l_idx, rule=chains_sweep_l_rule)
+if is_chains_sweep_l_con_active:
+    model.chains_sweep_l_con = pyo.Constraint(
+        model.chains_sweep_l_idx, rule=chains_sweep_l_rule)
 
 
 # subject to chains_sweep_u{e in WEEKS,t in okTTYPES, k in tt_length_x[t],(b,j) in bchain[t,k],
@@ -2488,8 +2363,9 @@ def chains_sweep_u_idx_rule(M):
 model.chains_sweep_u_idx = pyo.Set(dimen=7, ordered=True,
                                    initialize=chains_sweep_u_idx_rule)
 
-model.chains_sweep_u_con = pyo.Constraint(
-    model.chains_sweep_l_idx, rule=chains_sweep_u_rule)
+if is_chains_sweep_u_con_active:
+    model.chains_sweep_u_con = pyo.Constraint(
+        model.chains_sweep_l_idx, rule=chains_sweep_u_rule)
 
 
 # subject to chains_tot{e in WEEKS, t in okTTYPES, k in tt_length_x[t],(i,j) in bchain[t,k]} :
@@ -2527,8 +2403,147 @@ def chains_tot_idx_rule(M):
 model.chains_tot_idx = pyo.Set(dimen=5, ordered=True,
                                initialize=chains_tot_idx_rule)
 
-model.chains_tot_con = pyo.Constraint(
-    model.chains_tot_idx, rule=chains_tot_rule)
+if is_chains_tot_con_active:
+    model.chains_tot_con = pyo.Constraint(
+        model.chains_tot_idx, rule=chains_tot_rule)
+
+
+# -----------------------------------------------------------------------------
+# Almost certainly redundant constraints - binary activators available --------
+
+# Bounds on days worked each week (TTD and TT integration and conservation)
+
+# TODO - actually need to think through possible redundancy of the weekly and cumulative weekly
+# constraints on TTD and TT now that the mwdw vars explicitly determine the number of people
+# working each day - i.e. the TTD values. Still need these constraints on TTDS_TT since those
+# are shift length specific variables.
+
+# Index for both lower and upper bound versions of these constraints are the same
+
+def TTD_TT_weeklyconservation_idx_rule(M):
+    """
+    Index is (window, tour type, week).
+
+    This index is used in several sets of TTD_TT related constraints.
+
+    :param M: Model
+    :return: Constraint index rule
+    """
+
+    return [(i, t, w) for (i, t) in M.okTourType
+            for w in M.WEEKS]
+
+
+model.TTD_TT_weeklyconservation_idx = pyo.Set(
+    dimen=3, initialize=TTD_TT_weeklyconservation_idx_rule)
+
+
+# Lower bound on TTD vars based on minimum number of days worked per week
+# TODO: These bounds seem redundant given TTD_MWDW constraints. Binary deactivation code already added.
+def TTD_TT_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) >= M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
+
+
+model.TTD_TT_weeklyconservation_LB = \
+    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_weeklyconservation_LB_rule)
+
+
+# Upper bound on TTD vars based on maximum number of days worked per week
+# TODO: These bounds seem redundant given TTD_MWDW constraints Binary deactivation code already added.
+def TTD_TT_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) <= M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
+
+
+model.TTD_TT_weeklyconservation_UB = \
+    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_weeklyconservation_UB_rule)
+
+
+# Cumulative (over weeks) versions of the lower and upper bound constraints immediately above
+# TODO: These bounds seem redundant given TTD_MWDW constraints
+def TTD_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) >= \
+           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
+
+
+model.TTD_TT_cumul_weeklyconservation_LB = \
+    pyo.Constraint(model.TTD_TT_weeklyconservation_idx, rule=TTD_TT_cumul_weeklyconservation_LB_rule)
+
+
+def TTD_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) <= \
+           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
+
+
+model.TTD_TT_cumul_weeklyconservation_UB = \
+    pyo.Constraint(model.TTD_TT_weeklyconservation_idx,
+                   rule=TTD_TT_cumul_weeklyconservation_UB_rule)
+
+
+# The TTDS_TT_weeklyconservation constraints feel redundant given that TTDS summed over lengths is
+# equal to TTD and we've already got TTD_TT constraints above.
+# TODO - test for redundancy. Binary deactivation code already added.
+
+
+def TTDS_TT_weeklyconservation_idx_rule(M):
+    return [(i, t, w) for (i, t) in M.okTourType for w in M.WEEKS]
+
+
+model.TTDS_TT_weeklyconservation_idx = pyo.Set(
+    dimen=3, initialize=TTDS_TT_weeklyconservation_idx_rule)
+
+
+def TTDS_TT_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.TourTypeDayShift[i, t, k, d, w]
+               for d in M.DAYS for k in M.tt_length_x[t] if
+               (i, t, k, d, w) in M.TourTypeDayShift_idx) >= \
+           M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
+
+
+model.TTDS_TT_weeklyconservation_LB = \
+    pyo.Constraint(
+        model.TTDS_TT_weeklyconservation_idx,
+        rule=TTDS_TT_weeklyconservation_LB_rule)
+
+
+def TTDS_TT_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.TourTypeDayShift[i, t, k, d, w]
+               for d in M.DAYS for k in M.tt_length_x[t] if
+               (i, t, k, d, w) in M.TourTypeDayShift_idx) <= \
+           M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
+
+
+model.TTDS_TT_weeklyconservation_UB = \
+    pyo.Constraint(
+        model.TTDS_TT_weeklyconservation_idx,
+        rule=TTDS_TT_weeklyconservation_UB_rule)
+
+
+def TTDS_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
+    return sum(M.TourTypeDayShift[i, t, k, d, z]
+               for d in M.DAYS for k in M.tt_length_x[t]
+               for z in pyo.sequence(w)
+               if (i, t, k, d, z) in M.TourTypeDayShift_idx) >= \
+           M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
+
+
+model.TTDS_TT_cumul_weeklyconservation_LB = \
+    pyo.Constraint(
+        model.TTDS_TT_weeklyconservation_idx,
+        rule=TTDS_TT_cumul_weeklyconservation_LB_rule)
+
+
+def TTDS_TT_cumul_weeklyconservation_UB_rule(M, i, t, w):
+    return sum(M.TourTypeDayShift[i, t, k, d, z]
+               for d in M.DAYS for k in M.tt_length_x[t]
+               for z in pyo.sequence(w)
+               if (i, t, k, d, z) in M.TourTypeDayShift_idx) <= \
+           M.TourType[i, t] * M.tt_max_cumul_dys_weeks[t, w]
+
+
+model.TTDS_TT_cumul_weeklyconservation_UB = \
+    pyo.Constraint(
+        model.TTDS_TT_weeklyconservation_idx,
+        rule=TTDS_TT_cumul_weeklyconservation_UB_rule)
 
 
 def main():

@@ -116,6 +116,20 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Activate/deactivate constraints -----------------------------------------
 
+    # Chain debugging
+    # is_chains_sweep_l_con_active = False
+    # is_chains_sweep_u_con_active = False
+    # is_chains_tot_con_active = False
+    #
+    # if not is_chains_sweep_l_con_active:
+    #     phase1_inst.chains_sweep_l_con.deactivate()
+    #
+    # if not is_chains_sweep_u_con_active:
+    #     phase1_inst.chains_sweep_u_con.deactivate()
+    #
+    # if not is_chains_tot_con_active:
+    #     phase1_inst.chains_tot_con.deactivate()
+
     # Deactivate part-time fraction upper bound if all tour types are part-time
     tot_parttime_ttypes = sum(phase1_inst.tt_parttime[t] for t in phase1_inst.activeTT)
     if tot_parttime_ttypes == len(phase1_inst.activeTT) or phase1_inst.max_parttime_frac.value == 1.0:
@@ -129,7 +143,8 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Boolean indicators for possible redundant constraints
     b_TTD_TT_weeklyconservation_active = False
-    b_TTDS_TT_weeklyconservation_active = True
+    b_TTDS_TT_weeklyconservation_active = False
+    b_prds_worked_shiflen_weekly_active = False
 
     # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con2_active:
@@ -156,6 +171,12 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
         phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
         phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
+
+    if not b_prds_worked_shiflen_weekly_active:
+        phase1_inst.prds_worked_shiflen_weekly_LB.deactivate()
+        phase1_inst.prds_worked_shiflen_weekly_UB.deactivate()
+        phase1_inst.prds_worked_cumul_shiflen_weekly_LB.deactivate()
+        phase1_inst.prds_worked_cumul_shiflen_weekly_UB.deactivate()
 
     # Post Phase 1 construction tasks ------------------------------------------
 
@@ -188,64 +209,73 @@ def solvemwts(scenario, phase1_dat_file, path,
     if debug_start_windows:
         start_win_debug_file = path + scenario + '_debugwin.txt'
         with open(start_win_debug_file, "w") as f_debug_win:
+            f_debug_win.write('\nb_window_epochs and e_window_epochs\n')
             for w in phase1_inst.WEEKS:
                 for j in phase1_inst.DAYS:
                     for i in phase1_inst.PERIODS:
                         f_debug_win.write(
                             'b_window_epoch[{0},{1},{2}] = {3}, '
-                            'e_window_epoch[{0},{1},{2}] = {4}'.format(
-                                i, j, w, phase1_inst.b_window_epoch[i, j, w].value,
-                                phase1_inst.e_window_epoch[i, j, w].value))
+                            'e_window_epoch[{0},{1},{2}] = {4}\n'.format(
+                                i, j, w, phase1_inst.b_window_epoch[i, j, w],
+                                phase1_inst.e_window_epoch[i, j, w]))
 
-            for (i, j, w) in phase1_inst.PotentialGlobalStartWindow_index:
+            f_debug_win.write('\nPotentialGlobalStartWindow[i, j, w]\n')
+            for (i, j, w) in phase1_inst.epoch_tuples:
                 if phase1_inst.PotentialGlobalStartWindow[i, j, w]:
                     f_debug_win.write(
-                        'PotentialGlobalStartWindow[{},{},{}] = {}'.format(
-                            i, j, w, phase1_inst.PotentialGlobalStartWindow[i, j, w].value))
+                        'PotentialGlobalStartWindow[{},{},{}] = {}\n'.format(
+                            i, j, w, list(phase1_inst.PotentialGlobalStartWindow[i, j, w])))
 
-            for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_index:
+            f_debug_win.write('\nPotentialStartWindow[i, j, w, k, t]\n')
+            for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_idx:
                 if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
                     f_debug_win.write(
-                        'PotentialStartWindow[{},{},{},{},{}] = {}'.format(
+                        'PotentialStartWindow[{},{},{},{},{}] = {}\n'.format(
                             i, j, w, k, t,
-                            phase1_inst.PotentialStartWindow[i, j, w, k, t].value))
+                            list(phase1_inst.PotentialStartWindow[i, j, w, k, t])))
 
-            f_debug_win.write('okStartWindowRoots_index = ')
-            for (t, k) in phase1_inst.okStartWindowRoots_index:
-                f_debug_win.write(str((t, k)))
+            f_debug_win.write('okStartWindowRoots_idx = ')
+            for (t, k) in phase1_inst.okStartWindowRoots_idx:
+                f_debug_win.write('({},{})\n'.format(t, k))
 
-            for (t, k) in phase1_inst.okStartWindowRoots_index:
-                f_debug_win.write('okStartWindowRoots[{},{}] = '.format(t, k))
+            f_debug_win.write('\nokStartWindowRoots\n')
+            for (t, k) in phase1_inst.okStartWindowRoots_idx:
+                f_debug_win.write('okStartWindowRoots[{},{}] = \n'.format(t, k))
                 for (i, j, w) in phase1_inst.okStartWindowRoots[t, k]:
-                    f_debug_win.write(str(i, j, w))
+                    f_debug_win.write('({},{},{})\n'.format(i, j, w))
 
-            f_debug_win.write('okTourType = ')
+            f_debug_win.write('\nokTourType = ')
             for (i, t) in phase1_inst.okTourType:
-                f_debug_win.write(str(i, t))
+                f_debug_win.write('({},{})\n'.format(i, t))
 
-            f_debug_win.write('okTourTypeDay = ')
+            f_debug_win.write('\nokTourTypeDay = ')
             for (i, t, d) in phase1_inst.okTourTypeDay:
-                f_debug_win.write(str(i, t, d))
+                f_debug_win.write('({},{},{})\n'.format(i, t, d))
 
-            f_debug_win.write('bchain echain #links = ')
-            for (t, k) in phase1_inst.okStartWindowRoots_index:
-                f_debug_win.write('(t,k) = [{},{}] = '.format(t, k))
+            f_debug_win.write('\nbchain echain links\n')
+            for (t, k) in phase1_inst.okStartWindowRoots_idx:
+                f_debug_win.write('\n(t,k) = [{},{}] = \n'.format(t, k))
                 for (i, j, w) in phase1_inst.bchain[t, k]:
                     out = '({},{},{})'.format(i, j, w)
                     for (x, y, z) in phase1_inst.echain[t, k, i, j, w]:
                         out = out + '({},{},{}) {}\n'.format(
-                            x, y, z, phase1_inst.n_links[t, k, i, j, w].value)
+                            x, y, z, phase1_inst.n_links[t, k, i, j, w])
                     f_debug_win.write(out)
 
-            for (t, k, i, j, w) in phase1_inst.chain_index:
+            f_debug_win.write('\nchains\n')
+            for (t, k, i, j, w) in phase1_inst.chain_idx:
                 out = ''
-                f_debug_win.write('chain[{},{},{},{},{}]='.format(t, k, i, j, w))
+                f_debug_win.write('\nchain[{},{},{},{},{}]=\n'.format(t, k, i, j, w))
                 for (x, y, z) in phase1_inst.chain[t, k, i, j, w]:
-                    out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w].value)
+                    out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w])
                 f_debug_win.write(out)
 
-            for (t, k, i, j, w, m) in phase1_inst.link_index:
-                f_debug_win.write('link[{},{},{},{},{},{}]='.format(t, k, i, j, w, m))
+            f_debug_win.write('\nlinkspan\n')
+            for (t, k, i, j, w, m) in phase1_inst.link_idx:
+                f_debug_win.write('\nlinkspan[{},{},{},{},{},{}]={}\n'.format(t, k, i, j, w, m,
+                                                                              list(
+                                                                                  phase1_inst.linkspan[
+                                                                                      t, k, i, j, w, m])))
 
             logging.info('Windows debug info written')
 

@@ -271,7 +271,7 @@ def b_window_epoch_init(M, i, j, w):
 
 
 model.b_window_epoch = pyo.Param(model.epoch_tuples,
-                                        initialize=b_window_epoch_init)
+                                 initialize=b_window_epoch_init)
 
 
 def e_window_epoch_init(M, i, j, w):
@@ -286,7 +286,7 @@ def e_window_epoch_init(M, i, j, w):
 
 
 model.e_window_epoch = pyo.Param(model.epoch_tuples,
-                                        initialize=e_window_epoch_init)
+                                 initialize=e_window_epoch_init)
 
 
 # ##### PotentialGlobalStartWindow ######
@@ -332,9 +332,9 @@ def PotentialGlobalStartWindow_init(M, i, j, w):
 
 
 model.PotentialGlobalStartWindow = pyo.Set(model.PERIODS, model.DAYS,
-                                                  model.WEEKS, dimen=3,
-                                                  ordered=True,
-                                                  initialize=PotentialGlobalStartWindow_init)
+                                           model.WEEKS, dimen=3,
+                                           ordered=True,
+                                           initialize=PotentialGlobalStartWindow_init)
 
 
 # ###/**** The set okWindowWepochs{i in PERIODS,j in DAYS,k in LENGTHS,t in TTYPES } creates shift
@@ -367,7 +367,7 @@ def PotentialStartWindow_idx_rule(M):
 
 
 model.PotentialStartWindow_idx = pyo.Set(dimen=5, ordered=True,
-                                                initialize=PotentialStartWindow_idx_rule)
+                                         initialize=PotentialStartWindow_idx_rule)
 
 
 def PotentialStartWindow_init(M, i, j, w, k, t):
@@ -376,9 +376,9 @@ def PotentialStartWindow_init(M, i, j, w, k, t):
 
 
 model.PotentialStartWindow = pyo.Set(model.PotentialStartWindow_idx,
-                                            ordered=True,
-                                            initialize=PotentialStartWindow_init,
-                                            dimen=3)
+                                     ordered=True,
+                                     initialize=PotentialStartWindow_init,
+                                     dimen=3)
 
 
 # ##### okStartWindowRoots ######
@@ -401,7 +401,7 @@ def okStartWindowRoots_idx_rule(M):
 
 
 model.okStartWindowRoots_idx = pyo.Set(dimen=2, ordered=True,
-                                              initialize=okStartWindowRoots_idx_rule)
+                                       initialize=okStartWindowRoots_idx_rule)
 
 
 #
@@ -473,8 +473,8 @@ def okStartWindowRoots_init(M, t, k):
 
 
 model.okStartWindowRoots = pyo.Set(model.okStartWindowRoots_idx,
-                                          dimen=3, ordered=True,
-                                          initialize=okStartWindowRoots_init)
+                                   dimen=3,
+                                   initialize=okStartWindowRoots_init)
 
 
 # #
@@ -497,15 +497,16 @@ def bchain_init(M, t, k):
     window_list = []
     if M.g_start_window_width > 0:
         for (i, j, w) in M.okStartWindowRoots[t, k]:
-            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
-                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t]:
+            for (p, q, r) in M.okStartWindowRoots[t, k]:
+#            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
+                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t] and (i, j, w) != (p, q, r):
                     window_list.append((i, j, w))
 
     return window_list
 
 
 model.bchain = pyo.Set(model.okStartWindowRoots_idx, dimen=3,
-                              ordered=True, initialize=bchain_init)
+                       ordered=True, initialize=bchain_init)
 
 
 # #set echain {t in okTTYPES,k in LENGTHS,i in PERIODS,j in DAYS:
@@ -561,7 +562,7 @@ def echain_init(M, t, k, i, j, w):
 
 
 model.echain = pyo.Set(model.chain_idx, ordered=True,
-                              dimen=3, initialize=echain_init)
+                       dimen=3, initialize=echain_init)
 
 
 def n_links_init(M, t, k, i, j, w):
@@ -632,8 +633,7 @@ model.link = pyo.Set(model.link_idx, ordered=True,
 
 def linkspan_init(M, t, k, i, j, w, m):
     """
-    Returns the start windows spanned by the m'th link
-    (a (period,day,week) tuple)
+    Returns the start windows spanned by the m'th link (a (period,day,week) tuple)
     of the chain starting in period (i,j,w)
     """
     window_list = []
