@@ -1786,121 +1786,6 @@ model.prds_worked_cumul_weekly_UB = \
                    rule=prds_worked_cumul_weekly_UB_rule)
 
 
-# These should be the shift length specific versions of the above 4 constraints
-# TODO: Aren't these redundant given shiftlen versions of num days worked constraints
-# like this? period level constraints only seem relevant in an overall sense.
-def prds_worked_shiflen_weekly_idx_rule(M):
-    """
-    Index is (window, tour type, shift length, week).
-
-    :param M: Model
-    :return: Constraint index rule
-    """
-    return [(i, t, k, w) for (i, t) in M.okTourType
-            for k in M.tt_length_x[t]
-            for w in M.WEEKS]
-
-
-model.prds_worked_shiflen_weekly_idx = pyo.Set(
-    dimen=4, initialize=prds_worked_shiflen_weekly_idx_rule)
-
-
-def prds_worked_shiflen_weekly_LB_rule(M, i, t, k, w):
-    """
-    Coordinate TTDS and TT vars for num periods worked each week as
-    part of a given shift length - lower bounds.
-
-    :param M: Model
-    :param i: start window
-    :param t: tour type
-    :param k: shift length
-    :param w: week
-    :return: Constraint rule
-    """
-
-    return sum(M.TourTypeDayShift[i, t, k, d, w] * M.lengths[k]
-               for d in M.DAYS if
-               (i, t, k, d, w) in M.TourTypeDayShift_idx) >= \
-           M.TourType[i, t] * M.tt_shiftlen_min_prds_weeks[t, k, w]
-
-
-model.prds_worked_shiflen_weekly_LB = \
-    pyo.Constraint(
-        model.prds_worked_shiflen_weekly_idx,
-        rule=prds_worked_shiflen_weekly_LB_rule)
-
-
-def prds_worked_shiflen_weekly_UB_rule(M, i, t, k, w):
-    """
-    Coordinate TTDS and TT vars for num periods worked each week as
-    part of a given shift length - upper bounds.
-
-    :param M: Model
-    :param i: start window
-    :param t: tour type
-    :param k: shift length
-    :param w: week
-    :return: Constraint rule
-    """
-
-    return sum(M.TourTypeDayShift[i, t, k, d, w] * M.lengths[k]
-               for d in M.DAYS if
-               (i, t, k, d, w) in M.TourTypeDayShift_idx) <= \
-           M.TourType[i, t] * M.tt_shiftlen_max_prds_weeks[t, k, w]
-
-
-model.prds_worked_shiflen_weekly_UB = \
-    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
-                   rule=prds_worked_shiflen_weekly_UB_rule)
-
-
-# Cumulative versions of the above 2 constraints
-def prds_worked_cumul_shiflen_weekly_LB_rule(M, i, t, k, w):
-    """
-    Coordinate TTDS and TT vars for num periods worked each week as
-    part of a given shift length - cumulative lower bounds.
-
-    :param M: Model
-    :param i: start window
-    :param t: tour type
-    :param k: shift length
-    :param w: week
-    :return: Constraint rule
-    """
-
-    return sum(M.TourTypeDayShift[i, t, k, d, z] * M.lengths[k]
-               for d in M.DAYS for z in pyo.sequence(w)
-               if (i, t, k, d, z) in M.TourTypeDayShift_idx) >= \
-           M.TourType[i, t] * M.tt_shiftlen_min_cumul_prds_weeks[t, k, w]
-
-
-model.prds_worked_cumul_shiflen_weekly_LB = \
-    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
-                   rule=prds_worked_cumul_shiflen_weekly_LB_rule)
-
-
-def prds_worked_cumul_shiflen_weekly_UB_rule(M, i, t, k, w):
-    """
-    Coordinate TTDS and TT vars for num periods worked each week as
-    part of a given shift length - cumulative upper bounds.
-
-    :param M: Model
-    :param i: start window
-    :param t: tour type
-    :param k: shift length
-    :param w: week
-    :return: Constraint rule
-    """
-
-    return sum(M.TourTypeDayShift[i, t, k, d, z] * M.lengths[k]
-               for d in M.DAYS for z in pyo.sequence(w)
-               if (i, t, k, d, z) in M.TourTypeDayShift_idx) <= \
-           M.TourType[i, t] * M.tt_shiftlen_max_cumul_prds_weeks[t, k, w]
-
-
-model.prds_worked_cumul_shiflen_weekly_UB = \
-    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
-                   rule=prds_worked_cumul_shiflen_weekly_UB_rule)
 
 
 # Weekend subset constraints --------------------------------------------------
@@ -2544,6 +2429,122 @@ model.TTDS_TT_cumul_weeklyconservation_UB = \
     pyo.Constraint(
         model.TTDS_TT_weeklyconservation_idx,
         rule=TTDS_TT_cumul_weeklyconservation_UB_rule)
+
+# These should be the shift length specific versions of the above 4 constraints
+# TODO: Aren't these redundant given shiftlen versions of num days worked constraints
+# like this? period level constraints only seem relevant in an overall sense.
+def prds_worked_shiflen_weekly_idx_rule(M):
+    """
+    Index is (window, tour type, shift length, week).
+
+    :param M: Model
+    :return: Constraint index rule
+    """
+    return [(i, t, k, w) for (i, t) in M.okTourType
+            for k in M.tt_length_x[t]
+            for w in M.WEEKS]
+
+
+model.prds_worked_shiflen_weekly_idx = pyo.Set(
+    dimen=4, initialize=prds_worked_shiflen_weekly_idx_rule)
+
+
+def prds_worked_shiflen_weekly_LB_rule(M, i, t, k, w):
+    """
+    Coordinate TTDS and TT vars for num periods worked each week as
+    part of a given shift length - lower bounds.
+
+    :param M: Model
+    :param i: start window
+    :param t: tour type
+    :param k: shift length
+    :param w: week
+    :return: Constraint rule
+    """
+
+    return sum(M.TourTypeDayShift[i, t, k, d, w] * M.lengths[k]
+               for d in M.DAYS if
+               (i, t, k, d, w) in M.TourTypeDayShift_idx) >= \
+           M.TourType[i, t] * M.tt_shiftlen_min_prds_weeks[t, k, w]
+
+
+model.prds_worked_shiflen_weekly_LB = \
+    pyo.Constraint(
+        model.prds_worked_shiflen_weekly_idx,
+        rule=prds_worked_shiflen_weekly_LB_rule)
+
+
+def prds_worked_shiflen_weekly_UB_rule(M, i, t, k, w):
+    """
+    Coordinate TTDS and TT vars for num periods worked each week as
+    part of a given shift length - upper bounds.
+
+    :param M: Model
+    :param i: start window
+    :param t: tour type
+    :param k: shift length
+    :param w: week
+    :return: Constraint rule
+    """
+
+    return sum(M.TourTypeDayShift[i, t, k, d, w] * M.lengths[k]
+               for d in M.DAYS if
+               (i, t, k, d, w) in M.TourTypeDayShift_idx) <= \
+           M.TourType[i, t] * M.tt_shiftlen_max_prds_weeks[t, k, w]
+
+
+model.prds_worked_shiflen_weekly_UB = \
+    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
+                   rule=prds_worked_shiflen_weekly_UB_rule)
+
+
+# Cumulative versions of the above 2 constraints
+def prds_worked_cumul_shiflen_weekly_LB_rule(M, i, t, k, w):
+    """
+    Coordinate TTDS and TT vars for num periods worked each week as
+    part of a given shift length - cumulative lower bounds.
+
+    :param M: Model
+    :param i: start window
+    :param t: tour type
+    :param k: shift length
+    :param w: week
+    :return: Constraint rule
+    """
+
+    return sum(M.TourTypeDayShift[i, t, k, d, z] * M.lengths[k]
+               for d in M.DAYS for z in pyo.sequence(w)
+               if (i, t, k, d, z) in M.TourTypeDayShift_idx) >= \
+           M.TourType[i, t] * M.tt_shiftlen_min_cumul_prds_weeks[t, k, w]
+
+
+model.prds_worked_cumul_shiflen_weekly_LB = \
+    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
+                   rule=prds_worked_cumul_shiflen_weekly_LB_rule)
+
+
+def prds_worked_cumul_shiflen_weekly_UB_rule(M, i, t, k, w):
+    """
+    Coordinate TTDS and TT vars for num periods worked each week as
+    part of a given shift length - cumulative upper bounds.
+
+    :param M: Model
+    :param i: start window
+    :param t: tour type
+    :param k: shift length
+    :param w: week
+    :return: Constraint rule
+    """
+
+    return sum(M.TourTypeDayShift[i, t, k, d, z] * M.lengths[k]
+               for d in M.DAYS for z in pyo.sequence(w)
+               if (i, t, k, d, z) in M.TourTypeDayShift_idx) <= \
+           M.TourType[i, t] * M.tt_shiftlen_max_cumul_prds_weeks[t, k, w]
+
+
+model.prds_worked_cumul_shiflen_weekly_UB = \
+    pyo.Constraint(model.prds_worked_shiflen_weekly_idx,
+                   rule=prds_worked_cumul_shiflen_weekly_UB_rule)
 
 
 def main():
