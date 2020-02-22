@@ -725,6 +725,7 @@ def mwts_createdat(fn_yni, fn_dat):
 
     f_yni_in = open(fn_yni, "r")
     prob_spec = yaml.safe_load(f_yni_in)
+    # print(prob_spec)
 
     # Scheduling cycle
     num_prds_per_day_param = scalar_to_param('n_prds_per_day',
@@ -898,14 +899,15 @@ def filter_patterns(pattern, ttnum, wkend_type, wkdspec):
 
     # No more than max_days_worked over the scheduling horizon
     # max_days_worked = wkdspec[0]['max_days_worked']
-    if not (sum(pattern) <= max_days_worked):
+    tot_days_worked = sum([sum(p) for p in pattern])
+    if not (tot_days_worked <= max_days_worked):
         keep = False
 
-        # Half-weekends
+    # Half-weekends
     if not is_halfweekend_ok and num_half_weekends(pattern, wkend_type) > 0:
         keep = False
 
-        # Max weekends (full or half) worked
+    # Max weekends (full or half) worked
     tot_wkends_worked = num_half_weekends(pattern, wkend_type) + num_full_weekends(pattern, wkend_type)
     if tot_wkends_worked > max_wkends_worked:
         keep = False
