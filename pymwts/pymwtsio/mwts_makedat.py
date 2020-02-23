@@ -626,25 +626,25 @@ def ash_to_dat(fn_mix, isstringio=True):
         return param
 
 
-def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isstringio=True):
+def wkends_to_dat(fn_mix, fn_wkd, n_weeks, isstringio=True):
     """
 
-    :param fn_yni:
     :param fn_mix:
     :param fn_wkd:
+    :param n_weeks:
     :param isstringio:
     :return:
     """
 
-    fin_yni = open(fn_yni, "r")
-    probspec = yaml.safe_load(fin_yni)
+    # fin_yni = open(fn_yni, "r")
+    # probspec = yaml.safe_load(fin_yni)
     fin_mix = open(fn_mix, "r")
     ttspec = yaml.safe_load(fin_mix)
 
     fin_wkd = open(fn_wkd, "r")
     wkdspec = yaml.safe_load(fin_wkd)
 
-    n_weeks = probspec['time']['n_weeks']
+    #n_weeks = probspec['time']['n_weeks']
     n_ttypes = np.size(ttspec['tourtypes'])
     patterns_all = create_weekend_base(n_weeks)
     wkend_patterns = []
@@ -706,6 +706,74 @@ def wkends_to_dat(fn_yni, fn_mix, fn_wkd, isstringio=True):
         return param
 
 
+def mwdw_to_dat(fn_mix, n_weeks, isstringio=True):
+    """
+    Convert multi-week days worked inputs into GMPL dat form.
+
+    :param fn_mix: filename of yaml tour type mix file
+    :param isstringio: true to return StringIO object, false to return string
+    :return: GMPL dat code for mwdw patterns either as a StringIO
+        object or a string.
+
+    Example:
+        param num_mwdw_patterns:=
+        1 1
+        2 2
+        3 2
+        4 2
+        5 1
+        6 2
+        7 2
+        8 4
+        ;
+
+        param A_mwdw:=
+        1 1 1 5
+        1 1 2 5
+        1 1 3 5
+        """
+
+    f_mix_in = open(fn_mix, "r")
+    ttspec = yaml.safe_load(f_mix_in)
+    f_mix_in.close()
+
+    n_ttypes = np.size(ttspec['tourtypes'])
+
+    mwdw_rows = []
+    num_mwdw_rows = []
+    for m in ttspec['tourtypes']:
+        for p in range(len(m['multiweek_num_days_worked'])):
+            for w in range(n_weeks):
+                mwdw_row = [m['ttnum'], p + 1, w + 1, m['multiweek_num_days_worked'][p]]
+                mwdw_rows.append(mwdw_row)
+
+    for t in range(1, n_ttypes + 1):
+        for i in range(2):
+            temp_list = [i + 1, t, len(wkend_patterns[i])]
+            num_wkend_rows.append(temp_list)
+
+    param = 'param num_weekend_patterns:=\n'
+    for val in num_wkend_rows:
+        data_row = ' '.join(map(str, val)) + '\n'
+        param += data_row
+    param += ";\n"
+
+    param += '\nparam A:=\n'
+    for val in wkend_rows:
+        data_row = ' '.join(map(str, val)) + '\n'
+        param += data_row
+
+    param += ";\n"
+
+
+    param += ";\n"
+    if isstringio:
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
+    else:
+        return param
+
 def tester():
     p = create_weekend_base(4)
     print(p)
@@ -763,9 +831,9 @@ def mwts_createdat(fn_yni, fn_dat):
     mix_dat = mix_to_dat(prob_spec, isstringio=False)
 
     # Weekends worked patterns section
-    wkends_dat = wkends_to_dat(fn_yni,
-                               prob_spec['reqd_files']['filename_mix'],
+    wkends_dat = wkends_to_dat(prob_spec['reqd_files']['filename_mix'],
                                prob_spec['reqd_files']['filename_wkd'],
+                               prob_spec['n_weeks'],
                                isstringio=False)
 
     # Allowable shift start time section
@@ -1112,7 +1180,7 @@ def num_consecutive_weekends(x, wkend_type, circular=True):
 
 
 def main():
-    pass
+    mwts_createdat('../../tests/test/mwts_test01.yni', '../../tests/test/mwts_test01.dat')
 
 
 if __name__ == '__main__':
