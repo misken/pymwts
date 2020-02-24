@@ -711,6 +711,7 @@ def mwdw_to_dat(fn_mix, n_weeks, isstringio=True):
     Convert multi-week days worked inputs into GMPL dat form.
 
     :param fn_mix: filename of yaml tour type mix file
+    :param n_weeks:
     :param isstringio: true to return StringIO object, false to return string
     :return: GMPL dat code for mwdw patterns either as a StringIO
         object or a string.
@@ -737,42 +738,39 @@ def mwdw_to_dat(fn_mix, n_weeks, isstringio=True):
     ttspec = yaml.safe_load(f_mix_in)
     f_mix_in.close()
 
-    n_ttypes = np.size(ttspec['tourtypes'])
-
+    # n_ttypes = np.size(ttspec['tourtypes'])
     mwdw_rows = []
     num_mwdw_rows = []
     for m in ttspec['tourtypes']:
+        num_rows = 0
         for p in range(len(m['multiweek_num_days_worked'])):
+            num_rows += 1
             for w in range(n_weeks):
-                mwdw_row = [m['ttnum'], p + 1, w + 1, m['multiweek_num_days_worked'][p]]
+                mwdw_row = [m['ttnum'], p + 1, w + 1, m['multiweek_num_days_worked'][p][w]]
                 mwdw_rows.append(mwdw_row)
 
-    for t in range(1, n_ttypes + 1):
-        for i in range(2):
-            temp_list = [i + 1, t, len(wkend_patterns[i])]
-            num_wkend_rows.append(temp_list)
+        temp_list = [m['ttnum'], num_rows]
+        num_mwdw_rows.append(temp_list)
 
-    param = 'param num_weekend_patterns:=\n'
-    for val in num_wkend_rows:
+    param = 'param num_mwdw_patterns:=\n'
+    for val in num_mwdw_rows:
         data_row = ' '.join(map(str, val)) + '\n'
         param += data_row
     param += ";\n"
 
-    param += '\nparam A:=\n'
-    for val in wkend_rows:
+    param += '\nparam A_mwdw:=\n'
+    for val in mwdw_rows:
         data_row = ' '.join(map(str, val)) + '\n'
         param += data_row
-
     param += ";\n"
 
-
-    param += ";\n"
     if isstringio:
         param_out = io.StringIO()
         param_out.write(param)
         return param_out.getvalue()
     else:
         return param
+
 
 def tester():
     p = create_weekend_base(4)
@@ -833,8 +831,12 @@ def mwts_createdat(fn_yni, fn_dat):
     # Weekends worked patterns section
     wkends_dat = wkends_to_dat(prob_spec['reqd_files']['filename_mix'],
                                prob_spec['reqd_files']['filename_wkd'],
-                               prob_spec['n_weeks'],
+                               prob_spec['time']['n_weeks'],
                                isstringio=False)
+
+    mwdw_dat = mwdw_to_dat(prob_spec['reqd_files']['filename_mix'],
+                           prob_spec['time']['n_weeks'],
+                           isstringio=False)
 
     # Allowable shift start time section
     ash_dat = ash_to_dat(prob_spec['reqd_files']['filename_mix'], isstringio=False)
@@ -851,6 +853,7 @@ def mwts_createdat(fn_yni, fn_dat):
                 dmd_dat,
                 min_dat,
                 wkends_dat,
+                mwdw_dat,
                 ash_dat]
 
     dat_str = '\n'.join(dat_list)
