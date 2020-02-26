@@ -60,7 +60,7 @@ def mwts_create_yni(fn_yni,
     fout.close()
 
 
-def mwts_create_yni_files(expt_path, expt, db_problemlist, tbl_problemlist):
+def mwts_create_yni_files(yni_path, db_problemlist, tbl_problemlist):
     """
     Generates a bunch of yni files for the mwts0 experiments. Problem info is read from a sqlite3 db.
     """
@@ -80,7 +80,7 @@ def mwts_create_yni_files(expt_path, expt, db_problemlist, tbl_problemlist):
 
     for r in rows:
         scenario_name = r['problem']
-        fn_yni = expt_path + '/inputs/yni/' + scenario_name + '.yni'
+        fn_yni = yni_path + '/' + scenario_name + '.yni'
         znotes = ['timestamp','other info']
         n_prds_per_day = 48
         n_days_per_week = 7
@@ -114,7 +114,7 @@ def mwts_create_yni_files(expt_path, expt, db_problemlist, tbl_problemlist):
     conn.close()
 
 
-def mwts_create_dat_files(expt_path, expt, db_problemlist, tbl_problemlist, pnumlower=1, pnumupper=1000000, maxtocreate=1000000):
+def mwts_create_dat_files(yni_path, dat_path, db_problemlist, tbl_problemlist, pnumlower=1, pnumupper=1000000, maxtocreate=1000000):
     """
     Generates a bunch of dat files for the mwts experiments. Problem info is read from a sqlite3 db.
     """
@@ -134,11 +134,11 @@ def mwts_create_dat_files(expt_path, expt, db_problemlist, tbl_problemlist, pnum
     n = 0
     for r in rows:
         scenario_name = r['problem']
-        fn_yni = expt_path + '/inputs/yni/' + scenario_name + '.yni'
-        fn_dat = expt_path + '/inputs/dat/' + scenario_name + '.dat'
+        fn_yni = yni_path + '/' + scenario_name + '.yni'
+        fn_dat = dat_path + '/' + scenario_name + '.dat'
         
         result = mwts_createdat(fn_yni, fn_dat)
-        print (scenario_name, result, time.clock() )
+        print (scenario_name, result)
         n += 1
         if n == maxtocreate:
             conn.close()
@@ -147,7 +147,7 @@ def mwts_create_dat_files(expt_path, expt, db_problemlist, tbl_problemlist, pnum
     conn.close()
 
 
-def mwts_create_runpy_files(expt_path, expt, suffix, db_problemlist,
+def mwts_create_runpy_files(expt_path, expt, run_path, suffix, db_problemlist,
                             tbl_problemlist, dat_suffix='', pnumlower=1,
                             pnumupper=1000000, maxtocreate=1000000,
                             devcode=False, code_loc=''):
@@ -177,7 +177,7 @@ def mwts_create_runpy_files(expt_path, expt, suffix, db_problemlist,
         scenario_name = r['problem']
         print (scenario_name)
         fn_out = './outputs/' + scenario_name + '.out'
-        fn_run = expt_path + '/inputs/run/run_' + scenario_name + '.py'
+        fn_run = run_path + '/run_' + scenario_name + '.py'
         f_run = open(fn_run, "w")
         
         f_run.write('import sys\n')
@@ -300,19 +300,22 @@ def main():
     db = expt_path + '/' + db_name
     tbl_problem_list = 'problem_list'
     dat_suffix = ''
+    yni_path = expt_path + '/' + 'inputs/yni'
+    run_path = expt_path + '/' + 'inputs/run'
+    dat_path = expt_path + '/' + 'inputs/dat'
 
-    mwts_create_yni_files(expt_path, expt, db, tbl_problem_list)
+    mwts_create_yni_files(yni_path, db, tbl_problem_list)
     
     devcode = True
     code_loc = "/home/mark/Documents/research/MultiWeek/pymwts/pymwts"
     
     for num in range(1, 1001, maxtocreate):
         suffix = '_' + str(num) + '_' + str(num + maxtocreate - 1)
-        mwts_create_runpy_files(expt_path, expt,
+        mwts_create_runpy_files(expt_path, expt, run_path,
             suffix, db_name, tbl_problem_list, dat_suffix,
             num, num + maxtocreate, 1000000, devcode, code_loc)
 
-    mwts_create_dat_files(expt_path, expt, db, tbl_problem_list)
+    mwts_create_dat_files(yni_path, dat_path, db, tbl_problem_list)
 
 #    mwts_createdat('exps/mwts04/inputs/yni/mwts04_d02_t12345678_a01_ptub_moderate.yni', 
 #                   'exps/mwts04/inputs/dat/mwts04_d02_t12345678_a01_ptub_moderate.dat')

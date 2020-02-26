@@ -454,42 +454,63 @@ def mix_to_dat(prob_spec, isstringio=True):
                                                                   'max_shiftlen_cumul_prds_week')
 
     # Put the parameter pieces together into a single StringIO object
-    print(mix_out, n_len_param)
-    print(mix_out, len_param)
-    print(mix_out, n_ttypes_param)
-    print(mix_out, lenx_set_set)
-    # print >>mixout, midthresh_param
-    print(mix_out, tt_lb_param)
-    print(mix_out, tt_ub_param)
-    print(mix_out, tt_cost_multiplier_param)
-    print(mix_out, pt_flags_param)
-    print(mix_out, pt_frac_param)
-    print(mix_out, width_param)
 
-    print(mix_out, tt_min_cumul_dys_weeks_param)
-    print(mix_out, tt_max_cumul_dys_weeks_param)
-    print(mix_out, tt_min_cumul_prds_weeks_param)
-    print(mix_out, tt_max_cumul_prds_weeks_param)
+    mix_out.write(n_len_param)
 
-    print(mix_out, tt_min_dys_weeks_param)
-    print(mix_out, tt_max_dys_weeks_param)
-    print(mix_out, tt_min_prds_weeks_param)
-    print(mix_out, tt_max_prds_weeks_param)
+    mix_out.write(len_param)
 
-    print(mix_out, tt_shiftlen_min_dys_weeks_param)
-    print(mix_out, tt_shiftlen_max_dys_weeks_param)
-    print(mix_out, tt_shiftlen_min_prds_weeks_param)
-    print(mix_out, tt_shiftlen_max_prds_weeks_param)
+    mix_out.write(n_ttypes_param)
 
-    print(mix_out, tt_shiftlen_min_cumul_dys_weeks_param)
-    print(mix_out, tt_shiftlen_max_cumul_dys_weeks_param)
-    print(mix_out, tt_shiftlen_min_cumul_prds_weeks_param)
-    print(mix_out, tt_shiftlen_max_cumul_prds_weeks_param)
+    mix_out.write(lenx_set_set)
+
+    mix_out.write(tt_lb_param)
+
+    mix_out.write(tt_ub_param)
+
+    mix_out.write(tt_cost_multiplier_param)
+
+    mix_out.write(pt_flags_param)
+
+    mix_out.write(pt_frac_param)
+
+    mix_out.write(width_param)
+
+    mix_out.write(tt_min_cumul_dys_weeks_param)
+
+    mix_out.write(tt_max_cumul_dys_weeks_param)
+
+    mix_out.write(tt_min_cumul_prds_weeks_param)
+
+    mix_out.write(tt_max_cumul_prds_weeks_param)
+
+    mix_out.write(tt_min_dys_weeks_param)
+
+    mix_out.write(tt_max_dys_weeks_param)
+
+    mix_out.write(tt_min_prds_weeks_param)
+
+    mix_out.write(tt_max_prds_weeks_param)
+
+    mix_out.write(tt_shiftlen_min_dys_weeks_param)
+
+    mix_out.write(tt_shiftlen_max_dys_weeks_param)
+
+    mix_out.write(tt_shiftlen_min_prds_weeks_param)
+
+    mix_out.write(tt_shiftlen_max_prds_weeks_param)
+
+    mix_out.write(tt_shiftlen_min_cumul_dys_weeks_param)
+
+    mix_out.write(tt_shiftlen_max_cumul_dys_weeks_param)
+
+    mix_out.write(tt_shiftlen_min_cumul_prds_weeks_param)
+
+    mix_out.write(tt_shiftlen_max_cumul_prds_weeks_param)
 
     if isstringio:
-        return mix_out.getvalue()
+        return mix_out
     else:
-        return mix_out.read()
+        return mix_out.getvalue()
 
 
 def get_length_x_from_mix(ttspec):
@@ -687,7 +708,7 @@ def wkends_to_dat(fn_mix, fn_wkd, n_weeks, isstringio=True):
         param += data_row
     param += ";\n"
 
-    param += '\nparam A:=\n'
+    param += '\nparam A_wkend_days:=\n'
     for val in wkend_rows:
         data_row = ' '.join(map(str, val)) + '\n'
         param += data_row
@@ -821,14 +842,14 @@ def mwts_createdat(fn_yni, fn_dat):
     usb_param = scalar_to_param('usb', prob_spec['cost']['understaff_1_ub'],
                                 isstringio=False)
 
+    # Tour type mix
+    mix_dat = mix_to_dat(prob_spec, isstringio=False)
+
     # Demand and min staff
     dmd_dat = dmd_min_to_dat('dmd_staff', prob_spec['reqd_files']['filename_dmd'],
                              mode='unsliced', isstringio=False)
     min_dat = dmd_min_to_dat('min_staff', prob_spec['reqd_files']['filename_min'],
                              mode='unsliced', isstringio=False)
-
-    # Tour type mix
-    mix_dat = mix_to_dat(prob_spec, isstringio=False)
 
     # Weekends worked patterns section
     wkends_dat = wkends_to_dat(prob_spec['reqd_files']['filename_mix'],
@@ -852,10 +873,10 @@ def mwts_createdat(fn_yni, fn_dat):
                 cu2_param,
                 usb_param,
                 mix_dat,
+                mwdw_dat,
+                wkends_dat,
                 dmd_dat,
                 min_dat,
-                wkends_dat,
-                mwdw_dat,
                 ash_dat]
 
     dat_str = '\n'.join(dat_list)
