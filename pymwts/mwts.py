@@ -33,7 +33,7 @@ def process_command_line(argv):
         
     # Add arguments
     parser.add_argument('--version', action='version', 
-                        version='%(prog)s 1.0')
+                        version='%(prog)s 0.1')
                         
     parser.add_argument('scenario',
                         help='Short string to be used in output filenames')

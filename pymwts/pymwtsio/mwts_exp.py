@@ -4,8 +4,7 @@ Created on Thu Jun  7 14:08:59 2012
 
 @author: mark
 """
-#import yaml
-#import StringIO
+import yaml
 import sqlite3
 from os import chdir
 from os import getcwd
@@ -13,141 +12,142 @@ import itertools
 import time
 import sys
 
-# from pymwtsio.mwts_makedat import mwts_createdat
+from pymwtsio.mwts_makedat import mwts_createdat
 # from pymwtsio.mwts_makedat import csvrow_to_yaml
 
-# def mwts_create_yni(fn_yni,
-               # scenario_name,
-               # znotes,
-               # n_prds_per_day,
-               # n_days_per_week,
-               # n_weeks,
-               # filename_dmd,
-               # filename_min,
-               # filename_mix,
-               # filename_wkd,
-               # filename_ttbounds,
-               # labor_budget,
-               # understaff_cost_1,
-               # understaff_cost_2,
-               # understaff_1_ub):
 
-    # """
-    # Generate a single YAML yni scenario file for mwts02 experiments.
-    # """
+def mwts_create_yni(fn_yni,
+               scenario_name,
+               znotes,
+               n_prds_per_day,
+               n_days_per_week,
+               n_weeks,
+               filename_dmd,
+               filename_min,
+               filename_mix,
+               filename_wkd,
+               filename_ttbounds,
+               labor_budget,
+               understaff_cost_1,
+               understaff_cost_2,
+               understaff_1_ub):
 
-    # D_scenario = {'scenario_name': scenario_name,'znotes':[n for n in znotes]}
-    # D_time = {'n_prds_per_day': n_prds_per_day, 'n_days_per_week': n_days_per_week, 'n_weeks': n_weeks}
-    # D_reqd_files = {'filename_dmd': filename_dmd,
-                    # 'filename_min': filename_min,
-                    # 'filename_mix': filename_mix,
-                    # 'filename_wkd': filename_wkd}
-                    
-    # D_opt_files = {'filename_ttbounds': filename_ttbounds}
+    """
+    Generate a single YAML yni scenario file for mwts02 experiments.
+    """
+
+    D_scenario = {'scenario_name': scenario_name, 'znotes': [n for n in znotes]}
+    D_time = {'n_prds_per_day': n_prds_per_day, 'n_days_per_week': n_days_per_week, 'n_weeks': n_weeks}
+    D_reqd_files = {'filename_dmd': filename_dmd,
+                    'filename_min': filename_min,
+                    'filename_mix': filename_mix,
+                    'filename_wkd': filename_wkd}
+
+    D_opt_files = {'filename_ttbounds': filename_ttbounds}
+
+    D_cost = {'labor_budget': labor_budget,
+              'understaff_cost_1': understaff_cost_1,
+              'understaff_cost_2': understaff_cost_2,
+              'understaff_1_ub': understaff_1_ub}
+
+    D_yni = {'scenario': D_scenario, 'time': D_time,
+             'reqd_files': D_reqd_files,
+             'opt_files': D_opt_files,
+             'cost': D_cost}
+
+    fout = open(fn_yni, "w")
+    print(yaml.dump(D_yni, fout, default_flow_style=False))
+    fout.close()
+
+
+def mwts_create_yni_files(expt_path, expt, db_problemlist, tbl_problemlist):
+    """
+    Generates a bunch of yni files for the mwts0 experiments. Problem info is read from a sqlite3 db.
+    """
+
+    # Connect to the problem list database.
+    conn = sqlite3.connect(db_problemlist)
+    # Plug in Row so we can access values by column name
+    conn.row_factory = sqlite3.Row
     
-    # D_cost = {'labor_budget': labor_budget,
-              # 'understaff_cost_1' : understaff_cost_1,
-              # 'understaff_cost_2': understaff_cost_2,
-              # 'understaff_1_ub': understaff_1_ub}
+    # Step through the problem list database and create a yni file for each record.
+    cur = conn.cursor()
+    cur.execute('select * from ' + tbl_problemlist)
+    rows = cur.fetchall()
+#    print r.keys()
+#    for member in r:
+#        print member
+
+    for r in rows:
+        scenario_name = r['problem']
+        fn_yni = expt_path + '/inputs/yni/' + scenario_name + '.yni'
+        znotes = ['timestamp','other info']
+        n_prds_per_day = 48
+        n_days_per_week = 7
+        n_weeks = 4
+        filename_dmd = r['dmd_file']
+        filename_min = r['min_file']
+        filename_mix = r['basemix_file']
+        filename_wkd = r['wkd_file']
+        filename_ttbounds = r['ttbnd_file']
+        labor_budget = r['budget']
+        understaff_cost_1 = r['us1']
+        understaff_cost_2 = r['us2']
+        understaff_1_ub = r['usb']
+
+        mwts_create_yni(fn_yni,
+                        scenario_name,
+                        znotes,
+                        n_prds_per_day,
+                        n_days_per_week,
+                        n_weeks,
+                        filename_dmd,
+                        filename_min,
+                        filename_mix,
+                        filename_wkd,
+                        filename_ttbounds,
+                        labor_budget,
+                        understaff_cost_1,
+                        understaff_cost_2,
+                        understaff_1_ub)
+
+    conn.close()
+
+
+def mwts_create_dat_files(expt_path, expt, db_problemlist, tbl_problemlist, pnumlower=1, pnumupper=1000000, maxtocreate=1000000):
+    """
+    Generates a bunch of dat files for the mwts experiments. Problem info is read from a sqlite3 db.
+    """
+
+    # Connect to the problem list database.
+    conn = sqlite3.connect(db_problemlist)
+    # Plug in Row so we can access values by column name
+    conn.row_factory = sqlite3.Row
     
-    # D_yni = {'scenario': D_scenario, 'time': D_time, 
-             # 'reqd_files': D_reqd_files,
-             # 'opt_files': D_opt_files,
-             # 'cost': D_cost}
-    
-    # fout = open(fn_yni,"w") 
-    # print (yaml.dump(D_yni,fout,default_flow_style=False))
-    # fout.close()
-
-
-
-# def mwts_create_yni_files(expt, suffix, db_problemlist, tbl_problemlist):
-    # """
-    # Generates a bunch of yni files for the mwts02 experiments. Problem info is read from a sqlite3 db.
-    # """
-
-    # # Connect to the problem list database.
-    # conn = sqlite3.connect(db_problemlist)
-    # # Plug in Row so we can access values by column name
-    # conn.row_factory = sqlite3.Row
-    
-    # # Step through the problem list database and create a yni file for each record.
-    # cur = conn.cursor()
-    # cur.execute('select * from ' + tbl_problemlist)
-    # rows = cur.fetchall()
-# #    print r.keys()
-# #    for member in r:
-# #        print member
-
-    # for r in rows:
-        # scenario_name = r['problem']
-        # fn_yni = 'exps/' + expt + '/inputs/yni/' + scenario_name + '.yni'
-        # znotes = ['timestamp','other info']
-        # n_prds_per_day = 48
-        # n_days_per_week = 7
-        # n_weeks = 4
-        # filename_dmd = r['dmd_file']
-        # filename_min = r['min_file']
-        # filename_mix = r['basemix_file']
-        # filename_wkd = r['wkd_file']
-        # filename_ttbounds = r['ttbnd_file']
-        # labor_budget = r['budget']
-        # understaff_cost_1 = r['us1']
-        # understaff_cost_2 = r['us2']
-        # understaff_1_ub = r['usb']
+    # Step through the problem list database and create a dat file for each record.
+    cur = conn.cursor()
+    cur.execute('select * from ' + tbl_problemlist + ' where prob_num>=' + str(pnumlower) + ' and prob_num<=' + str(pnumupper))
+    rows = cur.fetchall()
+#    print r.keys()
+#    for member in r:
+#        print member
+    n = 0
+    for r in rows:
+        scenario_name = r['problem']
+        fn_yni = expt_path + '/inputs/yni/' + scenario_name + '.yni'
+        fn_dat = expt_path + '/inputs/dat/' + scenario_name + '.dat'
         
-        # mwts_create_yni(fn_yni,
-               # scenario_name,
-               # znotes,
-               # n_prds_per_day,
-               # n_days_per_week,
-               # n_weeks,
-               # filename_dmd,
-               # filename_min,
-               # filename_mix,
-               # filename_wkd,
-               # filename_ttbounds,
-               # labor_budget,
-               # understaff_cost_1,
-               # understaff_cost_2,
-               # understaff_1_ub)
+        result = mwts_createdat(fn_yni, fn_dat)
+        print (scenario_name, result, time.clock() )
+        n += 1
+        if n == maxtocreate:
+            conn.close()
+            sys.exit()
 
-    # conn.close()
+    conn.close()
 
 
-# def mwts_create_dat_files(expt, db_problemlist, tbl_problemlist, pnumlower=1, pnumupper=1000000, maxtocreate=1000000):
-    # """
-    # Generates a bunch of dat files for the mwts02 experiments. Problem info is read from a sqlite3 db.
-    # """
-
-    # # Connect to the problem list database.
-    # conn = sqlite3.connect(db_problemlist)
-    # # Plug in Row so we can access values by column name
-    # conn.row_factory = sqlite3.Row
-    
-    # # Step through the problem list database and create a dat file for each record.
-    # cur = conn.cursor()
-    # cur.execute('select * from ' + tbl_problemlist + ' where seq>=' + str(pnumlower) + ' and seq<=' +str(pnumupper))
-    # rows = cur.fetchall()
-# #    print r.keys()
-# #    for member in r:
-# #        print member
-    # n = 0
-    # for r in rows:
-        # scenario_name = r['problem']
-        # fn_yni = 'exps/' + expt + '/inputs/yni/' + scenario_name + '.yni'
-        # fn_dat = 'exps/' + expt + '/inputs/dat/' + scenario_name + '.dat'
-        
-        # result = mwts_createdat(fn_yni, fn_dat)
-        # print (scenario_name, result, time.clock() )
-        # n += 1
-        # if n == maxtocreate:
-            # conn.close()
-            # sys.exit()
-
-    # conn.close()
-
-def mwts_create_runpy_files(expt, expt_dir, suffix, db_problemlist, 
+def mwts_create_runpy_files(expt_path, expt, suffix, db_problemlist,
                             tbl_problemlist, dat_suffix='', pnumlower=1,
                             pnumupper=1000000, maxtocreate=1000000,
                             devcode=False, code_loc=''):
@@ -157,27 +157,27 @@ def mwts_create_runpy_files(expt, expt_dir, suffix, db_problemlist,
     """
 
     # Connect to the problem list database.
-    db_withpath = expt_dir + '/' + db_problemlist
+    db_withpath = expt_path + '/' + db_problemlist
     conn = sqlite3.connect(db_withpath)
     # Plug in Row so we can access values by column name
     conn.row_factory = sqlite3.Row
     
     
     cur = conn.cursor()
-    cur.execute('select * from ' + tbl_problemlist + ' where seq>=' + str(pnumlower) + ' and seq<' +str(pnumupper))
+    cur.execute('select * from ' + tbl_problemlist + ' where prob_num>=' + str(pnumlower) + ' and prob_num<' +str(pnumupper))
     rows = cur.fetchall()
 #    print r.keys()
 #    for member in r:
 #        print member
     n = 0
-    fn_bat = expt_dir + '/' + expt + suffix + '.sh'
+    fn_bat = expt_path + '/' + expt + suffix + '.sh'
     print (fn_bat)
     f_bat = open(fn_bat,"w")
     for r in rows:
         scenario_name = r['problem']
         print (scenario_name)
         fn_out = './outputs/' + scenario_name + '.out'
-        fn_run = expt_dir + '/inputs/run/run_' + scenario_name + '.py'
+        fn_run = expt_path + '/inputs/run/run_' + scenario_name + '.py'
         f_run = open(fn_run, "w")
         
         f_run.write('import sys\n')
@@ -293,29 +293,26 @@ def main():
     #mwts_create_ttbnd_combos("mwts04_",8)  
     #mwts_create_main_combos(6,8,['tight','moderate','loose'],2)
     
-    maxtocreate = 500
-    expt = 'mwts06_mwdw'
-    expt_dir = 'exps/mwts06_mwdw'
-    db = 'mwts06_d2456_mwdw.db'  # Must be in expt_dir
+    maxtocreate = 1000
+    expt = 'mwts07_mwdw'
+    expt_path = '/home/mark/Documents/research/MultiWeek/pymwts-exps/exps/mwts07_mwdw'
+    db_name = 'mwts07_d2456_mwdw.db'  # Must be in expt_dir
+    db = expt_path + '/' + db_name
     tbl_problem_list = 'problem_list'
     dat_suffix = ''
+
+    mwts_create_yni_files(expt_path, expt, db, tbl_problem_list)
     
     devcode = True
     code_loc = "/home/mark/Documents/research/MultiWeek/pymwts/pymwts"
     
-    for num in range(1, 12500, maxtocreate):
+    for num in range(1, 1001, maxtocreate):
         suffix = '_' + str(num) + '_' + str(num + maxtocreate - 1)
-        mwts_create_runpy_files(expt, expt_dir, 
-            suffix, db, tbl_problem_list, dat_suffix,
+        mwts_create_runpy_files(expt_path, expt,
+            suffix, db_name, tbl_problem_list, dat_suffix,
             num, num + maxtocreate, 1000000, devcode, code_loc)
-     
-    
-    
-    
-    
-    
-    
-#    mwts_create_dat_files('mwts04','exps/mwts04/mwts04_d2456.db','problem_list',1500,2000,maxtocreate)
+
+    mwts_create_dat_files(expt_path, expt, db, tbl_problem_list)
 
 #    mwts_createdat('exps/mwts04/inputs/yni/mwts04_d02_t12345678_a01_ptub_moderate.yni', 
 #                   'exps/mwts04/inputs/dat/mwts04_d02_t12345678_a01_ptub_moderate.dat')

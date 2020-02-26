@@ -5,6 +5,8 @@ Read input files for mwts problems and create a GMPL data file.
 # Author: misken
 # License: TBD
 
+import sys
+import argparse
 import io
 import csv
 import itertools
@@ -1182,9 +1184,47 @@ def num_consecutive_weekends(x, wkend_type, circular=True):
     return n_consec
 
 
-def main():
+def main_test():
     mwts_createdat('../../tests/test/mwts_test01.yni', '../../tests/test/mwts_test01.dat')
 
 
+def process_command_line(argv):
+    """
+    Return a Namespace representing the argument list.
+
+    `argv` is a list of arguments, or `None` for ``sys.argv[1:]``.
+    """
+
+    # If argv is empty, get the argument list from sys.argv.
+    if argv is None:
+        argv = sys.argv[1:]
+
+    # Initialize parser object
+    parser = argparse.ArgumentParser(
+        description='Generate data file for multi-week tour scheduling problem.',
+        epilog='Garbage in, garbage out.')
+
+    # Add arguments
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s 0.1')
+
+    parser.add_argument('yni_file',
+                        help='YAML formatted yni input filename; include relative path')
+
+    parser.add_argument('dat_file',
+                        help='GMPL dat output filename; include relative path')
+
+    args = parser.parse_args()
+    return args
+
+
+def main(argv=None):
+    args = process_command_line(argv)
+    mwts_createdat(args.yni_file, args.dat_file)
+
+    return 0  # success
+
+
 if __name__ == '__main__':
-    main()
+    status = main()
+    sys.exit(status)
