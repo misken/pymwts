@@ -174,6 +174,7 @@ def mwts_create_runpy_files(expt_path, expt, run_path, suffix, db_problemlist,
     print (fn_bat)
     f_bat = open(fn_bat,"w")
     for r in rows:
+        prob_num = r['prob_num']
         scenario_name = r['problem']
         print (scenario_name)
         fn_out = './outputs/' + scenario_name + '.out'
@@ -194,6 +195,7 @@ def mwts_create_runpy_files(expt_path, expt, run_path, suffix, db_problemlist,
         solve_cmd = solve_cmd + '"' + r['solver'] + '"' + ','
         solve_cmd = solve_cmd + str(r['timelimit']) + ','
         solve_cmd = solve_cmd + str(r['mipgap']) + ','
+        solve_cmd = solve_cmd + 'prob_num=' + str(prob_num) + ','
         solve_cmd = solve_cmd + 'results_db="' + db_problemlist + '")'
         f_run.write(solve_cmd)
         f_run.close()

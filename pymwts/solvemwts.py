@@ -38,6 +38,7 @@ from pymwtsio.mwts_makedat import scalar_to_param
 
 def solvemwts(scenario, phase1_dat_file, path,
               which_solver, timelimit, mipgap,
+              prob_num=-1,
               results_db=None,
               debug_start_windows=False,
               write_phase1_instance=False,
@@ -319,6 +320,37 @@ def solvemwts(scenario, phase1_dat_file, path,
     if len(phase1_results.solution) == 0:
         logging.warning('No Phase 1 solution found. Status = %s Termination condition = %s',
                         phase1_results.solver.status, phase1_results.solver.termination_condition)
+
+        ts_now = datetime.datetime.now()
+        phase1_solution_status = 'no_int_soln_found'
+        phase2_solution_status = 'na'
+        var_tuple = (scenario, 0.0, 0.0,
+                     phase1_solution_status, phase2_solution_status,
+                     0.0, 0.0, 0.0,
+                     str(ts_now))
+        logging.info('Solution log record %s', str(var_tuple))
+
+        # Connect to the problem solution log database.
+        if results_db is not None:
+            conn = sqlite3.connect(results_db)
+            cur = conn.cursor()
+            field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,' \
+                               'us1_cost,us2_cost,phase2_obj,timestamp)'
+            sql_insert = 'insert into solution_log ' + field_name_tuple + ' values ' + str(var_tuple)
+            print(sql_insert)
+            cur.execute(sql_insert)
+            conn.commit()
+
+            # Update the problem list table
+            cur = conn.cursor()
+            conn.row_factory = sqlite3.Row
+            sql_update = 'update problem_list set sol_status="' + phase1_solution_status + ':' + \
+                phase2_solution_status + '" where problem="' + scenario + '"'
+            cur.execute(sql_update)
+            print(sql_update)
+            conn.commit()
+            conn.close()
+
         sys.exit(1)
     else:
         logging.info('Phase 1 solution found. Status = %s Termination condition = %s',
@@ -626,12 +658,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     if results_db is not None:
         conn = sqlite3.connect(results_db)
         cur = conn.cursor()
-        now = datetime.datetime.now()
         field_name_tuple = '(problem,MIP_obj,tot_cap,phase1_sol_status,phase2_sol_status,' \
                            'us1_cost,us2_cost,phase2_obj,timestamp)'
-        var_tuple = (scenario, phase1_solution_value, tot_cap,
-                     str(phase1_solution_status), str(phase2_solution_status), us1_cost, us2_cost,
-                     phase2_solution_value, str(now))
         sql_insert = 'insert into solution_log ' + field_name_tuple + ' values ' + str(var_tuple)
         print(sql_insert)
         cur.execute(sql_insert)
@@ -717,7 +745,13 @@ def solvemwts(scenario, phase1_dat_file, path,
 #     bTours_Weekly_LB_active = False
 #     bTours_Weekly_UB_active = False
 #     bTours_Total_LB_active = False
-#     bTours_Total_UB_active = False
+#     bTours_Total_UB_active = Falsesolvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
+#                     "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
+#                     "../tests/outputs/",
+#                     "gurobi",
+#                     1200.0,
+#                     0.02,
+#                     results_db="../tests/mwts05_d2456_testing.db")
 #
 #     bTours_Shiftlen_Weekly_LB_active = True
 #     bTours_Shiftlen_Weekly_UB_active = True
@@ -778,14 +812,26 @@ def solvemwts(scenario, phase1_dat_file, path,
 #
 #     if not bTours_Shiftlen_Total_UB_active:
 #         phase2_inst.Tours_Shiftlen_Total_UB.deactivate()
-#
+#solvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
+                    # "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
+                    # "../tests/outputs/",
+                    # "gurobi",
+                    # 1200.0,
+                    # 0.02,
+                    # results_db="../tests/mwts05_d2456_testing.db")
 #     if not bTours_Weekly_Prds_LB_active:
 #         phase2_inst.Tours_Weekly_Prds_LB.deactivate()
 #
 #     if not bTours_Weekly_Prds_UB_active:
 #         phase2_inst.Tours_Weekly_Prds_UB.deactivate()
 #
-#     if not bTours_Total_Prds_LB_active:
+#     if not bTours_Total_Prds_LB_active:solvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
+#                     "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
+#                     "../tests/outputs/",
+#                     "gurobi",
+#                     1200.0,
+#                     0.02,
+#                     results_db="../tests/mwts05_d2456_testing.db")
 #         phase2_inst.Tours_Total_Prds_LB.deactivate()
 #
 #     if not bTours_Total_Prds_UB_active:
