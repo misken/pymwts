@@ -12,3 +12,13 @@ This project will contain:
 The models are mixed integer programming models, represented with the
 Pyomo modeling language (a Python library) and solvable with standard
 solvers such as cbc, GLPK, Gurobi, or CPLEX.
+
+Link to paper preprint
+
+Installation
+------------
+
+Usage
+-----
+
+See mwts_demo.ipynb for a short demo of using mwts.

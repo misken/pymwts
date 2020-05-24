@@ -636,6 +636,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
         for idx in idx_sorted:
             if phase2_inst.TourShift[idx].value > 0:
+                # tournum, tt, week, prd, day, shiftlenprds, startwin
                 f2_tour.write(
                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
                                                     phase2_inst.lengths[idx[4]],
