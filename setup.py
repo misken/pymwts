@@ -1,20 +1,23 @@
-
-# TODO: See https://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/ for
-#       how to create proper setup.py file
+"""Setup file for chime scenario runner
+"""
+__version__ = "0.1.0"
+__author__ = "misken"
 
 from setuptools import setup
 
 setup(name='pymwts',
-      version='0.1',
+      version=__version__,
       description='Pyomo based multi-week tour scheduling model',
-      author='Mark Isken',
+      author=__author__,
       author_email='isken@oakland.edu',
       url='',
       packages=['pymwts', 'pymwts.pymwtsio'],
       entry_points = {
         'console_scripts': [
-            'mwts = pymwts.mwts:main', 'mwts_phase2 = pymwts.solvemwts_phase2:main']},
-      install_requires=['pyomo', 'PyYAML', 'numpy', 'pandas']
+            'mwts = pymwts.mwts:main']},
+      python_requires='>=3.7',
+      install_requires=['pyomo',
+                        'pandas']
 
       )
 
