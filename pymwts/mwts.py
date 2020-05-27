@@ -32,8 +32,7 @@ def process_command_line(argv):
         epilog='May the force be with you.')
         
     # Add arguments
-    parser.add_argument('--version', action='version', 
-                        version='%(prog)s 0.1.0')
+
                         
     parser.add_argument('scenario',
                         help='Short string to be used in output filenames')
@@ -47,13 +46,16 @@ def process_command_line(argv):
     
     parser.add_argument('-s', '--solver', choices=['cbc','glpk','gurobi'], 
                         default='cbc',
-                        help='cbc or glpk for now')    
+                        help='cbc, glpk or gurobi for now')
                         
     parser.add_argument('-t', '--timelimit', type=int, default=1e+6,
                         help='seconds')
                         
     parser.add_argument('-g', '--mipgap', type=float, default=1e-6,
                         help='Can prevent really long run times.')
+
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s 0.1.0')
     
     # parser.add_argument('-p1', '--phase1model', default='mwts_phase1.py',
     #                     help='Model for phase 1 problem')

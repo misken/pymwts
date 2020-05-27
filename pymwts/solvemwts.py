@@ -19,8 +19,8 @@ import pyomo.environ as pyo
 import pymwts.mwts_phase1 as phase1
 import pymwts.mwts_phase2 as phase2
 import pymwts.mwts_utils as mwts_utils
-from pymwtsio.mwts_process_out_tour import create_mwt
-from pymwtsio.mwts_makedat import scalar_to_param
+from pymwts.pymwtsio.mwts_process_out_tour import create_mwt
+from pymwts.pymwtsio.mwts_makedat import scalar_to_param
 
 # Possible input parameters
 

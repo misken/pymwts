@@ -11,7 +11,7 @@ import io
 # import numpy as np
 #
 # import mwts_shared
-from pymwtsio.mwts_makedat import scalar_to_param, list_to_param
+from pymwts.pymwtsio.mwts_makedat import scalar_to_param, list_to_param
 
 
 def shift_to_param(param_name, inst, reverseidx=False, isStringIO=True):
