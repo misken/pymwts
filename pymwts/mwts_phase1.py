@@ -7,8 +7,9 @@ Phase 1 for implicit multi-week tour scheduling model
 
 import pyomo.environ as pyo
 
-import mwts_shared
-from mwts_shared import epoch_to_tuple, epoch_increment
+from pymwts.mwts_shared import epoch_to_tuple, epoch_increment
+import pymwts.mwts_shared as mwts_shared
+
 
 # TODO Would be nice if Phase 1 and Phase 2 could share base pyo.Parameters
 # model = import_file('mwts_basepyo.Params.py').model

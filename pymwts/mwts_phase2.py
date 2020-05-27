@@ -9,8 +9,9 @@ import sys
 
 import pyomo.environ as pyo
 
-import mwts_shared
-from mwts_shared import epoch_to_tuple, epoch_increment
+from pymwts.mwts_shared import epoch_to_tuple, epoch_increment
+import pymwts.mwts_shared as mwts_shared
+
 
 # from pyutilib.misc import import_file
 

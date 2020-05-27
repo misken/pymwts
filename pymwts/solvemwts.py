@@ -16,9 +16,9 @@ import logging
 import pyomo.opt
 import pyomo.environ as pyo
 
-import mwts_phase1
-import mwts_phase2
-from mwts_utils import *
+import pymwts.mwts_phase1
+import pymwts.mwts_phase2
+from pymwts.mwts_utils import *
 from pymwtsio.mwts_process_out_tour import create_mwt
 from pymwtsio.mwts_makedat import scalar_to_param
 
@@ -110,7 +110,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     logging.info('DAT %s', phase1_dat_file)
 
     # Create Phase 1 model instance
-    phase1_mdl = mwts_phase1.model
+    phase1_mdl = pymwts.mwts_phase1.model
     phase1_inst = phase1_mdl.create_instance(filename=phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
     logging.info('Phase 1 instance created')
@@ -476,7 +476,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         logging.info('Phase 2 dat file created')
 
     # Initialize the phase 2 instance
-    phase2_mdl = mwts_phase2.model
+    phase2_mdl = pymwts.mwts_phase2.model
     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')
