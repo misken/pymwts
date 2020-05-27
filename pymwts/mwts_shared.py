@@ -7,8 +7,8 @@ Shared model components and functions
 
 import pyomo.environ as pyo
 
-
 # General temporal parameters -------------------------------------------------
+
 
 def n_prds_per_week_init(M):
     """

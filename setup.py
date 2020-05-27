@@ -21,10 +21,3 @@ setup(name='pymwts',
 
       )
 
-
-"""
-distutils approach
-
-#from distutils.core import setup
-scripts = ['scripts/mwts'],
-"""

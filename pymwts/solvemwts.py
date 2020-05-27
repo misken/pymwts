@@ -16,9 +16,9 @@ import logging
 import pyomo.opt
 import pyomo.environ as pyo
 
-import pymwts.mwts_phase1
-import pymwts.mwts_phase2
-from pymwts.mwts_utils import *
+import pymwts.mwts_phase1 as phase1
+import pymwts.mwts_phase2 as phase2
+import pymwts.mwts_utils as mwts_utils
 from pymwtsio.mwts_process_out_tour import create_mwt
 from pymwtsio.mwts_makedat import scalar_to_param
 
@@ -110,7 +110,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     logging.info('DAT %s', phase1_dat_file)
 
     # Create Phase 1 model instance
-    phase1_mdl = pymwts.mwts_phase1.model
+    phase1_mdl = phase1.model
     phase1_inst = phase1_mdl.create_instance(filename=phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
     logging.info('Phase 1 instance created')
@@ -403,15 +403,15 @@ def solvemwts(scenario, phase1_dat_file, path,
         logging.info('Phase 1 summary and results written')
 
     # Write shift summary
-    phase1_shiftsummary = write_phase1_shiftsummary(phase1_inst)
+    phase1_shiftsummary = mwts_utils.write_phase1_shiftsummary(phase1_inst)
     with open(phase1_shiftsum_file, 'w') as f1_shiftsum:
         print(phase1_shiftsummary, file=f1_shiftsum)
 
     # Write tour skeleton
-    phase1_tourskeleton = weekenddaysworked_to_tourskeleton(phase1_inst)
+    phase1_tourskeleton = mwts_utils.weekenddaysworked_to_tourskeleton(phase1_inst)
     with open(phase1_tourskeleton_file, 'w') as f1_tourskeleton:
         print(phase1_tourskeleton, file=f1_tourskeleton)
-        phase1_tourskeleton = tourtypeday_to_tourskeleton(phase1_inst)
+        phase1_tourskeleton = mwts_utils.tourtypeday_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
 
     # Phase 2 model construction ----------------------------------------------
@@ -441,18 +441,18 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     param_n_tours = scalar_to_param('n_tours', n_tours)
 
-    param_Shift = shift_to_param('Shift', phase1_inst)
-    param_TourType = tourtype_to_param('TourType', phase1_inst)
-    param_TourTypeDay = tourtypeday_to_param(
+    param_Shift = mwts_utils.shift_to_param('Shift', phase1_inst)
+    param_TourType = mwts_utils.tourtype_to_param('TourType', phase1_inst)
+    param_TourTypeDay = mwts_utils.tourtypeday_to_param(
         'TourTypeDay', phase1_inst)
-    param_TourTypeDayShift = tourtypedayshift_to_param(
+    param_TourTypeDayShift = mwts_utils.tourtypedayshift_to_param(
         'TourTypeDayShift', phase1_inst)
-    param_WeekendDaysWorked = weekenddaysworked_to_param(
+    param_WeekendDaysWorked = mwts_utils.weekenddaysworked_to_param(
         'WeekendDaysWorked', phase1_inst)
-    param_MultiWeekDaysWorked = multiweekdaysworked_to_param(
+    param_MultiWeekDaysWorked = mwts_utils.multiweekdaysworked_to_param(
         'MultiWeekDaysWorked', phase1_inst)
 
-    param_tour_WIN_TT = tour_WIN_TT_to_param(phase1_inst)
+    param_tour_WIN_TT = mwts_utils.tour_WIN_TT_to_param(phase1_inst)
 
     with open(phase2_dat_file, 'w') as f2_out:
         with open(phase1_dat_file, 'r') as f1_in:
@@ -476,7 +476,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         logging.info('Phase 2 dat file created')
 
     # Initialize the phase 2 instance
-    phase2_mdl = pymwts.mwts_phase2.model
+    phase2_mdl = phase2.model
     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')

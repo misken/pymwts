@@ -12,11 +12,9 @@ import pyomo.environ as pyo
 from pymwts.mwts_shared import epoch_to_tuple, epoch_increment
 import pymwts.mwts_shared as mwts_shared
 
-
 # from pyutilib.misc import import_file
-
-
 # model = import_file('mwts_baseparams.py').model
+
 model = pyo.AbstractModel()
 model.name = "mwts_phase2"
 
