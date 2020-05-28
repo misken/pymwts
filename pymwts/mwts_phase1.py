@@ -89,19 +89,7 @@ model.activeTT = pyo.Set(dimen=1,
 # TODO: Some of these may be able to go away after I decide on possibly
 # redundant constraints.
 
-# 1a. Min and max number of days worked by week by tour type
-model.tt_min_dys_weeks = pyo.Param(model.TTYPES,
-                                   model.WEEKS, default=0.0)
 
-model.tt_max_dys_weeks = pyo.Param(model.TTYPES,
-                                   model.WEEKS, default=1e+6)
-
-# 1b. Min and max number of days worked by cumulative weeks by tour type
-model.tt_min_cumul_dys_weeks = pyo.Param(model.TTYPES,
-                                         model.WEEKS, default=0.0)
-
-model.tt_max_cumul_dys_weeks = pyo.Param(model.TTYPES,
-                                         model.WEEKS, default=1e+6)
 
 # 2a. Min and max number of days worked by week by shiftlen by tour type
 model.tt_shiftlen_min_dys_weeks = pyo.Param(model.TTYPES,
@@ -135,6 +123,29 @@ model.tt_min_cumul_prds_weeks = pyo.Param(model.TTYPES,
 model.tt_max_cumul_prds_weeks = pyo.Param(model.TTYPES,
                                           model.WEEKS, default=1e+6)
 
+
+
+# TODO: To the above, we'll add parameters and sets to allow direct modeling of side constraints
+# of the form sum{subset of tour types} =, >=, <= some bound
+
+# Legacy parameters - the following are holdovers from previous model versions.
+#    Leaving these in so that model still works with older data files
+#    containing these parameters.
+
+# 1a. Min and max number of days worked by week by tour type
+model.tt_min_dys_weeks = pyo.Param(model.TTYPES,
+                                   model.WEEKS, default=0.0)
+
+model.tt_max_dys_weeks = pyo.Param(model.TTYPES,
+                                   model.WEEKS, default=1e+6)
+
+# 1b. Min and max number of days worked by cumulative weeks by tour type
+model.tt_min_cumul_dys_weeks = pyo.Param(model.TTYPES,
+                                         model.WEEKS, default=0.0)
+
+model.tt_max_cumul_dys_weeks = pyo.Param(model.TTYPES,
+                                         model.WEEKS, default=1e+6)
+
 # 4a. Min and max number of periods worked by week by tour type by shift length
 model.tt_shiftlen_min_prds_weeks = pyo.Param(model.TTYPES,
                                              model.LENGTHS,
@@ -153,8 +164,7 @@ model.tt_shiftlen_max_cumul_prds_weeks = pyo.Param(model.TTYPES,
                                                    model.LENGTHS,
                                                    model.WEEKS, default=1e+6)
 
-# TODO: To the above, we'll add parameters and sets to allow direct modeling of side constraints
-# of the form sum{subset of tour types} =, >=, <= some bound
+# ------ End of legacy parameters
 
 # Indicator for part-time tour types: 1 for part-time, 0 for full-time
 model.tt_parttime = pyo.Param(model.TTYPES)
@@ -1804,8 +1814,6 @@ model.prds_worked_cumul_weekly_UB = \
                    rule=prds_worked_cumul_weekly_UB_rule)
 
 
-
-
 # Weekend subset constraints --------------------------------------------------
 # Need constraints to prevent cases such as the following. Consider two people
 # with same tour type working 5 days per week. Assume that consecutive weekends
@@ -1816,8 +1824,6 @@ model.prds_worked_cumul_weekly_UB = \
 #  1 2 0 2 2 2 1
 
 # The employee with the 1 0 0 0 0 0 1 pattern would be forced to work 6 days.
-
-# TODO: Find the math notes about how these were developed
 
 
 def weekend_subsets_5_4_idx_rule(M):
@@ -2342,7 +2348,7 @@ model.TTD_TT_weeklyconservation_idx = pyo.Set(
 
 
 # Lower bound on TTD vars based on minimum number of days worked per week
-# TODO: These bounds seem redundant given TTD_MWDW constraints. Binary deactivation code already added.
+# TODO: These bounds are redundant given TTD_MWDW constraints. Binary deactivation code already added.
 def TTD_TT_weeklyconservation_LB_rule(M, i, t, w):
     return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) >= M.TourType[i, t] * M.tt_min_dys_weeks[t, w]
 
@@ -2352,7 +2358,7 @@ model.TTD_TT_weeklyconservation_LB = \
 
 
 # Upper bound on TTD vars based on maximum number of days worked per week
-# TODO: These bounds seem redundant given TTD_MWDW constraints Binary deactivation code already added.
+# TODO: These bounds are redundant given TTD_MWDW constraints Binary deactivation code already added.
 def TTD_TT_weeklyconservation_UB_rule(M, i, t, w):
     return sum(M.TourTypeDay[i, t, d, w] for d in M.DAYS) <= M.TourType[i, t] * M.tt_max_dys_weeks[t, w]
 
@@ -2362,7 +2368,7 @@ model.TTD_TT_weeklyconservation_UB = \
 
 
 # Cumulative (over weeks) versions of the lower and upper bound constraints immediately above
-# TODO: These bounds seem redundant given TTD_MWDW constraints
+# TODO: These bounds are redundant given TTD_MWDW constraints
 def TTD_TT_cumul_weeklyconservation_LB_rule(M, i, t, w):
     return sum(M.TourTypeDay[i, t, d, z] for d in M.DAYS for z in pyo.sequence(w)) >= \
            M.TourType[i, t] * M.tt_min_cumul_dys_weeks[t, w]
