@@ -131,9 +131,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     # if not is_chains_tot_con_active:
     #     phase1_inst.chains_tot_con.deactivate()
 
-    # Deactivate part-time fraction upper bound if all tour types are part-time
+    # Deactivate part-time fraction upper bound if all tour types are part-time or all full-time
     tot_parttime_ttypes = sum(phase1_inst.tt_parttime[t] for t in phase1_inst.activeTT)
-    if tot_parttime_ttypes == len(phase1_inst.activeTT) or phase1_inst.max_parttime_frac.value == 1.0:
+    if tot_parttime_ttypes == len(phase1_inst.activeTT) or \
+            phase1_inst.max_parttime_frac.value == 1.0 or \
+            tot_parttime_ttypes == 0:
         phase1_inst.max_ptfrac_con.deactivate()
 
     # Boolean indicators for debugging weekends related constraints

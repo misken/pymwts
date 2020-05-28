@@ -163,7 +163,9 @@ def A_wkend_days_idx_rule(M):
     Construct index for weekend pattern parameter
 
     A_wkend_days[i,j,w,t,e] = 1 if weekend pattern i calls for work on day j of week k
-    for tour type t having weekend type e, and 0 otherwise
+    for tour type t having weekend type e, and 0 otherwise.
+
+    Currently only weekend type 1 implemented (Sat, Sun)
 
     :param M:
     :return: list of tuples of indexes
@@ -173,7 +175,9 @@ def A_wkend_days_idx_rule(M):
             for j in M.DAYS
             for w in M.WEEKS
             for t in M.TTYPES
-            for e in pyo.sequence(2) if i <= M.num_weekend_patterns[e, t]]
+            for e in pyo.sequence(2) if e == 1
+            if i <= M.num_weekend_patterns[e, t]
+            ]
 
 # Multiweek days worked patterns ----------------------------------------------
 

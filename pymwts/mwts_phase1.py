@@ -45,7 +45,7 @@ model.EPOCHS = pyo.RangeSet(1, model.n_prds_per_cycle)
 model.WINDOWS = pyo.RangeSet(1, model.n_prds_per_day)
 model.DAYS = pyo.RangeSet(1, model.n_days_per_week)
 model.WEEKS = pyo.RangeSet(1, model.n_weeks)
-model.WEEKENDS = pyo.RangeSet(1, 2)
+model.WEEKENDS = pyo.RangeSet(1, 2) # For now, just implementing type 1 weekends (Sat and Sun)
 
 model.epoch = pyo.Param(model.PERIODS, model.DAYS,
                         model.WEEKS, initialize=mwts_shared.epoch_init)
@@ -206,7 +206,7 @@ model.max_weekend_patterns = pyo.Param(
     initialize=mwts_shared.max_wkend_patterns_init)
 
 model.num_weekend_patterns = pyo.Param(model.WEEKENDS,
-                                       model.TTYPES)
+                                       model.TTYPES, default=0)
 
 model.A_wkend_days_idx = pyo.Set(
     dimen=5, ordered=True, initialize=mwts_shared.A_wkend_days_idx_rule)
@@ -439,7 +439,7 @@ model.A_is_Saturday = pyo.Param(model.num_wkend_days_idx,
 # define windows appropriately.
 # -----------------------------------------------------------------------
 
-model.g_start_window_width = pyo.Param()  # Width of start-time windows
+model.g_start_window_width = pyo.Param(default=0)  # Width of start-time windows
 
 
 # #/**** Beginning of each start window (in total periods from Sunday @ midnight)****/
@@ -1586,14 +1586,16 @@ model.TTD_MWDW_con = pyo.Constraint(model.TTD_MWDW_idx,
 
 def TTDS_TT_shiftlen_weeklyconservation_idx_rule(M):
     """
-    Index is (window, tour type, shift length, week).
+    Index is (window, tour type, shift length, week) if more than one shift length
+    in tour type.
 
     :param M: Model
     :return: Constraint index rule
     """
     return [(i, t, k, w) for (i, t) in M.okTourType
             for k in M.tt_length_x[t]
-            for w in M.WEEKS]
+            for w in M.WEEKS
+            if len(M.tt_length_x[t]) > 1]
 
 
 model.TTDS_TT_shiftlen_weeklyconservation_idx = pyo.Set(
@@ -1693,6 +1695,23 @@ model.TTDS_TT_shiftlen_cumul_weeklyconservation_UB = \
                    rule=TTDS_TT_shiftlen_cumul_weeklyconservation_UB_rule)
 
 
+def prds_worked_weekly_idx_rule(M):
+    """
+    Index is (window, tour type, week) if more than one shift length
+    in tour type.
+
+    :param M: Model
+    :return: Constraint index rule
+    """
+    return [(i, t, w) for (i, t) in M.okTourType
+            for w in M.WEEKS
+            if len(M.tt_length_x[t]) > 1]
+
+
+model.prds_worked_weekly_idx = pyo.Set(
+    dimen=4, initialize=prds_worked_weekly_idx_rule)
+
+
 def prds_worked_weekly_LB_rule(M, i, t, w):
     """
     Coordinate TTDS and TT vars for num periods worked
@@ -1712,8 +1731,7 @@ def prds_worked_weekly_LB_rule(M, i, t, w):
 
 
 model.prds_worked_weekly_LB = \
-    pyo.Constraint(model.okTourType,
-                   model.WEEKS, rule=prds_worked_weekly_LB_rule)
+    pyo.Constraint(prds_worked_weekly_idx_rule, rule=prds_worked_weekly_LB_rule)
 
 
 def prds_worked_weekly_UB_rule(M, i, t, w):
@@ -1735,8 +1753,7 @@ def prds_worked_weekly_UB_rule(M, i, t, w):
 
 
 model.prds_worked_weekly_UB = pyo.Constraint(
-    model.okTourType,
-    model.WEEKS, rule=prds_worked_weekly_UB_rule)
+    prds_worked_weekly_idx_rule, rule=prds_worked_weekly_UB_rule)
 
 
 # # Cumulative versions of the above 2 constraints
@@ -1760,7 +1777,7 @@ def prds_worked_cumul_weekly_LB_rule(M, i, t, w):
 
 
 model.prds_worked_cumul_weekly_LB = \
-    pyo.Constraint(model.okTourType, model.WEEKS,
+    pyo.Constraint(prds_worked_weekly_idx_rule,
                    rule=prds_worked_cumul_weekly_LB_rule)
 
 
@@ -1783,7 +1800,7 @@ def prds_worked_cumul_weekly_UB_rule(M, i, t, w):
 
 
 model.prds_worked_cumul_weekly_UB = \
-    pyo.Constraint(model.okTourType, model.WEEKS,
+    pyo.Constraint(prds_worked_weekly_idx_rule,
                    rule=prds_worked_cumul_weekly_UB_rule)
 
 
@@ -1806,7 +1823,7 @@ model.prds_worked_cumul_weekly_UB = \
 def weekend_subsets_5_4_idx_rule(M):
     """
     TODO: Write me
-
+    Only implemented for weekend type 1 (Sat, Sun)
     :param M: Model
     :return:
     """
@@ -1816,7 +1833,7 @@ def weekend_subsets_5_4_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_max_dys_weeks[t, w] == 5:
+                if M.tt_max_dys_weeks[t, w] == 5 and e == 1:
                     index_list.append((i, t, w, e, 2, 3, 4, 5))
                     index_list.append((i, t, w, e, 2, 3, 4, 6))
                     index_list.append((i, t, w, e, 2, 3, 5, 6))
@@ -1871,7 +1888,7 @@ def weekend_subsets_4_3_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] <= 4 <= M.tt_max_dys_weeks[t, w]:
+                if M.tt_min_dys_weeks[t, w] <= 4 <= M.tt_max_dys_weeks[t, w] and e == 1:
                     index_list.append((i, t, w, e, 2, 3, 4))
                     index_list.append((i, t, w, e, 2, 3, 5))
                     index_list.append((i, t, w, e, 2, 3, 6))
@@ -1935,7 +1952,7 @@ def weekend_subsets_3_2_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] <= 3 <= M.tt_max_dys_weeks[t, w]:
+                if M.tt_min_dys_weeks[t, w] <= 3 <= M.tt_max_dys_weeks[t, w] and e == 1:
                     index_list.append((i, t, w, e, 2, 3))
                     index_list.append((i, t, w, e, 2, 4))
                     index_list.append((i, t, w, e, 2, 5))
@@ -1996,7 +2013,7 @@ def weekend_subsets_2_1_idx_rule(M):
     for (i, t) in M.okTourType:
         for w in M.WEEKS:
             for e in M.WEEKENDS:
-                if M.tt_min_dys_weeks[t, w] <= 2 <= M.tt_max_dys_weeks[t, w]:
+                if M.tt_min_dys_weeks[t, w] <= 2 <= M.tt_max_dys_weeks[t, w] and e == 1:
                     index_list.append((i, t, w, e, 2))
                     index_list.append((i, t, w, e, 3))
                     index_list.append((i, t, w, e, 4))
