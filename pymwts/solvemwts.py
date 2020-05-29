@@ -644,9 +644,9 @@ def solvemwts(scenario, phase1_dat_file, path,
                                                     phase2_inst.lengths[idx[4]],
                                                     phase2_inst.WIN_x[idx[0]]))
 
-        f2_tour.write('TTS\n')
-        for tour in phase2_inst.TOURS:
-            f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
+        # f2_tour.write('TTS\n')
+        # for tour in phase2_inst.TOURS:
+        #     f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
 
     create_mwt(tour_file, scenario, path)
     logging.info('Tour related output files created')

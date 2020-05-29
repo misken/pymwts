@@ -34,9 +34,9 @@ def create_mwt(filenameInput,stubOutput,output_path):
 #===============================================================================
 
 
-    outFiles['TTS'] = open(output_path+stubOutput+'.tts','w')
+    # outFiles['TTS'] = open(output_path+stubOutput+'.tts','w')
     outFiles['MWT'] = open(output_path+stubOutput+'.mwt','w')
-    pp2key = []
+    # pp2key = []
 
 
 
@@ -64,10 +64,10 @@ def create_mwt(filenameInput,stubOutput,output_path):
             # for each week
             if matchobj.group(1) == 'n_weeks':
                 num_weeks = int(line.split()[1])
-                for w in range(1,num_weeks+1):
-                    pp2key.append("pp2_%d" % (w))
-                    key = pp2key[w-1]
-                    outFiles[key] = open("%s%s_w%d.pp2" % (output_path, stubOutput, w),'w')
+                # for w in range(1,num_weeks+1):
+                #     pp2key.append("pp2_%d" % (w))
+                #     key = pp2key[w-1]
+                #     outFiles[key] = open("%s%s_w%d.pp2" % (output_path, stubOutput, w),'w')
 
             if matchobj.group(1) == 'n_tours':
                 num_tours = int(line.split()[1])
@@ -120,16 +120,16 @@ def create_mwt(filenameInput,stubOutput,output_path):
 
                 #whichFile.write(line)         # No match, just write the line to active output file
             else:
-                outFiles['TTS'].write(line)   # Write TTS line
+                # outFiles['TTS'].write(line)   # Write TTS line
                 tourtypes.append(int(line))
 
 
-    for w in range(1,num_weeks+1):
-        key = pp2key[w-1]
-        for t in range(1,num_tours+1):
-            for i in tours[w-1][t-1]:
-                 outFiles[key].write("%5d" % i)
-            outFiles[key].write('\n')
+    # for w in range(1,num_weeks+1):
+    #     key = pp2key[w-1]
+    #     for t in range(1,num_tours+1):
+    #         for i in tours[w-1][t-1]:
+    #              outFiles[key].write("%5d" % i)
+    #         outFiles[key].write('\n')
 
 
 
@@ -141,8 +141,8 @@ def create_mwt(filenameInput,stubOutput,output_path):
         outFiles['MWT'].write('\n')
 
     # Close all the files
-    for k in pp2key:
-        outFiles[k].close
+    # for k in pp2key:
+    #     outFiles[k].close
 
     outFiles['MWT'].close
     inFile.close
