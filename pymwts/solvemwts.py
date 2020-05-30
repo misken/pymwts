@@ -89,6 +89,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase2_results_file = path + scenario + '_phase2_results.yml'
 
     phase1_shiftsum_file = path + scenario + '_phase1_shiftsum.csv'
+    phase1_capsum_file = path + scenario + '_phase1_capsum.csv'
     phase1_tourskeleton_file = path + scenario + '_phase1_tourskeleton.csv'
 
     tour_file = path + scenario + '.tur'
@@ -408,6 +409,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_shiftsummary = mwts_utils.write_phase1_shiftsummary(phase1_inst)
     with open(phase1_shiftsum_file, 'w') as f1_shiftsum:
         print(phase1_shiftsummary, file=f1_shiftsum)
+
+    # Write capacity summary
+    phase1_capsummary = mwts_utils.write_phase1_capsummary(phase1_inst)
+    with open(phase1_capsum_file, 'w') as f1_capsum:
+        print(phase1_capsummary, file=f1_capsum)
 
     # Write tour skeleton
     phase1_tourskeleton = mwts_utils.weekenddaysworked_to_tourskeleton(phase1_inst)

@@ -8,7 +8,8 @@ Read input files for mwts problems and create a GMPL data file.
 import re
 import json
 
-def create_mwt(filenameInput,stubOutput,output_path):
+
+def create_mwt(fn_tur, output_stub, output_path):
     pattLineType = re.compile('^(TTS|PP4|n_weeks|n_tours)')    # The regex to match the file section headers
 
     #pattTourShift = re.compile('^tourshift\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)')
@@ -35,7 +36,7 @@ def create_mwt(filenameInput,stubOutput,output_path):
 
 
     # outFiles['TTS'] = open(output_path+stubOutput+'.tts','w')
-    outFiles['MWT'] = open(output_path+stubOutput+'.mwt','w')
+    outFiles['MWT'] = open(output_path + output_stub + '.mwt', 'w')
     # pp2key = []
 
 
@@ -43,7 +44,7 @@ def create_mwt(filenameInput,stubOutput,output_path):
     #outFiles['PP2'] = open(stubOutput+'.pp2','w')
     #outFiles['PP3'] = open(stubOutput+'.pp3','w')
 
-    inFile = open(filenameInput)           # Open the file
+    inFile = open(fn_tur)           # Open the file
     pp4mode = False
     toursInitialized = False
     num_weeks = 0

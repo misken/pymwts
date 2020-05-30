@@ -404,6 +404,40 @@ def logger(f, msg, ts):
     f.write(msgts)
 
 
+def write_phase1_capsummary(inst, isStringIO=True):
+    """
+    Write out a multiweek summary of capacity, demand, understaffing.
+
+    :param inst: Model instance
+    :param isStringIO: True (default) to return StringIO object, False to return string
+    :return: capacity summary as StringIO object or a string.
+    """
+    param = 'period day week dmd cap us1 us2 ustot\n'
+    rows = [(i, j, w,
+             inst.dmd_staff[i, j, w],
+             inst.cov[i, j, w].value,
+             inst.under1[i, j, w].value,
+             inst.under2[i, j, w].value,
+             inst.under1[i, j, w].value + inst.under2[i, j, w].value)
+            for i in inst.PERIODS
+            for j in inst.DAYS
+            for w in inst.WEEKS
+            ]
+
+    for row in rows:
+        row = [str(r) for r in row]
+        data_row = ' '.join(row)
+        data_row += '\n'
+        param += data_row
+
+    if isStringIO:
+        param_out = io.StringIO()
+        param_out.write(param)
+        return param_out.getvalue()
+    else:
+        return param
+
+
 def write_phase1_shiftsummary(inst, isStringIO=True):
     """
     Write out a multiweek summary of daily shift worked variables
