@@ -19,7 +19,7 @@ import pyomo.environ as pyo
 import pymwts.mwts_phase1 as phase1
 import pymwts.mwts_phase2 as phase2
 import pymwts.mwts_utils as mwts_utils
-from pymwts.pymwtsio.mwts_process_out_tour import create_mwt
+import pymwts.pymwtsio.mwts_output as mwts_output
 from pymwts.pymwtsio.mwts_makedat import scalar_to_param
 
 # Possible input parameters
@@ -93,6 +93,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_tourskeleton_file = path + scenario + '_phase1_tourskeleton.csv'
 
     tour_file = path + scenario + '.tur'
+    phase2_toursum_file = path + scenario + '_phase2_toursum.csv'
+    phase2_ftesum_file = path + scenario + '_phase2_ftesum.csv'
 
     # Setup logging
     log_file = path + scenario + '.log'
@@ -406,20 +408,20 @@ def solvemwts(scenario, phase1_dat_file, path,
         logging.info('Phase 1 summary and results written')
 
     # Write shift summary
-    phase1_shiftsummary = mwts_utils.write_phase1_shiftsummary(phase1_inst)
+    phase1_shiftsummary = mwts_output.write_phase1_shiftsummary(phase1_inst)
     with open(phase1_shiftsum_file, 'w') as f1_shiftsum:
         print(phase1_shiftsummary, file=f1_shiftsum)
 
     # Write capacity summary
-    phase1_capsummary = mwts_utils.write_phase1_capsummary(phase1_inst)
+    phase1_capsummary = mwts_output.write_phase1_capsummary(phase1_inst)
     with open(phase1_capsum_file, 'w') as f1_capsum:
         print(phase1_capsummary, file=f1_capsum)
 
     # Write tour skeleton
-    phase1_tourskeleton = mwts_utils.weekenddaysworked_to_tourskeleton(phase1_inst)
+    phase1_tourskeleton = mwts_output.weekenddaysworked_to_tourskeleton(phase1_inst)
     with open(phase1_tourskeleton_file, 'w') as f1_tourskeleton:
         print(phase1_tourskeleton, file=f1_tourskeleton)
-        phase1_tourskeleton = mwts_utils.tourtypeday_to_tourskeleton(phase1_inst)
+        phase1_tourskeleton = mwts_output.tourtypeday_to_tourskeleton(phase1_inst)
         print(phase1_tourskeleton, file=f1_tourskeleton)
 
     # Phase 2 model construction ----------------------------------------------
@@ -654,7 +656,20 @@ def solvemwts(scenario, phase1_dat_file, path,
         # for tour in phase2_inst.TOURS:
         #     f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
 
-    create_mwt(tour_file, scenario, path)
+    mwts_output.create_mwt(tour_file, scenario, path)
+
+    # Write tour summary
+    prds_per_fte = 40.0 * phase2_inst.n_prds_per_day.value / 24.0
+    phase2_toursummary, phase2_ftesum = mwts_output.write_phase2_toursummary(tour_file,
+                                                                              prds_per_fte,
+                                                                              phase2_inst.n_weeks.value)
+
+    with open(phase2_toursum_file, 'w') as f1_toursum:
+        print(phase2_toursummary, file=f1_toursum)
+
+    with open(phase2_ftesum_file, 'w') as f1_ftesum:
+        print(phase2_ftesum, file=f1_ftesum)
+
     logging.info('Tour related output files created')
     ts_now = datetime.datetime.now()
     var_tuple = (scenario, phase1_solution_value, tot_cap,
