@@ -8,10 +8,33 @@ Read input files for mwts problems and create a GMPL data file.
 import io
 import re
 import json
+from datetime import time
 
 import pandas as pd
 import numpy as np
 
+def shift_label(start_prd, shift_len, prds_per_day):
+    mins_per_prd = 1440.0 / prds_per_day
+    end_prd = start_prd + shift_len
+    if end_prd > prds_per_day:
+        end_prd = - (prds_per_day - end_prd)
+
+    start_hours = (start_prd - 1) * mins_per_prd / 60.0
+    start_whole_hours = int(start_hours)
+    start_whole_minutes = int((start_hours - start_whole_hours) * 60)
+    start_time = time(start_whole_hours, start_whole_minutes).strftime('%H%M')
+
+    end_hours = (end_prd - 1) * mins_per_prd / 60.0
+    end_whole_hours = int(end_hours)
+    end_whole_minutes = int((end_hours - end_whole_hours) * 60)
+    try:
+        end_time = time(end_whole_hours, end_whole_minutes).strftime('%H%M')
+    except:
+        pass
+
+    label = '{}-{}'.format(start_time, end_time)
+
+    return label
 
 def make_tours(tur_df, prds_per_fte, nweeks):
     tour_df = tur_df.groupby('tournum').agg(tourtype=('tourtype', 'min'),
@@ -160,7 +183,7 @@ def write_phase2_toursummary(fn_tur, prds_per_fte, nweeks, isStringIO=True):
         return ttype_sum, fte_sum
 
 
-def create_mwt(fn_tur, output_stub, output_path):
+def create_mwt(fn_tur, prds_per_day, output_stub, output_path):
     pattLineType = re.compile('^(TTS|PP4|n_weeks|n_tours)')    # The regex to match the file section headers
 
     #pattTourShift = re.compile('^tourshift\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)')
@@ -266,7 +289,8 @@ def create_mwt(fn_tur, output_stub, output_path):
                     tours[week-1][tournum-1][dow-1] = startprd
                     tours[week-1][tournum-1][dow-1+8] = shiftlen
 
-                    shift = '(' + str(startprd) + ':' + str(shiftlen) + ')'
+                    shift = shift_label(startprd, shiftlen, prds_per_day)
+                    #'(' + str(startprd) + ':' + str(shiftlen) + ')'
                     mwtours[tournum-1][(week-1)*7+dow-1] = shift
 
 

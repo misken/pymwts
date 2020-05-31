@@ -656,7 +656,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         # for tour in phase2_inst.TOURS:
         #     f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
 
-    mwts_output.create_mwt(tour_file, scenario, path)
+    mwts_output.create_mwt(tour_file, phase2_inst.n_prds_per_day.value, scenario, path)
 
     # Write tour summary
     prds_per_fte = 40.0 * phase2_inst.n_prds_per_day.value / 24.0
