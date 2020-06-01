@@ -238,11 +238,15 @@ def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path
         mwtours[tournum - 1][(week - 1) * 7 + dow - 1] = shift
 
     tour_shifts_df = pd.DataFrame(mwtours)
-    # tour_shifts_df.index.rename('tournum', inplace=True)
-    # tour_shifts_df.reset_index(inplace=True, drop=False)
+
+    # Create the column headers
+
+    dow_abbrevs = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+    header = ['{}-{}'.format(d, w) for w in range(1, nweeks + 1) for d in dow_abbrevs]
+    tour_shifts_df.set_axis(header, axis=1,inplace=True)
 
     tour_schedule_df = tours_df.join(tour_shifts_df)
-    tour_schedule_df.to_csv(phase2_mwt_file)
+    tour_schedule_df.to_csv(phase2_mwt_file, index=False)
 
     pass
 
@@ -275,12 +279,7 @@ def create_mwt_old(fn_tur, prds_per_day, output_stub, output_path):
 
     # outFiles['TTS'] = open(output_path+stubOutput+'.tts','w')
     outFiles['MWT'] = open(output_path + output_stub + '.mwt', 'w')
-    # pp2key = []
 
-
-
-    #outFiles['PP2'] = open(stubOutput+'.pp2','w')
-    #outFiles['PP3'] = open(stubOutput+'.pp3','w')
 
     inFile = open(fn_tur)           # Open the file
     pp4mode = False
