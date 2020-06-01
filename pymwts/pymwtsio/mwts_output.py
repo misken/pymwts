@@ -40,10 +40,17 @@ def shift_label(start_prd, shift_len, prds_per_day):
 def make_tours(tur_df, prds_per_fte, nweeks):
     tour_df = tur_df.groupby('tournum').agg(tourtype=('tourtype', 'min'),
                                             tot_shifts=('tourtype', 'size'), tot_periods=('shiftlength', 'sum'),
-                                            start_win=('startwin', 'min'))
+                                            startwin=('startwin', 'min'))
 
     tour_df['tot_hours'] = tour_df['tot_periods'] * 40.0 / prds_per_fte
     tour_df['tot_ftes'] = tour_df['tot_periods'] / nweeks / prds_per_fte
+    tour_df.reset_index(inplace=True, drop=False)
+
+    tour_df = tour_df.astype(dtype={'tournum': np.int32,
+                                'tourtype': np.int32,
+                                'tot_shifts': np.int32,
+                                'tot_periods': np.int32,
+                                'startwin': np.int32})
 
     return tour_df
 
@@ -213,17 +220,17 @@ def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path
     tur_df['shift_label'] = tur_df.apply(lambda  x: shift_label(x['period'], x['shiftlength'], prds_per_day), axis=1)
 
     tours_df = make_tours(tur_df, prds_per_fte, nweeks)
-    ntours = len(tur_df.index)
+    ntours = len(tours_df.index)
 
     mwtours = []
     for t in range(1, ntours + 1):
         mwtourspec = []
-        for w in range(1, ntours + 1):
+        for w in range(1, nweeks + 1):
             for _ in range(1, 8):
                 mwtourspec.append('x')
         mwtours.append(mwtourspec)
 
-    for row in tur_df.iterrows():
+    for index, row in tur_df.iterrows():
         tournum = row['tournum']
         week = row['week']
         dow = row['day']
@@ -231,6 +238,11 @@ def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path
         mwtours[tournum - 1][(week - 1) * 7 + dow - 1] = shift
 
     tour_shifts_df = pd.DataFrame(mwtours)
+    # tour_shifts_df.index.rename('tournum', inplace=True)
+    # tour_shifts_df.reset_index(inplace=True, drop=False)
+
+    tour_schedule_df = tours_df.join(tour_shifts_df)
+    tour_schedule_df.to_csv(phase2_mwt_file)
 
     pass
 
