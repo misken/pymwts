@@ -13,6 +13,7 @@ from datetime import time
 import pandas as pd
 import numpy as np
 
+
 def shift_label(start_prd, shift_len, prds_per_day):
     mins_per_prd = 1440.0 / prds_per_day
     end_prd = start_prd + shift_len
@@ -183,7 +184,58 @@ def write_phase2_toursummary(fn_tur, prds_per_fte, nweeks, isStringIO=True):
         return ttype_sum, fte_sum
 
 
-def create_mwt(fn_tur, prds_per_day, output_stub, output_path):
+def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path):
+
+    """
+    Write out tour schedule
+
+    :param inst: Model instance
+    :param isStringIO: True (default) to return StringIO object, False to return string
+    :return: tour summary as StringIO object or a string.
+    """
+
+    phase2_mwt_file = output_path + scenario + '_phase2_mwt.csv'
+
+    colnames = ['tournum', 'tourtype', 'week', 'period', 'day', 'shiftlength', 'startwin']
+
+    tur_df = pd.read_csv(fn_tur,
+                         skiprows=3,
+                         names=colnames,
+                         sep='\s+',
+                         dtype={'tournum': np.int32,
+                                'tourtype': np.int32,
+                                'week': np.int32,
+                                'period': np.int32,
+                                'day': np.int32,
+                                'shiftlength': np.int32,
+                                'startwin': np.int32})
+
+    tur_df['shift_label'] = tur_df.apply(lambda  x: shift_label(x['period'], x['shiftlength'], prds_per_day), axis=1)
+
+    tours_df = make_tours(tur_df, prds_per_fte, nweeks)
+    ntours = len(tur_df.index)
+
+    mwtours = []
+    for t in range(1, ntours + 1):
+        mwtourspec = []
+        for w in range(1, ntours + 1):
+            for _ in range(1, 8):
+                mwtourspec.append('x')
+        mwtours.append(mwtourspec)
+
+    for row in tur_df.iterrows():
+        tournum = row['tournum']
+        week = row['week']
+        dow = row['day']
+        shift = row['shift_label']
+        mwtours[tournum - 1][(week - 1) * 7 + dow - 1] = shift
+
+    tour_shifts_df = pd.DataFrame(mwtours)
+
+    pass
+
+
+def create_mwt_old(fn_tur, prds_per_day, output_stub, output_path):
     pattLineType = re.compile('^(TTS|PP4|n_weeks|n_tours)')    # The regex to match the file section headers
 
     #pattTourShift = re.compile('^tourshift\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)')
