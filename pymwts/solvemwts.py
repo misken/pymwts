@@ -109,6 +109,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_solution_value = 0.0
     phase2_solution_value = 0.0
 
+    print('\n*** Scenario {}\n'.format(scenario))
     logging.info('Scenario %s started', scenario)
     logging.info('DAT %s', phase1_dat_file)
 
@@ -117,6 +118,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_inst = phase1_mdl.create_instance(filename=phase1_dat_file)
     phase1_inst.name = 'mwts_phase1_inst'
     logging.info('Phase 1 instance created')
+    print('\n*** Phase 1 model instance created.\n')
 
     # Activate/deactivate constraints -----------------------------------------
 
@@ -290,6 +292,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     # Solve Phase 1 -----------------------------------------------------------
 
     # Setup the solver
+    print('\n*** Setting up the solver.\n')
     solver = None
     if which_solver == 'cbc':
         solver = pyomo.opt.SolverFactory('cbc')
@@ -318,11 +321,13 @@ def solvemwts(scenario, phase1_dat_file, path,
     # In order to check if we found a solution before time limit reached,
     # need to override this default behavior with load_solutions=False.
 
+    print('\n*** Starting to solve Phase 1 model\n')
     stream_solver = True
     phase1_results = solver.solve(phase1_inst, tee=stream_solver,
                                   load_solutions=False)
 
     if len(phase1_results.solution) == 0:
+        print('\n*** No Phase 1 solution found. See log file for details.\n')
         logging.warning('No Phase 1 solution found. Status = %s Termination condition = %s',
                         phase1_results.solver.status, phase1_results.solver.termination_condition)
 
@@ -358,6 +363,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
         sys.exit(1)
     else:
+        print('\n*** Phase 1 solution found\n')
         logging.info('Phase 1 solution found. Status = %s Termination condition = %s',
                      phase1_results.solver.status, phase1_results.solver.termination_condition)
 
@@ -483,13 +489,14 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     with open(phase2_dat_file, 'a') as f2_dat:
         print(dat.getvalue(), file=f2_dat)
-        logging.info('Phase 2 dat file created')
+        logging.info('Phase 2 dat file created.')
 
     # Initialize the phase 2 instance
     phase2_mdl = phase2.model
     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
     phase2_inst.name = 'mwts_phase2_inst'
     logging.info('Phase 2 instance created')
+    print('\n*** Phase 2 model instance created.\n')
 
     # Activate/deactivate constraints
     bTour_Weekend_conservation_active = True
@@ -608,6 +615,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         f2_sum.write(msg)
 
     # Solve phase 2
+    print('\n*** Starting to solve Phase 2 model.\n')
     stream_solver = True
     phase2_results = solver.solve(phase2_inst, tee=stream_solver,
                                   load_solutions=False)
@@ -623,10 +631,10 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase2_inst.solutions.load_from(phase2_results)
 
     if str(phase2_results.Solution.Status) != 'unknown':
-
+        print('\n*** Phase 2 model solved.\n')
         phase2_solution_status = phase2_results.solver.status
-        print(phase2_solution_status)
-        print(str(pyo.value(phase2_inst.total_shifts)))
+        # print(phase2_solution_status)
+        # print(str(pyo.value(phase2_inst.total_shifts)))
         phase2_solution_value = pyo.value(phase2_inst.total_shifts())
         # Write results file
         with open(phase2_results_file, "w") as f2_res:
@@ -673,6 +681,7 @@ def solvemwts(scenario, phase1_dat_file, path,
         print(phase2_ftesum, file=f1_ftesum)
 
     logging.info('Tour related output files created')
+    print('\n*** Output files created.\n')
     ts_now = datetime.datetime.now()
     var_tuple = (scenario, phase1_solution_value, tot_cap,
                  str(phase1_solution_status), str(phase2_solution_status),
@@ -702,203 +711,3 @@ def solvemwts(scenario, phase1_dat_file, path,
         conn.close()
 
 
-# def probe_phase2(scenario, phase2_dat_file, path,
-#                  which_solver, timelimit, mipgap, wintt_filter=None):
-#     """
-#     Created this to make it easy to try out limited combinations of windows and tour
-#     types to try to debug model. Needed to manually add lines such as
-#
-#     set activeTT := 8;
-#     set activeWIN := 44;
-#
-#     to Phase 2 dat file and then resolve Phase 2. Couldn't find easy way to integrate with
-#     main model above, so created this probe_phase2() function.
-#
-#     :param scenario:
-#     :param phase2_dat_file:
-#     :param path:
-#     :param which_solver:
-#     :param timelimit:
-#     :param mipgap:
-#     :param phase2_results_file:
-#     :return:
-#     """
-#
-#     # Setup the solver
-#
-#     solver = None
-#     if which_solver == 'cbc':
-#         solver = pyomo.opt.SolverFactory('cbc')
-#         solver.options.seconds = timelimit
-#         solver.options.ratioGap = mipgap
-#     # solver.options.solution = '../tests/solution.sol' This isn't the correct way to specify this option
-#
-#     if which_solver == 'glpk':
-#         solver = pyomo.opt.SolverFactory('glpk')
-#         solver.options.tmlim = timelimit
-#         solver.options.mipgap = mipgap
-#
-#     if which_solver == 'gurobi':
-#         solver = pyomo.opt.SolverFactory('gurobi')
-#         solver.options.timelimit = timelimit
-#         solver.options.mipgap = mipgap
-#
-#     # Initialize the phase 2 instance
-#
-#     # phase2_mdl = import_file(phase2_mod_file).model_phase2
-#     phase2_mdl = mwts_phase2.model_phase2
-#     phase2_inst = phase2_mdl.create_instance(filename=phase2_dat_file)
-#     phase2_inst.name = 'mwts_phase2_inst'
-#     logging.info('Phase 2 instance created')
-#
-#     # Optionally limit which windows and tour types
-#
-#
-#     # Activate/deactivate constraints
-#
-#     bTour_Weekend_conservation_active = True
-#     bTour_MWDW_conservation_active = True
-#
-#     bOneWeekendPatternPerTour_active = True
-#     bOneMWDWPatternPerTour_active = True
-#
-#     bTourShift_Weekend_integration1_active = True
-#     bTourShift_MWDW_integration1_active = True
-#
-#     bTours_Daily_active = True
-#     bTours_Daily_conservation_active = True
-#
-#     bTours_Weekly_LB_active = False
-#     bTours_Weekly_UB_active = False
-#     bTours_Total_LB_active = False
-#     bTours_Total_UB_active = Falsesolvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
-#                     "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
-#                     "../tests/outputs/",
-#                     "gurobi",
-#                     1200.0,
-#                     0.02,
-#                     results_db="../tests/mwts05_d2456_testing.db")
-#
-#     bTours_Shiftlen_Weekly_LB_active = True
-#     bTours_Shiftlen_Weekly_UB_active = True
-#     bTours_Shiftlen_Total_LB_active = True
-#     bTours_Shiftlen_Total_UB_active = True
-#
-#     bTours_Weekly_Prds_LB_active = True
-#     bTours_Weekly_Prds_UB_active = True
-#     bTours_Total_Prds_LB_active = True
-#     bTours_Total_Prds_UB_active = True
-#
-#     # Deactivate constraints per the above list of binaries
-#
-#     if bTour_Weekend_conservation_active:
-#         phase2_inst.Tour_Weekend_conservation.deactivate()
-#
-#     if bTour_MWDW_conservation_active:
-#         phase2_inst.Tour_MWDW_conservation.deactivate()
-#
-#     if not bOneWeekendPatternPerTour_active:
-#         phase2_inst.OneWeekendPatternPerTour.deactivate()
-#
-#     if not bOneMWDWPatternPerTour_active:
-#         phase2_inst.OneMWDWPatternPerTour.deactivate()
-#
-#     if not bTourShift_Weekend_integration1_active:
-#         phase2_inst.TourShift_Weekend_integration1.deactivate()
-#
-#     if not bTourShift_MWDW_integration1_active:
-#         phase2_inst.TourShift_MWDW_integration1.deactivate()
-#
-#     if not bTours_Daily_active:
-#         phase2_inst.Tours_Daily.deactivate()
-#
-#     if not bTours_Daily_conservation_active:
-#         phase2_inst.Tours_Daily_conservation.deactivate()
-#
-#     if not bTours_Weekly_LB_active:
-#         phase2_inst.Tours_Weekly_LB.deactivate()
-#
-#     if not bTours_Weekly_UB_active:
-#         phase2_inst.Tours_Weekly_UB.deactivate()
-#
-#     if not bTours_Total_LB_active:
-#         phase2_inst.Tours_Total_LB.deactivate()
-#
-#     if not bTours_Total_UB_active:
-#         phase2_inst.Tours_Total_UB.deactivate()
-#
-#     if not bTours_Shiftlen_Weekly_LB_active:
-#         phase2_inst.Tours_Shiftlen_Weekly_LB.deactivate()
-#
-#     if not bTours_Shiftlen_Weekly_UB_active:
-#         phase2_inst.Tours_Shiftlen_Weekly_UB.deactivate()
-#
-#     if not bTours_Shiftlen_Total_LB_active:
-#         phase2_inst.Tours_Shiftlen_Total_LB.deactivate()
-#
-#     if not bTours_Shiftlen_Total_UB_active:
-#         phase2_inst.Tours_Shiftlen_Total_UB.deactivate()
-#solvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
-                    # "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
-                    # "../tests/outputs/",
-                    # "gurobi",
-                    # 1200.0,
-                    # 0.02,
-                    # results_db="../tests/mwts05_d2456_testing.db")
-#     if not bTours_Weekly_Prds_LB_active:
-#         phase2_inst.Tours_Weekly_Prds_LB.deactivate()
-#
-#     if not bTours_Weekly_Prds_UB_active:
-#         phase2_inst.Tours_Weekly_Prds_UB.deactivate()
-#
-#     if not bTours_Total_Prds_LB_active:solvemwts.solvemwts("mwts05_d02_t168_a02_noptub_loose",
-#                     "../tests/inputs/dat/mwts05_d02_t168_a02_noptub_loose.dat",
-#                     "../tests/outputs/",
-#                     "gurobi",
-#                     1200.0,
-#                     0.02,
-#                     results_db="../tests/mwts05_d2456_testing.db")
-#         phase2_inst.Tours_Total_Prds_LB.deactivate()
-#
-#     if not bTours_Total_Prds_UB_active:
-#         phase2_inst.Tours_Total_Prds_UB.deactivate()
-#
-#     # Solve phase 2
-#     stream_solver = True
-#     phase2_results = solver.solve(phase2_inst, tee=stream_solver)
-#
-#     phase2_solution_status = phase2_results.solver.status
-#     print(phase2_solution_status)
-#     print(str(value(phase2_inst.total_shifts)))
-#     phase2_solution_value = value(phase2_inst.total_shifts())
-#
-#     # Write results file
-#     phase2_results_file = path + scenario + '.yml'
-#     with open(phase2_results_file, "w") as f2_res:
-#         phase2_inst.display(ostream=f2_res)
-#         logging.info('Phase 2 summary and results written')
-#
-#     # Create the multi-week tour file
-#     tour_file = path + scenario + '.tur'
-#     idxcopy = []
-#     for idx in phase2_inst.TourShift:
-#         idxcopy.append(idx)
-#     idxsorted = sorted(idxcopy)
-#
-#     with open(tour_file, "w") as f2_tour:
-#         f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
-#         f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
-#         f2_tour.write('PP4\n')
-#
-#         for idx in idxsorted:
-#             if phase2_inst.TourShift[idx].value > 0:
-#                 f2_tour.write(
-#                     '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
-#                                                     phase2_inst.lengths[idx[4]],
-#                                                     phase2_inst.WIN_x[idx[0]]))
-#
-#         f2_tour.write('TTS\n')
-#         for tour in phase2_inst.TOURS:
-#             f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
-#
-#     create_mwt(tour_file, scenario, path)

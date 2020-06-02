@@ -14,7 +14,7 @@ setup(name='pymwts',
       packages=['pymwts', 'pymwts.pymwtsio'],
       entry_points = {
         'console_scripts': [
-            'mwts = pymwts.mwts:main']},
+            'pymwts = pymwts.mwts:main']},
       python_requires='>=3.7',
       install_requires=['pyomo',
                         'pandas']
