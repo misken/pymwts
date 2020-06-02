@@ -92,10 +92,6 @@ def solvemwts(scenario, phase1_dat_file, path,
     phase1_capsum_file = path + scenario + '_phase1_capsum.csv'
     phase1_tourskeleton_file = path + scenario + '_phase1_tourskeleton.csv'
 
-    tour_file = path + scenario + '.tur'
-    phase2_toursum_file = path + scenario + '_phase2_toursum.csv'
-    phase2_ftesum_file = path + scenario + '_phase2_ftesum.csv'
-
     # Setup logging
     log_file = path + scenario + '.log'
     logging.basicConfig(filename=log_file,
@@ -641,44 +637,9 @@ def solvemwts(scenario, phase1_dat_file, path,
             phase2_inst.display(ostream=f2_res)
             logging.info('Phase 2 summary and results written')
 
-    # Create the multi-week tour file
-    idx_copy = []
-    for idx in phase2_inst.TourShift:
-        idx_copy.append(idx)
-    idx_sorted = sorted(idx_copy)
-
-    with open(tour_file, "w") as f2_tour:
-        f2_tour.write('n_tours {}\n'.format(phase2_inst.n_tours.value))
-        f2_tour.write('n_weeks {}\n'.format(phase2_inst.n_weeks.value))
-        f2_tour.write('PP4\n')
-
-        for idx in idx_sorted:
-            if phase2_inst.TourShift[idx].value > 0:
-                # tournum, tt, week, prd, day, shiftlenprds, startwin
-                f2_tour.write(
-                    '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
-                                                    phase2_inst.lengths[idx[4]],
-                                                    phase2_inst.WIN_x[idx[0]]))
-
-        # f2_tour.write('TTS\n')
-        # for tour in phase2_inst.TOURS:
-        #     f2_tour.write('{}\n'.format(phase2_inst.TT_x[tour]))
-
+    # Create tour related output files
     prds_per_fte = 40.0 * phase2_inst.n_prds_per_day.value / 24.0
-    mwts_output.create_mwt(tour_file, phase2_inst.n_prds_per_day.value,
-                           phase2_inst.n_weeks.value, prds_per_fte, scenario, path)
-
-    # Write tour summary
-
-    phase2_toursummary, phase2_ftesum = mwts_output.write_phase2_toursummary(tour_file,
-                                                                              prds_per_fte,
-                                                                              phase2_inst.n_weeks.value)
-
-    with open(phase2_toursum_file, 'w') as f1_toursum:
-        print(phase2_toursummary, file=f1_toursum)
-
-    with open(phase2_ftesum_file, 'w') as f1_ftesum:
-        print(phase2_ftesum, file=f1_ftesum)
+    mwts_output.write_phase2_tours(phase2_inst, prds_per_fte, tot_cap, scenario, path)
 
     logging.info('Tour related output files created')
     print('\n*** Output files created.\n')

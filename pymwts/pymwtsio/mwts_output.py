@@ -149,65 +149,46 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
         return param
 
 
-def write_phase2_toursummary(fn_tur, prds_per_fte, nweeks, isStringIO=True):
-    """
-    Write out a summary of tours by tour type
-
-    :param inst: Model instance
-    :param isStringIO: True (default) to return StringIO object, False to return string
-    :return: tour summary as StringIO object or a string.
-    """
-
-    colnames = ['tournum', 'tourtype', 'week', 'period', 'day', 'shiftlength', 'startwin']
-
-    tur_df = pd.read_csv(fn_tur,
-                         skiprows=3,
-                         names=colnames,
-                         sep='\s+',
-                         dtype={'tournum': np.int32,
-                                'tourtype': np.int32,
-                                'week': np.int32,
-                                'period': np.int32,
-                                'day': np.int32,
-                                'shiftlength': np.int32,
-                                'startwin': np.int32})
-
-    tours_df = make_tours(tur_df, prds_per_fte, nweeks)
-    ttype_sum_df = make_tourtype_summary(tours_df)
-    fte_sum_df = make_summary(tours_df, prds_per_fte, nweeks)
-
-    ttype_sum = ttype_sum_df.to_string(index=False)
-    fte_sum = fte_sum_df.to_string(index=False)
-
-    if isStringIO:
-        ttype_sum_out = io.StringIO()
-        ttype_sum_out.write(ttype_sum)
-
-        fte_sum_out = io.StringIO()
-        fte_sum_out.write(fte_sum)
-
-        return ttype_sum_out.getvalue(), fte_sum_out.getvalue()
-    else:
-        return ttype_sum, fte_sum
-
-
-def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path):
+def write_phase2_tours(phase2_inst, prds_per_fte, tot_cap, scenario, output_path):
 
     """
-    Write out tour schedule
+    Write out tour schedule files
 
-    :param inst: Model instance
-    :param isStringIO: True (default) to return StringIO object, False to return string
-    :return: tour summary as StringIO object or a string.
+    :param phase2_inst: Phase 2 model instance
+    :param prds_per_fte: Number of periods which is equal to 1 FTE
+    :param scenario: string used in filenames
+    :output_path: output files get written here
+    :return: nothing
     """
 
     phase2_mwt_file = output_path + scenario + '_phase2_mwt.csv'
+    phase2_tur_file = output_path + scenario + '_phase2_tur.csv'
+    phase2_toursum_file = output_path + scenario + '_phase2_toursum.csv'
+    phase2_ftesum_file = output_path + scenario + '_phase2_ftesum.csv'
 
+    # Create the tur file
+    idx_copy = []
+    for idx in phase2_inst.TourShift:
+        idx_copy.append(idx)
+    idx_sorted = sorted(idx_copy)
+
+    prds_per_day = phase2_inst.n_prds_per_day.value
+    n_weeks = phase2_inst.n_weeks.value
     colnames = ['tournum', 'tourtype', 'week', 'period', 'day', 'shiftlength', 'startwin']
+    header = ' '.join(colnames)
 
-    tur_df = pd.read_csv(fn_tur,
-                         skiprows=3,
-                         names=colnames,
+    with open(phase2_tur_file, "w") as f2_tour:
+        f2_tour.write('{}\n'.format(header))
+        for idx in idx_sorted:
+            if phase2_inst.TourShift[idx].value > 0:
+                # tournum, tt, week, prd, day, shiftlenprds, startwin
+                f2_tour.write(
+                    '{} {} {} {} {} {} {}\n'.format(idx[0], idx[5], idx[3], idx[1], idx[2],
+                                                    phase2_inst.lengths[idx[4]],
+                                                    phase2_inst.WIN_x[idx[0]]))
+
+    tur_df = pd.read_csv(phase2_tur_file,
+                         header=0,
                          sep='\s+',
                          dtype={'tournum': np.int32,
                                 'tourtype': np.int32,
@@ -219,13 +200,13 @@ def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path
 
     tur_df['shift_label'] = tur_df.apply(lambda  x: shift_label(x['period'], x['shiftlength'], prds_per_day), axis=1)
 
-    tours_df = make_tours(tur_df, prds_per_fte, nweeks)
+    tours_df = make_tours(tur_df, prds_per_fte, n_weeks)
     ntours = len(tours_df.index)
 
     mwtours = []
     for t in range(1, ntours + 1):
         mwtourspec = []
-        for w in range(1, nweeks + 1):
+        for w in range(1, n_weeks + 1):
             for _ in range(1, 8):
                 mwtourspec.append('x')
         mwtours.append(mwtourspec)
@@ -240,151 +221,22 @@ def create_mwt(fn_tur, prds_per_day, nweeks, prds_per_fte, scenario, output_path
     tour_shifts_df = pd.DataFrame(mwtours)
 
     # Create the column headers
-
     dow_abbrevs = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-    header = ['{}-{}'.format(d, w) for w in range(1, nweeks + 1) for d in dow_abbrevs]
+    header = ['{}-{}'.format(d, w) for w in range(1, n_weeks + 1) for d in dow_abbrevs]
     tour_shifts_df.set_axis(header, axis=1,inplace=True)
 
     tour_schedule_df = tours_df.join(tour_shifts_df)
     tour_schedule_df.to_csv(phase2_mwt_file, index=False)
 
-    pass
+    # Create the tour summary files
+    ttype_sum_df = make_tourtype_summary(tours_df)
+    fte_sum_df = make_summary(tours_df, prds_per_fte, n_weeks)
+    fte_sum_df['tot_cap'] = tot_cap
+    fte_sum_df['sched_eff'] = tot_cap / fte_sum_df['tot_periods']
 
+    ttype_sum_df.to_csv(phase2_ftesum_file, index=False)
+    fte_sum_df.to_csv(phase2_toursum_file, index=False)
 
-def create_mwt_old(fn_tur, prds_per_day, output_stub, output_path):
-    pattLineType = re.compile('^(TTS|PP4|n_weeks|n_tours)')    # The regex to match the file section headers
-
-    #pattTourShift = re.compile('^tourshift\[([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)')
-    outFiles = {}
-    whichFile = None
-
-
-#===============================================================================
-# PP4
-#  1  2  1 11  4 16 11  4
-#  1  2  1 11  6 16 11  6
-#  1  2  2 11  3 16 11  3
-#  1  2  2 11  4 16 11  4
-#  1  2  2 11  5 16 11  5
-#  1  2  2 11  6 16 11  6
-#  2  3  1 11  1 16 11  1
-#  2  3  1 11  3 24 11  3
-#  2  3  1 11  5 24 11  5
-#  2  3  1 11  6 24 11  6
-#  2  3  2 11  1 24 11  1
-#  2  3  2 11  2 24 11  2
-#  2  3  2 11  6 24 11  6
-#===============================================================================
-
-
-    # outFiles['TTS'] = open(output_path+stubOutput+'.tts','w')
-    outFiles['MWT'] = open(output_path + output_stub + '.mwt', 'w')
-
-
-    inFile = open(fn_tur)           # Open the file
-    pp4mode = False
-    toursInitialized = False
-    num_weeks = 0
-    num_tours = 0
-
-    while 1:
-        line = inFile.readline()           # Read a single line
-        if not line: break                 # Bail if EOF
-
-        matchobj = pattLineType.match(line)    # See if this line is start of new section
-        if matchobj:
-            if matchobj.group(1) == 'PP4':
-                pp4mode = True
-            else:
-                pp4mode = False
-
-            # If this is the num_weeks section, create the keys and files
-            # for each week
-            if matchobj.group(1) == 'n_weeks':
-                num_weeks = int(line.split()[1])
-                # for w in range(1,num_weeks+1):
-                #     pp2key.append("pp2_%d" % (w))
-                #     key = pp2key[w-1]
-                #     outFiles[key] = open("%s%s_w%d.pp2" % (output_path, stubOutput, w),'w')
-
-            if matchobj.group(1) == 'n_tours':
-                num_tours = int(line.split()[1])
-
-            # Initialize the tour data structure if not done yet
-            if num_weeks>0 and num_tours>0 and not toursInitialized:
-                tours = []
-                mwtours = []
-                tourtypes = []
-                for w in range(1,num_weeks+1):
-                    weeklytours = []
-                    for t in range(1,num_tours+1):
-                        tourspec = []
-
-                        for _ in range(1,8):
-                            tourspec.append(0)
-                        tourspec.append(1)
-                        for _ in range(1,8):
-                            tourspec.append(0)
-                        weeklytours.append(tourspec)
-                    tours.append(weeklytours)
-
-                for t in range(1,num_tours+1):
-                    mwtourspec = []
-                    for w in range(1,num_weeks+1):
-                        for _ in range(1,8):
-                            mwtourspec.append('x')
-                    mwtours.append(mwtourspec)
-
-                toursInitialized = True
-                
-        else:
-            if pp4mode:
-                tour = line.split()
-                if len(tour) > 5:
-                    tournum = int(tour[0])
-                    ttype = int(tour[1])
-                    week = int(tour[2])
-                    startprd = int(tour[3])
-                    dow = int(tour[4])
-                    shiftlen = int(tour[5])
-
-
-                    tours[week-1][tournum-1][dow-1] = startprd
-                    tours[week-1][tournum-1][dow-1+8] = shiftlen
-
-                    shift = shift_label(startprd, shiftlen, prds_per_day)
-                    #'(' + str(startprd) + ':' + str(shiftlen) + ')'
-                    mwtours[tournum-1][(week-1)*7+dow-1] = shift
-
-
-                #whichFile.write(line)         # No match, just write the line to active output file
-            else:
-                # outFiles['TTS'].write(line)   # Write TTS line
-                tourtypes.append(int(line))
-
-
-    # for w in range(1,num_weeks+1):
-    #     key = pp2key[w-1]
-    #     for t in range(1,num_tours+1):
-    #         for i in tours[w-1][t-1]:
-    #              outFiles[key].write("%5d" % i)
-    #         outFiles[key].write('\n')
-
-
-
-    for t in range(1,num_tours+1):
-        print (mwtours[t-1])
-        # outFiles['MWT'].write(mwtours[t])
-        # outFiles['MWT'].write(str(tourtypes[t-1]))
-        json.dump(mwtours[t-1],outFiles['MWT'])
-        outFiles['MWT'].write('\n')
-
-    # Close all the files
-    # for k in pp2key:
-    #     outFiles[k].close
-
-    outFiles['MWT'].close
-    inFile.close
 
 def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
     """
