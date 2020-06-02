@@ -149,7 +149,7 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
         return param
 
 
-def write_phase2_tours(phase2_inst, prds_per_fte, tot_cap, scenario, output_path):
+def write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, scenario, output_path):
 
     """
     Write out tour schedule files
@@ -163,7 +163,7 @@ def write_phase2_tours(phase2_inst, prds_per_fte, tot_cap, scenario, output_path
 
     phase2_mwt_file = output_path + scenario + '_phase2_mwt.csv'
     phase2_tur_file = output_path + scenario + '_phase2_tur.csv'
-    phase2_toursum_file = output_path + scenario + '_phase2_toursum.csv'
+    phase2_tourtypesum_file = output_path + scenario + '_phase2_tourtypesum.csv'
     phase2_ftesum_file = output_path + scenario + '_phase2_ftesum.csv'
 
     # Create the tur file
@@ -231,11 +231,11 @@ def write_phase2_tours(phase2_inst, prds_per_fte, tot_cap, scenario, output_path
     # Create the tour summary files
     ttype_sum_df = make_tourtype_summary(tours_df)
     fte_sum_df = make_summary(tours_df, prds_per_fte, n_weeks)
-    fte_sum_df['tot_cap'] = tot_cap
-    fte_sum_df['sched_eff'] = tot_cap / fte_sum_df['tot_periods']
+    fte_sum_df['tot_dmd'] = tot_dmd
+    fte_sum_df['sched_eff'] = tot_dmd / fte_sum_df['tot_periods']
 
-    ttype_sum_df.to_csv(phase2_ftesum_file, index=False)
-    fte_sum_df.to_csv(phase2_toursum_file, index=False)
+    ttype_sum_df.to_csv(phase2_tourtypesum_file, index=False)
+    fte_sum_df.to_csv(phase2_ftesum_file, index=False)
 
 
 def weekenddaysworked_to_tourskeleton(inst, isStringIO=True):
