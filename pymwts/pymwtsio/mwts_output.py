@@ -149,7 +149,7 @@ def write_phase1_shiftsummary(inst, isStringIO=True):
         return param
 
 
-def write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, scenario, output_path):
+def write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, tot_us, scenario, output_path):
 
     """
     Write out tour schedule files
@@ -235,6 +235,7 @@ def write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, scenario, output_path
     fte_sum_df = make_summary(tours_df, prds_per_fte, n_weeks)
     fte_sum_df['tot_dmd'] = tot_dmd
     fte_sum_df['sched_eff'] = tot_dmd / fte_sum_df['tot_periods']
+    fte_sum_df['tot_periods_us'] = tot_us
     fte_sum_df['scenario'] = scenario
 
     ttype_sum_df.to_csv(phase2_tourtypesum_file, index=False)

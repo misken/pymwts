@@ -447,6 +447,9 @@ def solvemwts(scenario, phase1_dat_file, path,
     tot_dmd = pyo.value(sum(phase1_inst.dmd_staff[i,j,w]
                             for (i,j,w) in phase1_inst.epoch_tuples))
 
+    tot_us = pyo.value(sum(phase1_inst.under1[i,j,w] + phase1_inst.under2[i,j,w]
+                            for (i,j,w) in phase1_inst.epoch_tuples))
+
     us1_cost = pyo.value(sum(phase1_inst.under1[i,j,w] * phase1_inst.cu1.value
                              for (i,j,w) in phase1_inst.epoch_tuples))
     us2_cost = pyo.value(sum(phase1_inst.under2[i,j,w] * phase1_inst.cu2.value
@@ -643,7 +646,7 @@ def solvemwts(scenario, phase1_dat_file, path,
 
     # Create tour related output files
     prds_per_fte = 40.0 * phase2_inst.n_prds_per_day.value / 24.0
-    mwts_output.write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, scenario, path)
+    mwts_output.write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, tot_us, scenario, path)
 
     logging.info('Tour related output files created')
     print('\n*** Output files created.\n')
