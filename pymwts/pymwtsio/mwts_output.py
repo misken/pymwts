@@ -86,7 +86,7 @@ def write_phase1_capsummary(inst, isStringIO=True):
     :param isStringIO: True (default) to return StringIO object, False to return string
     :return: capacity summary as StringIO object or a string.
     """
-    param = 'period day week dmd cap us1 us2 ustot\n'
+    param = 'period,day,week,dmd,cap,us1,us2,ustot\n'
     rows = [(i, j, w,
              inst.dmd_staff[i, j, w],
              inst.cov[i, j, w].value,
@@ -100,7 +100,7 @@ def write_phase1_capsummary(inst, isStringIO=True):
 
     for row in rows:
         row = [str(r) for r in row]
-        data_row = ' '.join(row)
+        data_row = ','.join(row)
         data_row += '\n'
         param += data_row
 
@@ -230,9 +230,12 @@ def write_phase2_tours(phase2_inst, prds_per_fte, tot_dmd, scenario, output_path
 
     # Create the tour summary files
     ttype_sum_df = make_tourtype_summary(tours_df)
+    ttype_sum_df['scenario'] = scenario
+
     fte_sum_df = make_summary(tours_df, prds_per_fte, n_weeks)
     fte_sum_df['tot_dmd'] = tot_dmd
     fte_sum_df['sched_eff'] = tot_dmd / fte_sum_df['tot_periods']
+    fte_sum_df['scenario'] = scenario
 
     ttype_sum_df.to_csv(phase2_tourtypesum_file, index=False)
     fte_sum_df.to_csv(phase2_ftesum_file, index=False)
