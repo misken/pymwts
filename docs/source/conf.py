@@ -165,7 +165,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'pymwts', 'pymwts Documentation',
-     author, 'pymwts', 'One line description of project.',
+     author, 'pymwts', 'Multiweek tour scheduling model.',
      'Miscellaneous'),
 ]
 
