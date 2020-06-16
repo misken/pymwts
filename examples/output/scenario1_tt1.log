@@ -1,0 +1,13 @@
+INFO:Scenario scenario1_tt1 started 2020-06-03 09:34:54,203
+INFO:DAT ./input/scenario1_tt1.dat 2020-06-03 09:34:54,203
+INFO:Phase 1 instance created 2020-06-03 09:35:04,725
+INFO:Phase 1 solution found. Status = ok Termination condition = optimal 2020-06-03 09:35:09,479
+INFO:Phase 1 solved successfully 2020-06-03 09:35:09,535
+INFO:Phase 1 solution = 16574.0 2020-06-03 09:35:09,535
+INFO:Phase 1 summary and results written 2020-06-03 09:35:10,387
+INFO:Phase 2 dat file created. 2020-06-03 09:35:10,726
+INFO:Phase 2 instance created 2020-06-03 09:35:48,518
+INFO:Phase 2 solution found. Status = ok Termination condition = optimal 2020-06-03 09:35:48,900
+INFO:Phase 2 summary and results written 2020-06-03 09:35:49,068
+INFO:Tour related output files created 2020-06-03 09:35:49,328
+INFO:Solution log record ('scenario1_tt1', 16574.0, 15680.0, 'ok', 'ok', 702.0, 192.0, 980.0, '2020-06-03 09:35:49.328510') 2020-06-03 09:35:49,328
