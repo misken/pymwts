@@ -63,8 +63,8 @@ Extending the implicit model to handle multiple weeks
 
 So, the original model sat around for a bunch of years, but I'd always
 planned on extending it to multiple weeks. Now that a usable multiweek
-model is complete and a journal article is under review, the model code is being released as an open source
-project called `pymwts`. 
+model is complete and a journal article is under review (SOON), the model code is being released as an open source
+project called `pymwts`. You can see a `preprint version of the paper here (COMING SOON) <>`_.
 
 About the code
 --------------

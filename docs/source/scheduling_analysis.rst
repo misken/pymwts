@@ -1,9 +1,7 @@
 ===============================================
-Scheduling analysis
+Scheduling analysis example
 ===============================================
 
-Intro
-=====
-
-Example of using in tactical scheduling analysis
+See this Jupyter notebook based example of a simple tactical
+scheduling analysis done using `pymwts`.
 

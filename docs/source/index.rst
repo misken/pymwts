@@ -12,13 +12,12 @@ Contents:
     :maxdepth: 3
 
     overview
+    install
     intro_tour_sched
-    mwts_high_level
+    scheduling_analysis
     opt_models
-    src_structure
     problem_inputs
     solution_process
-    scheduling_analysis
 
 
 Indices and tables
