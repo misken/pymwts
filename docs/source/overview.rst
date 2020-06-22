@@ -89,7 +89,7 @@ If you have some experience with using algebraic modeling languages you
 know that one of the advantages is the ability to segregate optimization
 model logic from the instance specific data. In Pyomo, our model
 is implemented as an `AbtractModel` and the data files are written in
-standard `AMPL compatibile DAT format <https://ampl.com/BOOK/CHAPTERS/24-refman.pdf>`_. Pyomo has `several other options for
+standard `AMPL compatible DAT format <https://ampl.com/BOOK/CHAPTERS/24-refman.pdf>`_. Pyomo has `several other options for
 specifying data <https://pyomo.readthedocs.io/en/stable/working_abstractmodels/instantiating_models.html>`_ for an optimization model instance but DAT files are a simple, portable,
 transparent way for us to provide example problem instances. 
 

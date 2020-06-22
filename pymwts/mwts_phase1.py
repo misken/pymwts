@@ -582,7 +582,7 @@ model.PotentialStartWindow = pyo.Set(model.PotentialStartWindow_idx,
 
 # ##### okStartWindowRoots ######
 
-# Index: okStartWindowRoots is defined for all (tour type,shift length) pairs such that the shift length
+# Index: okStartWindowRoots is defined for all (tour type, shift length) pairs such that the shift length
 #        is allowed for the tour type.
 
 # Defn:  okStartWindowRoots[t,k] contains all the bin triplets in PotentialStartWindow
