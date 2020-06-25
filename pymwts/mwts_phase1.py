@@ -435,6 +435,9 @@ model.A_is_Saturday = pyo.Param(model.num_wkend_days_idx,
 
 # TODO: start windows ---------------------------------------------------------
 # START WINDOWS - should these be tour type specific since allow start is tour type specific?
+# - my inclination is yes since segregation by tour types makes constraint creation easier and
+#   better isolates windows. Also, the more things that are tour type specific, the more
+#   modeling flexibility we have.
 #
 # To start with, I made them week specific but not sure if they should be. Seems they should be
 # period, day, tour type.
@@ -443,14 +446,17 @@ model.A_is_Saturday = pyo.Param(model.num_wkend_days_idx,
 # define windows appropriately.
 # -----------------------------------------------------------------------
 
+# Start window width should be tour type specific
 model.g_start_window_width = pyo.Param(default=0)  # Width of start-time windows
+
+model.tt_start_window_width = pyo.Param(model.TTYPES, default=0)
 
 
 # #/**** Beginning of each start window (in total periods from Sunday @ midnight)****/
 # #pyo.Param b_window_wepoch{i in PERIODS,j in DAYS} := n_prds_per_day*(j-1)+i;
 # #
 # #/**** End of each start window (in total periods from Sunday @ midnight) ****/
-# #pyo.Param e_window_wepoch{i in PERIODS,j in DAYS} :=
+# #pyo.Param e_window_wepoch{i in PERIODS,j in DAYS} :=git push origin --delete
 # # ( if n_prds_per_day*(j-1)+i+width <= n_prds_per_day*n_days then
 # #    n_prds_per_day*(j-1)+i+width
 # #  else
@@ -458,7 +464,9 @@ model.g_start_window_width = pyo.Param(default=0)  # Width of start-time windows
 
 
 # if model.g_start_window_width > 0:
-# This version spans multiple weeks
+# This version spans multiple weeks. I think I need to leave these week specific. The fact that allow_start is
+# not week specific will force consistency across the weeks. I can always remove week if it becomes apparent
+# that it's the right approach. For now, I don't recall exactly how this parameter gets used.
 def b_window_epoch_init(M, i, j, w):
     return M.epoch[i, j, w]
 
@@ -691,10 +699,15 @@ def bchain_init(M, t, k):
     window_list = []
     if M.g_start_window_width > 0:
         for (i, j, w) in M.okStartWindowRoots[t, k]:
+            is_contained = False
             for (p, q, r) in M.okStartWindowRoots[t, k]:
                 #            for (p, q, r) in (M.okStartWindowRoots[t, k] - pyo.Set(initialize=[(i, j, w)])):
-                if (i, j, w) not in M.PotentialStartWindow[p, q, r, k, t] and \
-                        (i, j, w) != (p, q, r) and (i, j, w) not in window_list:
+                if (i, j, w) in M.PotentialStartWindow[p, q, r, k, t]:
+                    if (i, j, w) != (p, q, r):
+                        is_contained = True
+                        break
+            if not is_contained:
+                if (i, j, w) not in window_list:
                     window_list.append((i, j, w))
 
     return window_list
@@ -949,8 +962,6 @@ model.TourTypeDay = pyo.Var(model.TourTypeDay_idx,
 
 # Tour type daily shift variables ---------------------------------------------
 
-# TODO - modify this index when get width>0 working. These are windows, not period start times.
-# Just using okShifts for now for w=0 case.  
 def TourTypeDayShift_idx_rule(M):
     """
     Index is (start window, tour type, shift length, day, week)
@@ -2168,7 +2179,7 @@ model.chains_tot_proxy2_con = pyo.Constraint(
 
 # Chain debugging
 is_chains_sweep_l_con_active = True
-is_chains_sweep_u_con_active = False
+is_chains_sweep_u_con_active = True
 is_chains_tot_con_active = True
 
 

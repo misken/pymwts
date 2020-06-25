@@ -4,12 +4,9 @@ Getting width > 0 working
 Start by reviewing all related params and constraints in Phase 1 model
 to see which were bypassed just to get width=0 working.
 
-mwts05_d02_t1_a01_ptub_moderate_w2
+Chain construction now looks correct after fixing the bchain procedure.
 
-RuntimeError: Failed to set value for param=A_wkend_days, index=(1, 6,
-        1, 1, 2), value=0.
-    	source error message="Index '(1, 6, 1, 1, 2)' is not valid for indexed
-    	component 'A_wkend_days'"
+Error thrown for Constraint 'chains_sweep_u_con[1,5,11,1,1,11,0]'
 
 
 

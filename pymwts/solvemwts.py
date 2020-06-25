@@ -222,6 +222,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                             'e_window_epoch[{0},{1},{2}] = {4}\n'.format(
                                 i, j, w, phase1_inst.b_window_epoch[i, j, w],
                                 phase1_inst.e_window_epoch[i, j, w]))
+            f_debug_win.write('\nEND b_window_epochs and e_window_epochs\n')
 
             f_debug_win.write('\nPotentialGlobalStartWindow[i, j, w]\n')
             for (i, j, w) in phase1_inst.epoch_tuples:
@@ -229,32 +230,38 @@ def solvemwts(scenario, phase1_dat_file, path,
                     f_debug_win.write(
                         'PotentialGlobalStartWindow[{},{},{}] = {}\n'.format(
                             i, j, w, list(phase1_inst.PotentialGlobalStartWindow[i, j, w])))
+            f_debug_win.write('\nEND PotentialGlobalStartWindow[i, j, w]\n')
 
             f_debug_win.write('\nPotentialStartWindow[i, j, w, k, t]\n')
             for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_idx:
                 if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
                     f_debug_win.write(
-                        'PotentialStartWindow[{},{},{},{},{}] = {}\n'.format(
+                        '\nPotentialStartWindow[{},{},{},{},{}] = {}\n'.format(
                             i, j, w, k, t,
                             list(phase1_inst.PotentialStartWindow[i, j, w, k, t])))
+            f_debug_win.write('\nEND PotentialStartWindow[i, j, w, k, t]\n')
 
             f_debug_win.write('okStartWindowRoots_idx = ')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
                 f_debug_win.write('({},{})\n'.format(t, k))
+            f_debug_win.write('\nEND okStartWindowRoots_idx = ')
 
             f_debug_win.write('\nokStartWindowRoots\n')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
                 f_debug_win.write('okStartWindowRoots[{},{}] = \n'.format(t, k))
                 for (i, j, w) in phase1_inst.okStartWindowRoots[t, k]:
                     f_debug_win.write('({},{},{})\n'.format(i, j, w))
+            f_debug_win.write('\nEND okStartWindowRoots\n')
 
             f_debug_win.write('\nokTourType = ')
             for (i, t) in phase1_inst.okTourType:
                 f_debug_win.write('({},{})\n'.format(i, t))
+            f_debug_win.write('\nEND okTourType = ')
 
             f_debug_win.write('\nokTourTypeDay = ')
             for (i, t, d) in phase1_inst.okTourTypeDay:
                 f_debug_win.write('({},{},{})\n'.format(i, t, d))
+            f_debug_win.write('\nENDokTourTypeDay = ')
 
             f_debug_win.write('\nbchain echain links\n')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
@@ -265,6 +272,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                         out = out + '({},{},{}) {}\n'.format(
                             x, y, z, phase1_inst.n_links[t, k, i, j, w])
                     f_debug_win.write(out)
+            f_debug_win.write('\nEND bchain echain links\n')
 
             f_debug_win.write('\nchains\n')
             for (t, k, i, j, w) in phase1_inst.chain_idx:
@@ -273,6 +281,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                 for (x, y, z) in phase1_inst.chain[t, k, i, j, w]:
                     out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w])
                 f_debug_win.write(out)
+            f_debug_win.write('\nEND chains\n')
 
             f_debug_win.write('\nlinkspan\n')
             for (t, k, i, j, w, m) in phase1_inst.link_idx:
@@ -280,7 +289,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                                                                               list(
                                                                                   phase1_inst.linkspan[
                                                                                       t, k, i, j, w, m])))
-
+            f_debug_win.write('\nEND linkspan\n')
             logging.info('Windows debug info written')
 
     # TODO - add status messages during overall model generation and solution process
