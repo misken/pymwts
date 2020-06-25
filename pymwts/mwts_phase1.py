@@ -89,8 +89,6 @@ model.activeTT = pyo.Set(dimen=1,
 # TODO: Some of these may be able to go away after I decide on possibly
 # redundant constraints.
 
-
-
 # 2a. Min and max number of days worked by week by shiftlen by tour type
 model.tt_shiftlen_min_dys_weeks = pyo.Param(model.TTYPES,
                                             model.LENGTHS,
@@ -123,10 +121,6 @@ model.tt_min_cumul_prds_weeks = pyo.Param(model.TTYPES,
 model.tt_max_cumul_prds_weeks = pyo.Param(model.TTYPES,
                                           model.WEEKS, default=1e+6)
 
-
-
-# TODO: To the above, we'll add parameters and sets to allow direct modeling of side constraints
-# of the form sum{subset of tour types} =, >=, <= some bound
 
 # Legacy parameters - the following are holdovers from previous model versions.
 #    Leaving these in so that model still works with older data files
@@ -442,7 +436,7 @@ model.A_is_Saturday = pyo.Param(model.num_wkend_days_idx,
 # TODO: start windows ---------------------------------------------------------
 # START WINDOWS - should these be tour type specific since allow start is tour type specific?
 #
-# To start with,I made them week specific but not sure if they should be. Seems they should be 
+# To start with, I made them week specific but not sure if they should be. Seems they should be
 # period, day, tour type.
 #
 # Maybe best strategy is to do the variables and constraints first and then work backwards to
