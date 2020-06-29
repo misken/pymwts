@@ -290,6 +290,18 @@ def solvemwts(scenario, phase1_dat_file, path,
                                                                                   phase1_inst.linkspan[
                                                                                       t, k, i, j, w, m])))
             f_debug_win.write('\nEND linkspan\n')
+
+            f_debug_win.write('\nchains_sweep_l_idx\n')
+            for (t, k, b, j, w, p, v) in phase1_inst.chains_sweep_l_idx:
+                f_debug_win.write('\n[{},{},{},{},{},{},{}]'.format(t, k, b, j, w, p, v))
+            f_debug_win.write('\nEND chains_sweep_l_idx\n')
+            # chains_sweep_l_idx
+
+            f_debug_win.write('\nchains_sweep_u_idx\n')
+            for (t, k, b, j, w, p, v) in phase1_inst.chains_sweep_l_idx:
+                f_debug_win.write('\n[{},{},{},{},{},{},{}]'.format(t, k, b, j, w, p, v))
+            f_debug_win.write('\nEND chains_sweep_u_idx\n')
+
             logging.info('Windows debug info written')
 
     # TODO - add status messages during overall model generation and solution process

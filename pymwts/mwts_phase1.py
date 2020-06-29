@@ -933,7 +933,38 @@ model.TourType = pyo.Var(model.TourType_idx,
 
 # Tour type daily variables ---------------------------------------------------
 
-model.okTourTypeDay = model.okTourType * model.DAYS
+def okTourTypeDay_rule(M):
+    """
+    List of (window, tour type, day) tuples that are allowable.
+
+    To be allowable,
+    for every week and day there must be an allowable shift (of any length allowed for that
+    tour type).
+
+    :param M: Model
+    """
+    index_list = []
+    for (i, t, j) in M.WINDOWS * M.activeTT * M.DAYS:
+        n_ok_weeks = 0
+        for w in M.WEEKS:
+            n_ok_days = 0
+            for k in M.tt_length_x[t]:
+                    if (i, j, w) in M.okStartWindowRoots[t, k]:
+                        n_ok_days += 1
+                        # Break out of the inner for since this day is ok
+                        # for at least one shift length
+                        break
+            if n_ok_days == 1:
+                n_ok_weeks += 1
+        if n_ok_weeks == M.n_weeks:
+            index_list.append((i, t, j))
+
+    return index_list
+
+
+model.okTourTypeDay = pyo.Set(dimen=3, initialize=okTourTypeDay_rule)
+
+# model.okTourTypeDay = model.okTourType * model.DAYS
 
 
 # TourTypeDay[i,t,d] - Number of people assigned to tour type t in start window i
@@ -951,7 +982,7 @@ def TourTypeDay_idx_rule(M):
             for t in M.activeTT
             for j in M.DAYS
             for w in M.WEEKS
-            if (i, t) in M.okTourType]
+            if (i, t, j) in M.okTourTypeDay]
 
 
 model.TourTypeDay_idx = pyo.Set(dimen=4, initialize=TourTypeDay_idx_rule)
@@ -961,6 +992,30 @@ model.TourTypeDay = pyo.Var(model.TourTypeDay_idx,
 
 
 # Tour type daily shift variables ---------------------------------------------
+
+def okTourTypeDayShift_rule(M):
+    """
+    List of (window, tour type, shift length, day) tuples that are allowable.
+
+    To be allowable,
+    for every week and day there must be an allowable shift a given length allowed for that
+    tour type).
+
+    :param M: Model
+    """
+    index_list = []
+    for (i, t, j) in M.WINDOWS * M.activeTT * M.DAYS:
+        # n_ok_weeks = 0
+        for w in M.WEEKS:
+            n_ok_days = 0
+            for k in M.tt_length_x[t]:
+                    if (i, j, w) in M.okStartWindowRoots[t, k] and (i, t, k, j) not in index_list:
+                        index_list.append((i, t, k, j))
+
+    return index_list
+
+
+model.okTourTypeDayShift = pyo.Set(dimen=4, initialize=okTourTypeDayShift_rule)
 
 def TourTypeDayShift_idx_rule(M):
     """
@@ -975,7 +1030,7 @@ def TourTypeDayShift_idx_rule(M):
             for k in M.tt_length_x[t]
             for j in M.DAYS
             for w in M.WEEKS
-            if (i, t) in M.okTourType]
+            if (i, t, k, j) in M.okTourTypeDayShift]
 
 
 model.TourTypeDayShift_idx = pyo.Set(dimen=5, initialize=TourTypeDayShift_idx_rule)
@@ -2202,12 +2257,12 @@ def chains_sweep_l_rule(M, t, k, b, j, w, p, v):
         for (prd, day, wk) in M.linkspan[t, k, b, j, w, v + 1]
         if (prd, day, wk, k, t) in M.okShifts) >= \
            sum(M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
-               for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
-                         if (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2])
+               for u in [vv for vv in range(p, p + v + 1)
+                         if (epoch_to_tuple(M, vv)[0], epoch_to_tuple(M, vv)[1], epoch_to_tuple(M, vv)[2])
                          in M.okStartWindowRoots[t, k] and sum(M.allow_start[x, y, k, t] for (x, y, z)
                                                                in M.PotentialGlobalStartWindow[
-                                                                   epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1],
-                                                                   epoch_to_tuple(M, v)[2]]) > 0])
+                                                                   epoch_to_tuple(M, vv)[0], epoch_to_tuple(M, vv)[1],
+                                                                   epoch_to_tuple(M, vv)[2]]) > 0])
 
 
 def chains_sweep_l_idx_rule(M):
@@ -2248,14 +2303,29 @@ if is_chains_sweep_l_con_active:
 def chains_sweep_u_rule(M, t, k, b, j, w, p, v):
     return sum(M.Shift[epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2], k, t]
                for i in range(p, p + v + 1) if
-               (epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2]) in M.okShifts) <= sum(
-        M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
-        for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
-                  if
-                  (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]) in M.okStartWindowRoots[
-                      t, k] \
-                  and sum(M.allow_start[x, y, k, t] for (x, y, z) in M.PotentialGlobalStartWindow[
-                      epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]]) > 0])
+               (epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2], k, t) in M.okShifts) <= \
+           sum(M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
+               for u in [vv for vv in range(p, p + v + 1)
+                         if (epoch_to_tuple(M, vv)[0], epoch_to_tuple(M, vv)[1], epoch_to_tuple(M, vv)[2])
+                         in M.okStartWindowRoots[t, k] and sum(M.allow_start[x, y, k, t] for (x, y, z)
+                                                               in M.PotentialGlobalStartWindow[
+                                                                   epoch_to_tuple(M, vv)[0], epoch_to_tuple(M, vv)[1],
+                                                                   epoch_to_tuple(M, vv)[2]]) > 0])
+
+
+
+
+# def chains_sweep_u_rule(M, t, k, b, j, w, p, v):
+#     return sum(M.Shift[epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2], k, t]
+#                for i in range(p, p + v + 1) if
+#                (epoch_to_tuple(M, i)[0], epoch_to_tuple(M, i)[1], epoch_to_tuple(M, i)[2]) in M.okShifts) <= sum(
+#         M.TourTypeDayShift[epoch_to_tuple(M, u)[0], t, k, epoch_to_tuple(M, u)[1], epoch_to_tuple(M, u)[2]]
+#         for u in [vv for vv in range(p, p + M.g_start_window_width + 1)
+#                   if
+#                   (epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]) in M.okStartWindowRoots[
+#                       t, k] \
+#                   and sum(M.allow_start[x, y, k, t] for (x, y, z) in M.PotentialGlobalStartWindow[
+#                       epoch_to_tuple(M, v)[0], epoch_to_tuple(M, v)[1], epoch_to_tuple(M, v)[2]]) > 0])
 
 
 def chains_sweep_u_idx_rule(M):
