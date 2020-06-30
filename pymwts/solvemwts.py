@@ -529,32 +529,32 @@ def solvemwts(scenario, phase1_dat_file, path,
     print('\n*** Phase 2 model instance created.\n')
 
     # Activate/deactivate constraints
-    bTour_Weekend_conservation_active = False
-    bTour_MWDW_conservation_active = False
+    bTour_Weekend_conservation_active = True
+    bTour_MWDW_conservation_active = True
 
-    bOneWeekendPatternPerTour_active = False
-    bOneMWDWPatternPerTour_active = False
+    bOneWeekendPatternPerTour_active = True
+    bOneMWDWPatternPerTour_active = True
 
-    bTourShift_Weekend_integration1_active = False
-    bTourShift_MWDW_integration1_active = False
+    bTourShift_Weekend_integration1_active = True
+    bTourShift_MWDW_integration1_active = True
 
     bTours_Daily_active = True
-    bTours_Daily_conservation_active = False
+    # bTours_Daily_conservation_active = False
 
     bTours_Weekly_LB_active = False
     bTours_Weekly_UB_active = False
     bTours_Total_LB_active = False
     bTours_Total_UB_active = False
 
-    bTours_Shiftlen_Weekly_LB_active = False
-    bTours_Shiftlen_Weekly_UB_active = False
-    bTours_Shiftlen_Total_LB_active = False
-    bTours_Shiftlen_Total_UB_active = False
+    bTours_Shiftlen_Weekly_LB_active = True
+    bTours_Shiftlen_Weekly_UB_active = True
+    bTours_Shiftlen_Total_LB_active = True
+    bTours_Shiftlen_Total_UB_active = True
 
-    bTours_Weekly_Prds_LB_active = False
-    bTours_Weekly_Prds_UB_active = False
-    bTours_Total_Prds_LB_active = False
-    bTours_Total_Prds_UB_active = False
+    bTours_Weekly_Prds_LB_active = True
+    bTours_Weekly_Prds_UB_active = True
+    bTours_Total_Prds_LB_active = True
+    bTours_Total_Prds_UB_active = True
 
     # Deactivate constraints per the above list of binaries
 
@@ -579,8 +579,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not bTours_Daily_active:
         phase2_inst.Tours_Daily.deactivate()
 
-    if not bTours_Daily_conservation_active:
-        phase2_inst.Tours_Daily_conservation.deactivate()
+    # if not bTours_Daily_conservation_active:
+    #     phase2_inst.Tours_Daily_conservation.deactivate()
 
     if not bTours_Weekly_LB_active:
         phase2_inst.Tours_Weekly_LB.deactivate()
