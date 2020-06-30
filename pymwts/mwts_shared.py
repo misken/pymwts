@@ -175,7 +175,7 @@ def A_wkend_days_idx_rule(M):
             for j in M.DAYS
             for w in M.WEEKS
             for t in M.TTYPES
-            for e in pyo.sequence(2) if e == 1
+            for e in pyo.sequence(2)
             if i <= M.num_weekend_patterns[e, t]
             ]
 

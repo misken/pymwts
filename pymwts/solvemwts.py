@@ -17,7 +17,7 @@ import pyomo.opt
 import pyomo.environ as pyo
 
 import pymwts.mwts_phase1 as phase1
-# import pymwts.mwts_phase2 as phase2
+import pymwts.mwts_phase2 as phase2
 import pymwts.mwts_utils as mwts_utils
 import pymwts.pymwtsio.mwts_output as mwts_output
 from pymwts.pymwtsio.mwts_makedat import scalar_to_param
@@ -54,17 +54,12 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param timelimit:
     :param mipgap:
     :param results_db:
-    :param debug_start_windows:
+    :param debug_start_windows:import pymwts.mwts_phase2 as phase2
     :param write_phase1_instance:
     :param write_phase2_instance:
     :param force_solve:
     :return:
     """
-
-    if probe_phase2:
-        import pymwts.mwts_probe_phase2 as phase2
-    else:
-        import pymwts.mwts_phase2 as phase2
 
     # Check to see if this problem has already been run
     # Connect to the problem solution log database.
@@ -152,9 +147,9 @@ def solvemwts(scenario, phase1_dat_file, path,
     b_weekend_subsets_2_1_con2_active = True
 
     # Boolean indicators for possible redundant constraints
-    b_TTD_TT_weeklyconservation_active = False
-    b_TTDS_TT_weeklyconservation_active = False
-    b_prds_worked_shiflen_weekly_active = False
+    # b_TTD_TT_weeklyconservation_active = False
+    # b_TTDS_TT_weeklyconservation_active = False
+    # b_prds_worked_shiflen_weekly_active = False
 
     # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con2_active:
@@ -170,23 +165,23 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.weekend_subsets_2_1_con2.deactivate()
 
     # Possible redundant constraint deactivation
-    if not b_TTD_TT_weeklyconservation_active:
-        phase1_inst.TTD_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.TTD_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.TTD_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.TTD_TT_cumul_weeklyconservation_UB.deactivate()
+    # if not b_TTD_TT_weeklyconservation_active:
+    #     phase1_inst.TTD_TT_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTD_TT_weeklyconservation_UB.deactivate()
+    #     phase1_inst.TTD_TT_cumul_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTD_TT_cumul_weeklyconservation_UB.deactivate()
+    #
+    # if not b_TTDS_TT_weeklyconservation_active:
+    #     phase1_inst.TTDS_TT_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
+    #     phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
 
-    if not b_TTDS_TT_weeklyconservation_active:
-        phase1_inst.TTDS_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
-
-    if not b_prds_worked_shiflen_weekly_active:
-        phase1_inst.prds_worked_shiflen_weekly_LB.deactivate()
-        phase1_inst.prds_worked_shiflen_weekly_UB.deactivate()
-        phase1_inst.prds_worked_cumul_shiflen_weekly_LB.deactivate()
-        phase1_inst.prds_worked_cumul_shiflen_weekly_UB.deactivate()
+    # if not b_prds_worked_shiflen_weekly_active:
+    #     phase1_inst.prds_worked_shiflen_weekly_LB.deactivate()
+    #     phase1_inst.prds_worked_shiflen_weekly_UB.deactivate()
+    #     phase1_inst.prds_worked_cumul_shiflen_weekly_LB.deactivate()
+    #     phase1_inst.prds_worked_cumul_shiflen_weekly_UB.deactivate()
 
     # Post Phase 1 construction tasks ------------------------------------------
 
@@ -588,11 +583,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not bTours_Weekly_UB_active:
         phase2_inst.Tours_Weekly_UB.deactivate()
 
-    if not bTours_Total_LB_active:
-        phase2_inst.Tours_Total_LB.deactivate()
-
-    if not bTours_Total_UB_active:
-        phase2_inst.Tours_Total_UB.deactivate()
+    # if not bTours_Total_LB_active:
+    #     phase2_inst.Tours_Total_LB.deactivate()
+    #
+    # if not bTours_Total_UB_active:
+    #     phase2_inst.Tours_Total_UB.deactivate()
 
     if not bTours_Shiftlen_Weekly_LB_active:
         phase2_inst.Tours_Shiftlen_Weekly_LB.deactivate()
