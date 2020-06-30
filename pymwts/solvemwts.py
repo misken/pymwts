@@ -17,7 +17,7 @@ import pyomo.opt
 import pyomo.environ as pyo
 
 import pymwts.mwts_phase1 as phase1
-import pymwts.mwts_phase2 as phase2
+# import pymwts.mwts_phase2 as phase2
 import pymwts.mwts_utils as mwts_utils
 import pymwts.pymwtsio.mwts_output as mwts_output
 from pymwts.pymwtsio.mwts_makedat import scalar_to_param
@@ -43,6 +43,7 @@ def solvemwts(scenario, phase1_dat_file, path,
               debug_start_windows=False,
               write_phase1_instance=False,
               write_phase2_instance=False,
+              probe_phase2=False,
               force_solve=False):
     """
 
@@ -59,6 +60,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param force_solve:
     :return:
     """
+
+    if probe_phase2:
+        import pymwts.mwts_probe_phase2 as phase2
+    else:
+        import pymwts.mwts_phase2 as phase2
 
     # Check to see if this problem has already been run
     # Connect to the problem solution log database.
@@ -523,32 +529,32 @@ def solvemwts(scenario, phase1_dat_file, path,
     print('\n*** Phase 2 model instance created.\n')
 
     # Activate/deactivate constraints
-    bTour_Weekend_conservation_active = True
-    bTour_MWDW_conservation_active = True
+    bTour_Weekend_conservation_active = False
+    bTour_MWDW_conservation_active = False
 
-    bOneWeekendPatternPerTour_active = True
-    bOneMWDWPatternPerTour_active = True
+    bOneWeekendPatternPerTour_active = False
+    bOneMWDWPatternPerTour_active = False
 
-    bTourShift_Weekend_integration1_active = True
-    bTourShift_MWDW_integration1_active = True
+    bTourShift_Weekend_integration1_active = False
+    bTourShift_MWDW_integration1_active = False
 
     bTours_Daily_active = True
-    bTours_Daily_conservation_active = True
+    bTours_Daily_conservation_active = False
 
     bTours_Weekly_LB_active = False
     bTours_Weekly_UB_active = False
     bTours_Total_LB_active = False
     bTours_Total_UB_active = False
 
-    bTours_Shiftlen_Weekly_LB_active = True
-    bTours_Shiftlen_Weekly_UB_active = True
-    bTours_Shiftlen_Total_LB_active = True
-    bTours_Shiftlen_Total_UB_active = True
+    bTours_Shiftlen_Weekly_LB_active = False
+    bTours_Shiftlen_Weekly_UB_active = False
+    bTours_Shiftlen_Total_LB_active = False
+    bTours_Shiftlen_Total_UB_active = False
 
-    bTours_Weekly_Prds_LB_active = True
-    bTours_Weekly_Prds_UB_active = True
-    bTours_Total_Prds_LB_active = True
-    bTours_Total_Prds_UB_active = True
+    bTours_Weekly_Prds_LB_active = False
+    bTours_Weekly_Prds_UB_active = False
+    bTours_Total_Prds_LB_active = False
+    bTours_Total_Prds_UB_active = False
 
     # Deactivate constraints per the above list of binaries
 
