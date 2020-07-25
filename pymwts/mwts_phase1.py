@@ -901,7 +901,7 @@ def okTourType_rule(M):
                         # Break out of the inner for since this day is ok
                         # for at least one shift length
                         break
-            if n_ok_days >= M.tt_min_dys_weeks[t, w]:
+            if n_ok_days >= sum(M.tt_shiftlen_min_dys_weeks[t, k, w] for k in M.tt_length_x[t]):
                 n_ok_weeks += 1
         if n_ok_weeks == M.n_weeks:
             index_list.append((i, t))
