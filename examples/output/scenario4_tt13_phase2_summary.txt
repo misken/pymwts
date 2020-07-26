@@ -7,7 +7,6 @@ OneMWDWPatternPerTour --> 47
 TourShift_Weekend_integration1 --> 376
 TourShift_MWDW_integration1 --> 188
 Tours_Daily --> 1316
-Tours_Daily_conservation --> 560
 Tours_Shiftlen_Weekly_LB --> 0
 Tours_Shiftlen_Weekly_UB --> 0
 Tours_Shiftlen_Total_LB --> 0
@@ -24,5 +23,5 @@ TourShift --> 1316
 TourWeekend --> 1457
 TourMWDW --> 1457
 
-total cons = 3286
+total cons = 2726
 total vars = 4230

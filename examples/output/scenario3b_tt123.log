@@ -1,13 +1,13 @@
-INFO:Scenario scenario3b_tt123 started 2020-07-26 11:59:39,843
-INFO:DAT ./input/scenario3b_tt123.dat 2020-07-26 11:59:39,843
-INFO:Phase 1 instance created 2020-07-26 12:00:02,922
-INFO:Phase 1 solution found. Status = ok Termination condition = optimal 2020-07-26 12:04:47,496
-INFO:Phase 1 solved successfully 2020-07-26 12:04:47,569
-INFO:Phase 1 solution = 14560.0 2020-07-26 12:04:47,570
-INFO:Phase 1 summary and results written 2020-07-26 12:04:49,039
-INFO:Phase 2 dat file created. 2020-07-26 12:04:49,811
-INFO:Phase 2 instance created 2020-07-26 12:05:23,744
-INFO:Phase 2 solution found. Status = ok Termination condition = optimal 2020-07-26 12:05:24,150
-INFO:Phase 2 summary and results written 2020-07-26 12:05:24,377
-INFO:Tour related output files created 2020-07-26 12:05:24,544
-INFO:Solution log record ('scenario3b_tt123', 14560.0, 14560.0, 'ok', 'ok', 0.0, 0.0, 822.0, '2020-07-26 12:05:24.544151') 2020-07-26 12:05:24,544
+INFO:Scenario scenario3b_tt123 started 2020-07-26 13:28:15,735
+INFO:DAT ./input/scenario3b_tt123.dat 2020-07-26 13:28:15,735
+INFO:Phase 1 instance created 2020-07-26 13:28:36,985
+INFO:Phase 1 solution found. Status = ok Termination condition = optimal 2020-07-26 13:33:15,015
+INFO:Phase 1 solved successfully 2020-07-26 13:33:15,094
+INFO:Phase 1 solution = 14560.0 2020-07-26 13:33:15,094
+INFO:Phase 1 summary and results written 2020-07-26 13:33:16,611
+INFO:Phase 2 dat file created. 2020-07-26 13:33:17,410
+INFO:Phase 2 instance created 2020-07-26 13:33:51,986
+INFO:Phase 2 solution found. Status = ok Termination condition = optimal 2020-07-26 13:33:52,385
+INFO:Phase 2 summary and results written 2020-07-26 13:33:52,615
+INFO:Tour related output files created 2020-07-26 13:33:52,778
+INFO:Solution log record ('scenario3b_tt123', 14560.0, 14560.0, 'ok', 'ok', 0.0, 0.0, 822.0, '2020-07-26 13:33:52.778149') 2020-07-26 13:33:52,778
