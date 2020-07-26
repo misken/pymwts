@@ -1,0 +1,25 @@
+scenario:
+    scenario_name: 'test01'
+    notes:
+      - seems like a nice idea to have notes
+      - if we implement them as a sequence we can have as many as we want
+      - not sure if these notes need to be quoted
+      - they don't
+
+time:
+    n_prds_per_day: 48
+    n_days_per_week: 7
+    n_weeks: 4
+
+
+    
+files:
+    filename_dmd: 'infiles/mwts_test01.dmd'
+    filename_min: 'infiles/mwts_test01.min'
+    filename_mix: "infiles/mwts_test01.mix"
+
+cost:
+    labor_budget: 1000000
+    understaff_cost_1: 1.0
+    understaff_cost_2: 3.0
+    understaff_1_lb: 1

@@ -1,0 +1,2 @@
+num_tours,tot_periods,tot_shifts,tot_hours,tot_ftes,tot_dmd,sched_eff,tot_periods_us,scenario
+61,14400,812,7200.0,45.0,12800,0.8888888888888888,0.0,scenario3c_tt123

@@ -5,3 +5,4 @@ docs/build/
 .idea/
 tests/*.db
 examples/.ipynb_checkpoints
+.Rhistory

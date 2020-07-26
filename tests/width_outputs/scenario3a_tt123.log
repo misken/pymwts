@@ -1,0 +1,17 @@
+INFO:Scenario scenario3a_tt123 started 2020-07-26 10:27:28,975
+INFO:DAT ./width_inputs/scenario3a_tt123.dat 2020-07-26 10:27:28,975
+INFO:Phase 1 instance created 2020-07-26 10:28:04,136
+INFO:Windows debug info written 2020-07-26 10:28:04,198
+INFO:Phase 1 solution found. Status = aborted Termination condition = maxTimeLimit 2020-07-26 10:29:47,472
+WARNING:Loading a SolverResults object with an 'aborted' status, but containing a solution 2020-07-26 10:29:47,473
+WARNING:Check solver not ok? Status = aborted 2020-07-26 10:29:47,601
+WARNING:Check solver optimality? Term condition = maxTimeLimit 2020-07-26 10:29:47,602
+INFO:Phase 1 solved successfully 2020-07-26 10:29:47,668
+INFO:Phase 1 solution = 14676.0 2020-07-26 10:29:47,668
+INFO:Phase 1 summary and results written 2020-07-26 10:29:50,054
+INFO:Phase 2 dat file created. 2020-07-26 10:29:51,500
+INFO:Phase 2 instance created 2020-07-26 10:30:52,852
+INFO:Phase 2 solution found. Status = ok Termination condition = optimal 2020-07-26 10:30:53,648
+INFO:Phase 2 summary and results written 2020-07-26 10:30:54,185
+INFO:Tour related output files created 2020-07-26 10:30:54,469
+INFO:Solution log record ('scenario3a_tt123', 14676.0, 14400.0, 'aborted', 'ok', 204.0, 72.0, 808.0, '2020-07-26 10:30:54.469930') 2020-07-26 10:30:54,469
