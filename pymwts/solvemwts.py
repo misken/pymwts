@@ -43,6 +43,7 @@ def solvemwts(scenario, phase1_dat_file, path,
               debug_start_windows=False,
               write_phase1_instance=False,
               write_phase2_instance=False,
+              probe_phase2=False,
               force_solve=False):
     """
 
@@ -53,7 +54,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     :param timelimit:
     :param mipgap:
     :param results_db:
-    :param debug_start_windows:
+    :param debug_start_windows:import pymwts.mwts_phase2 as phase2
     :param write_phase1_instance:
     :param write_phase2_instance:
     :param force_solve:
@@ -146,9 +147,9 @@ def solvemwts(scenario, phase1_dat_file, path,
     b_weekend_subsets_2_1_con2_active = True
 
     # Boolean indicators for possible redundant constraints
-    b_TTD_TT_weeklyconservation_active = False
-    b_TTDS_TT_weeklyconservation_active = False
-    b_prds_worked_shiflen_weekly_active = False
+    # b_TTD_TT_weeklyconservation_active = False
+    # b_TTDS_TT_weeklyconservation_active = False
+    # b_prds_worked_shiflen_weekly_active = False
 
     # Conditional constraint deactivation
     if not b_weekend_subsets_5_4_con2_active:
@@ -164,23 +165,23 @@ def solvemwts(scenario, phase1_dat_file, path,
         phase1_inst.weekend_subsets_2_1_con2.deactivate()
 
     # Possible redundant constraint deactivation
-    if not b_TTD_TT_weeklyconservation_active:
-        phase1_inst.TTD_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.TTD_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.TTD_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.TTD_TT_cumul_weeklyconservation_UB.deactivate()
+    # if not b_TTD_TT_weeklyconservation_active:
+    #     phase1_inst.TTD_TT_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTD_TT_weeklyconservation_UB.deactivate()
+    #     phase1_inst.TTD_TT_cumul_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTD_TT_cumul_weeklyconservation_UB.deactivate()
+    #
+    # if not b_TTDS_TT_weeklyconservation_active:
+    #     phase1_inst.TTDS_TT_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
+    #     phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
+    #     phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
 
-    if not b_TTDS_TT_weeklyconservation_active:
-        phase1_inst.TTDS_TT_weeklyconservation_LB.deactivate()
-        phase1_inst.TTDS_TT_weeklyconservation_UB.deactivate()
-        phase1_inst.TTDS_TT_cumul_weeklyconservation_LB.deactivate()
-        phase1_inst.TTDS_TT_cumul_weeklyconservation_UB.deactivate()
-
-    if not b_prds_worked_shiflen_weekly_active:
-        phase1_inst.prds_worked_shiflen_weekly_LB.deactivate()
-        phase1_inst.prds_worked_shiflen_weekly_UB.deactivate()
-        phase1_inst.prds_worked_cumul_shiflen_weekly_LB.deactivate()
-        phase1_inst.prds_worked_cumul_shiflen_weekly_UB.deactivate()
+    # if not b_prds_worked_shiflen_weekly_active:
+    #     phase1_inst.prds_worked_shiflen_weekly_LB.deactivate()
+    #     phase1_inst.prds_worked_shiflen_weekly_UB.deactivate()
+    #     phase1_inst.prds_worked_cumul_shiflen_weekly_LB.deactivate()
+    #     phase1_inst.prds_worked_cumul_shiflen_weekly_UB.deactivate()
 
     # Post Phase 1 construction tasks ------------------------------------------
 
@@ -222,6 +223,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                             'e_window_epoch[{0},{1},{2}] = {4}\n'.format(
                                 i, j, w, phase1_inst.b_window_epoch[i, j, w],
                                 phase1_inst.e_window_epoch[i, j, w]))
+            f_debug_win.write('\nEND b_window_epochs and e_window_epochs\n')
 
             f_debug_win.write('\nPotentialGlobalStartWindow[i, j, w]\n')
             for (i, j, w) in phase1_inst.epoch_tuples:
@@ -229,32 +231,38 @@ def solvemwts(scenario, phase1_dat_file, path,
                     f_debug_win.write(
                         'PotentialGlobalStartWindow[{},{},{}] = {}\n'.format(
                             i, j, w, list(phase1_inst.PotentialGlobalStartWindow[i, j, w])))
+            f_debug_win.write('\nEND PotentialGlobalStartWindow[i, j, w]\n')
 
             f_debug_win.write('\nPotentialStartWindow[i, j, w, k, t]\n')
             for (i, j, w, k, t) in phase1_inst.PotentialStartWindow_idx:
                 if phase1_inst.PotentialStartWindow[i, j, w, k, t]:
                     f_debug_win.write(
-                        'PotentialStartWindow[{},{},{},{},{}] = {}\n'.format(
+                        '\nPotentialStartWindow[{},{},{},{},{}] = {}\n'.format(
                             i, j, w, k, t,
                             list(phase1_inst.PotentialStartWindow[i, j, w, k, t])))
+            f_debug_win.write('\nEND PotentialStartWindow[i, j, w, k, t]\n')
 
             f_debug_win.write('okStartWindowRoots_idx = ')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
                 f_debug_win.write('({},{})\n'.format(t, k))
+            f_debug_win.write('\nEND okStartWindowRoots_idx = ')
 
             f_debug_win.write('\nokStartWindowRoots\n')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
                 f_debug_win.write('okStartWindowRoots[{},{}] = \n'.format(t, k))
                 for (i, j, w) in phase1_inst.okStartWindowRoots[t, k]:
                     f_debug_win.write('({},{},{})\n'.format(i, j, w))
+            f_debug_win.write('\nEND okStartWindowRoots\n')
 
             f_debug_win.write('\nokTourType = ')
             for (i, t) in phase1_inst.okTourType:
                 f_debug_win.write('({},{})\n'.format(i, t))
+            f_debug_win.write('\nEND okTourType = ')
 
             f_debug_win.write('\nokTourTypeDay = ')
             for (i, t, d) in phase1_inst.okTourTypeDay:
                 f_debug_win.write('({},{},{})\n'.format(i, t, d))
+            f_debug_win.write('\nENDokTourTypeDay = ')
 
             f_debug_win.write('\nbchain echain links\n')
             for (t, k) in phase1_inst.okStartWindowRoots_idx:
@@ -265,6 +273,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                         out = out + '({},{},{}) {}\n'.format(
                             x, y, z, phase1_inst.n_links[t, k, i, j, w])
                     f_debug_win.write(out)
+            f_debug_win.write('\nEND bchain echain links\n')
 
             f_debug_win.write('\nchains\n')
             for (t, k, i, j, w) in phase1_inst.chain_idx:
@@ -273,6 +282,7 @@ def solvemwts(scenario, phase1_dat_file, path,
                 for (x, y, z) in phase1_inst.chain[t, k, i, j, w]:
                     out = out + '({},{},{})*'.format(x, y, z, phase1_inst.chain[t, k, i, j, w])
                 f_debug_win.write(out)
+            f_debug_win.write('\nEND chains\n')
 
             f_debug_win.write('\nlinkspan\n')
             for (t, k, i, j, w, m) in phase1_inst.link_idx:
@@ -280,6 +290,18 @@ def solvemwts(scenario, phase1_dat_file, path,
                                                                               list(
                                                                                   phase1_inst.linkspan[
                                                                                       t, k, i, j, w, m])))
+            f_debug_win.write('\nEND linkspan\n')
+
+            f_debug_win.write('\nchains_sweep_l_idx\n')
+            for (t, k, b, j, w, p, v) in phase1_inst.chains_sweep_l_idx:
+                f_debug_win.write('\n[{},{},{},{},{},{},{}]'.format(t, k, b, j, w, p, v))
+            f_debug_win.write('\nEND chains_sweep_l_idx\n')
+            # chains_sweep_l_idx
+
+            f_debug_win.write('\nchains_sweep_u_idx\n')
+            for (t, k, b, j, w, p, v) in phase1_inst.chains_sweep_l_idx:
+                f_debug_win.write('\n[{},{},{},{},{},{},{}]'.format(t, k, b, j, w, p, v))
+            f_debug_win.write('\nEND chains_sweep_u_idx\n')
 
             logging.info('Windows debug info written')
 
@@ -512,7 +534,7 @@ def solvemwts(scenario, phase1_dat_file, path,
     bTourShift_MWDW_integration1_active = True
 
     bTours_Daily_active = True
-    bTours_Daily_conservation_active = True
+    # bTours_Daily_conservation_active = False
 
     bTours_Weekly_LB_active = False
     bTours_Weekly_UB_active = False
@@ -552,8 +574,8 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not bTours_Daily_active:
         phase2_inst.Tours_Daily.deactivate()
 
-    if not bTours_Daily_conservation_active:
-        phase2_inst.Tours_Daily_conservation.deactivate()
+    # if not bTours_Daily_conservation_active:
+    #     phase2_inst.Tours_Daily_conservation.deactivate()
 
     if not bTours_Weekly_LB_active:
         phase2_inst.Tours_Weekly_LB.deactivate()
@@ -561,11 +583,11 @@ def solvemwts(scenario, phase1_dat_file, path,
     if not bTours_Weekly_UB_active:
         phase2_inst.Tours_Weekly_UB.deactivate()
 
-    if not bTours_Total_LB_active:
-        phase2_inst.Tours_Total_LB.deactivate()
-
-    if not bTours_Total_UB_active:
-        phase2_inst.Tours_Total_UB.deactivate()
+    # if not bTours_Total_LB_active:
+    #     phase2_inst.Tours_Total_LB.deactivate()
+    #
+    # if not bTours_Total_UB_active:
+    #     phase2_inst.Tours_Total_UB.deactivate()
 
     if not bTours_Shiftlen_Weekly_LB_active:
         phase2_inst.Tours_Shiftlen_Weekly_LB.deactivate()

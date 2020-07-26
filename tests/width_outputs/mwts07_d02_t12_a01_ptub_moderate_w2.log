@@ -1,0 +1,14 @@
+INFO:Scenario mwts07_d02_t12_a01_ptub_moderate_w2 started 2020-06-30 18:36:03,778
+INFO:DAT ./width_inputs/mwts07_d02_t12_a01_ptub_moderate_w2.dat 2020-06-30 18:36:03,778
+INFO:Phase 1 instance created 2020-06-30 18:36:32,653
+INFO:Windows debug info written 2020-06-30 18:36:32,696
+INFO:Phase 1 solution found. Status = ok Termination condition = optimal 2020-06-30 18:36:48,831
+INFO:Phase 1 solved successfully 2020-06-30 18:36:49,175
+INFO:Phase 1 solution = 14095.0 2020-06-30 18:36:49,175
+INFO:Phase 1 summary and results written 2020-06-30 18:36:50,855
+INFO:Phase 2 dat file created. 2020-06-30 18:36:51,172
+INFO:Phase 2 instance created 2020-06-30 18:37:17,847
+INFO:Phase 2 solution found. Status = ok Termination condition = optimal 2020-06-30 18:37:18,412
+INFO:Phase 2 summary and results written 2020-06-30 18:37:18,733
+INFO:Tour related output files created 2020-06-30 18:37:18,897
+INFO:Solution log record ('mwts07_d02_t12_a01_ptub_moderate_w2', 14095.0, 13216.0, 'ok', 'ok', 459.0, 420.0, 816.0, '2020-06-30 18:37:18.897422') 2020-06-30 18:37:18,897

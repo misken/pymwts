@@ -1,0 +1,4 @@
+INFO:Scenario mwts07_d02_t1_a01_noptub_moderate started 2020-07-24 15:49:22,552
+INFO:DAT ./width_inputs/mwts07_d02_t1_a01_noptub_moderate.dat 2020-07-24 15:49:22,552
+ERROR:Constructing component 'TTD_MWDW_idx' from data=None failed:
+    KeyboardInterrupt:  2020-07-24 15:51:08,942

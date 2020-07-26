@@ -12,13 +12,13 @@ coverage --> 1344
 minstaff --> 1344
 TourType_LB_con --> 1
 TourType_UB_con --> 1
-MWDW_total_con --> 48
-MWDW_weekend_integration_con --> 1488
-weekend_integration_1_SS_con --> 384
+MWDW_total_con --> 29
+MWDW_weekend_integration_con --> 899
+weekend_integration_1_SS_con --> 232
 weekend_integration_2_FS_con --> 0
-TTD_TT_UB --> 1344
-TTD_TTDS_con --> 1344
-TTD_MWDW_con --> 192
+TTD_TT_UB --> 812
+TTD_TTDS_con --> 812
+TTD_MWDW_con --> 116
 TTDS_TT_shiftlen_weeklyconservation_LB --> 0
 TTDS_TT_shiftlen_weeklyconservation_UB_con --> 0
 TTDS_TT_shiftlen_cumul_weeklyconservation_LB --> 0
@@ -28,23 +28,24 @@ prds_worked_weekly_UB --> 0
 prds_worked_cumul_weekly_LB --> 0
 prds_worked_cumul_weekly_UB --> 0
 weekend_subsets_5_4_con2 --> 0
-weekend_subsets_4_3_con2 --> 1920
-weekend_subsets_3_2_con2 --> 1920
-weekend_subsets_2_1_con2 --> 960
+weekend_subsets_4_3_con2 --> 1160
+weekend_subsets_3_2_con2 --> 1160
+weekend_subsets_2_1_con2 --> 580
 chains_tot_proxy1_con --> 812
-chains_tot_proxy2_con --> 532
+chains_tot_proxy2_con --> 0
 chains_sweep_l_con --> 0
+chains_sweep_u_con --> 0
 chains_tot_con --> 0
 
 
 Variable summary 
 ------------------
-TourType --> 48
-TourTypeDay --> 1344
-TourTypeDayShift --> 1344
+TourType --> 29
+TourTypeDay --> 812
+TourTypeDayShift --> 812
 Shift --> 812
-WeekendDaysWorked --> 1488
-MultiWeekDaysWorked --> 1488
+WeekendDaysWorked --> 899
+MultiWeekDaysWorked --> 899
 cov1 --> 1344
 cov2 --> 1344
 cov3 --> 1344
@@ -53,8 +54,8 @@ cov --> 1344
 under1 --> 1344
 under2 --> 1344
 
-total cons = 20355
-total vars = 15932
+total cons = 16023
+total vars = 13671
 
 
 Constraint summary 
@@ -69,13 +70,13 @@ coverage --> 1344
 minstaff --> 1344
 TourType_LB_con --> 1
 TourType_UB_con --> 1
-MWDW_total_con --> 48
-MWDW_weekend_integration_con --> 1488
-weekend_integration_1_SS_con --> 384
+MWDW_total_con --> 29
+MWDW_weekend_integration_con --> 899
+weekend_integration_1_SS_con --> 232
 weekend_integration_2_FS_con --> 0
-TTD_TT_UB --> 1344
-TTD_TTDS_con --> 1344
-TTD_MWDW_con --> 192
+TTD_TT_UB --> 812
+TTD_TTDS_con --> 812
+TTD_MWDW_con --> 116
 TTDS_TT_shiftlen_weeklyconservation_LB --> 0
 TTDS_TT_shiftlen_weeklyconservation_UB_con --> 0
 TTDS_TT_shiftlen_cumul_weeklyconservation_LB --> 0
@@ -85,23 +86,24 @@ prds_worked_weekly_UB --> 0
 prds_worked_cumul_weekly_LB --> 0
 prds_worked_cumul_weekly_UB --> 0
 weekend_subsets_5_4_con2 --> 0
-weekend_subsets_4_3_con2 --> 1920
-weekend_subsets_3_2_con2 --> 1920
-weekend_subsets_2_1_con2 --> 960
+weekend_subsets_4_3_con2 --> 1160
+weekend_subsets_3_2_con2 --> 1160
+weekend_subsets_2_1_con2 --> 580
 chains_tot_proxy1_con --> 812
-chains_tot_proxy2_con --> 532
+chains_tot_proxy2_con --> 0
 chains_sweep_l_con --> 0
+chains_sweep_u_con --> 0
 chains_tot_con --> 0
 
 
 Variable summary 
 ------------------
-TourType --> 48
-TourTypeDay --> 1344
-TourTypeDayShift --> 1344
+TourType --> 29
+TourTypeDay --> 812
+TourTypeDayShift --> 812
 Shift --> 812
-WeekendDaysWorked --> 1488
-MultiWeekDaysWorked --> 1488
+WeekendDaysWorked --> 899
+MultiWeekDaysWorked --> 899
 cov1 --> 1344
 cov2 --> 1344
 cov3 --> 1344
@@ -110,6 +112,6 @@ cov --> 1344
 under1 --> 1344
 under2 --> 1344
 
-total cons = 20355
-total vars = 15932
+total cons = 16023
+total vars = 13671
 ok

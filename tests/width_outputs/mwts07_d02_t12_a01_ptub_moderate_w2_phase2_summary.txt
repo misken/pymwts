@@ -1,0 +1,27 @@
+
+
+Constraint summary 
+------------------
+OneWeekendPatternPerTour --> 51
+OneMWDWPatternPerTour --> 51
+TourShift_Weekend_integration1 --> 408
+TourShift_MWDW_integration1 --> 204
+Tours_Daily --> 1428
+Tours_Shiftlen_Weekly_LB --> 0
+Tours_Shiftlen_Weekly_UB --> 0
+Tours_Shiftlen_Total_LB --> 0
+Tours_Shiftlen_Total_UB --> 0
+Tours_Weekly_Prds_LB --> 204
+Tours_Weekly_Prds_UB --> 204
+Tours_Total_Prds_LB --> 204
+Tours_Total_Prds_UB --> 204
+
+
+Variable summary 
+------------------
+TourShift --> 4284
+TourWeekend --> 1581
+TourMWDW --> 5797
+
+total cons = 2958
+total vars = 11662

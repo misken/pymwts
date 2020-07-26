@@ -1,0 +1,3 @@
+tourtype,num_tours,tot_periods,tot_shifts,tot_hours,tot_ftes,scenario
+1,25,8000,500,4000.0,25.0,mwts07_d02_t12_a01_ptub_moderate
+2,40,5120,320,2560.0,16.000000000000007,mwts07_d02_t12_a01_ptub_moderate

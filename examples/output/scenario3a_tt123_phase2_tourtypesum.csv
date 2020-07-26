@@ -1,0 +1,4 @@
+tourtype,num_tours,tot_periods,tot_shifts,tot_hours,tot_ftes,scenario
+1,7,2240,140,1120.0,7.0,scenario3a_tt123
+2,35,5600,350,2800.0,17.5,scenario3a_tt123
+3,20,6400,320,3200.0,20.0,scenario3a_tt123

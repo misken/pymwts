@@ -1,0 +1,25 @@
+tourtypes:
+- tt_lb: 0
+  tt_ub: 0
+  ttnum: 1
+- tt_lb: 0
+  tt_ub: 1000
+  ttnum: 2
+- tt_lb: 0
+  tt_ub: 0
+  ttnum: 3
+- tt_lb: 0
+  tt_ub: 1000
+  ttnum: 4
+- tt_lb: 0
+  tt_ub: 0
+  ttnum: 5
+- tt_lb: 0
+  tt_ub: 0
+  ttnum: 6
+- tt_lb: 0
+  tt_ub: 1000
+  ttnum: 7
+- tt_lb: 0
+  tt_ub: 0
+  ttnum: 8

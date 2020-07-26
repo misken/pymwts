@@ -1,0 +1,21 @@
+cost:
+  labor_budget: 100000.0
+  understaff_1_ub: 1.0
+  understaff_cost_1: 1.5
+  understaff_cost_2: 3.0
+opt_files:
+  filename_ttbounds: !!python/unicode 'exps/mwts04/inputs/mix/mwts04_24678.bnd'
+reqd_files:
+  filename_dmd: !!python/unicode 'exps/mwts04/inputs/dmd/width02_tecrn.dmd'
+  filename_min: !!python/unicode 'exps/mwts04/inputs/dmd/base.min'
+  filename_mix: !!python/unicode 'exps/mwts04/inputs/mix/mwts04_ash01.mix'
+  filename_wkd: !!python/unicode 'exps/mwts04/inputs/mix/mwts04_loose.wkd'
+scenario:
+  scenario_name: !!python/unicode 'mwts04_d05_t24678_a01_noptub_loose'
+  znotes:
+  - timestamp
+  - other info
+time:
+  n_days_per_week: 7
+  n_prds_per_day: 48
+  n_weeks: 4
