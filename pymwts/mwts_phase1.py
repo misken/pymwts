@@ -120,16 +120,26 @@ model.tt_max_cumul_prds_weeks = pyo.Param(model.TTYPES,
                                           model.WEEKS, default=1e+6)
 
 
+# 1a. Min and max number of days worked by week by tour type. These are computed
+# convenience parameters and are used in the weekend subset constraints.
+
+def tt_min_dys_weeks_init(M, t, w):
+    return sum(M.tt_shiftlen_min_dys_weeks[t, k, w] for k in M.tt_length_x[t])
+
+def tt_max_dys_weeks_init(M, t, w):
+    return sum(M.tt_shiftlen_max_dys_weeks[t, k, w] for k in M.tt_length_x[t])
+
+model.tt_min_dys_weeks = pyo.Param(model.TTYPES,
+                                   model.WEEKS, initialize=tt_min_dys_weeks_init)
+
+model.tt_max_dys_weeks = pyo.Param(model.TTYPES,
+                                   model.WEEKS, initialize=tt_max_dys_weeks_init)
+
 # Legacy parameters - the following are holdovers from previous model versions.
 #    Leaving these in so that model still works with older data files
 #    containing these parameters.
 
-# 1a. Min and max number of days worked by week by tour type
-model.tt_min_dys_weeks = pyo.Param(model.TTYPES,
-                                   model.WEEKS, default=0.0)
 
-model.tt_max_dys_weeks = pyo.Param(model.TTYPES,
-                                   model.WEEKS, default=1e+6)
 
 # 1b. Min and max number of days worked by cumulative weeks by tour type
 model.tt_min_cumul_dys_weeks = pyo.Param(model.TTYPES,
