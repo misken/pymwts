@@ -3,6 +3,6 @@
 tests/outputs/
 docs/build/
 .idea/
-tests/*.db
+#tests/*.db
 examples/.ipynb_checkpoints
 .Rhistory
