@@ -24,4 +24,4 @@ Link to paper preprint (COMING SOON)
 Usage
 -----
 
-See `scheduling_analysis_example.ipynb <https://github.com/misken/pymwts/blob/master/examples/scheduling_analysis_example.ipynb>`_ for a short demo of installing and using pymwts. There are also html and pdf versions of this example notebook available in the `examples` folder of this repo.
+See [scheduling_analysis_example.ipynb] (https://github.com/misken/pymwts/blob/master/examples/scheduling_analysis_example.ipynb) for a short demo of installing and using pymwts. There are also html and pdf versions of this example notebook available in the `examples` folder of this repo.
