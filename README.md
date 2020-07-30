@@ -1,5 +1,5 @@
 
-pymtws - A multi-week implicit tour scheduling model
+pymwts - A multi-week implicit tour scheduling model
 ====================================================
 
 This project currently contains:
@@ -16,7 +16,7 @@ In the future we will add:
 
 The models are mixed integer programming models, represented with the
 Pyomo modeling language (a Python library) and solvable with standard
-solvers such as cbc, GLPK, Gurobi, or CPLEX.
+solvers such as Cbc, GLPK, Gurobi, or CPLEX.
 
 Link to paper preprint (COMING SOON)
 
@@ -24,4 +24,4 @@ Link to paper preprint (COMING SOON)
 Usage
 -----
 
-See `scheduling_analysis_example.ipynb` for a short demo of installing and using pymwts.
+See `scheduling_analysis_example.ipynb <https://github.com/misken/pymwts/blob/master/examples/scheduling_analysis_example.ipynb>`_ for a short demo of installing and using pymwts. There are also html and pdf versions of this example notebook available in the `examples` folder of this repo.
