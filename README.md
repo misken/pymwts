@@ -8,12 +8,13 @@ This project currently contains:
 * Python code for Pyomo based scheduling models,
 * Sample input and output data files,
 * A Jupyter notebook containing a short demo of installing and using pymwts,
-* Links to preprint version of the journal paper presenting this model along with associated computational experiment data.
+
 
 In the future we will add:
 
 * Python code for data input and data output processing and management,
 * Documentation including user manual, tutorials, explanations.
+* Links to preprint version of the journal paper presenting this model along with associated computational experiment data.
 
 The models are mixed integer programming models, represented with the
 Pyomo modeling language (a Python library) and solvable with standard
@@ -28,7 +29,7 @@ See [scheduling_analysis_example.ipynb](https://github.com/misken/pymwts/blob/ma
 Research paper and associated data
 ----------------------------------
 
-Link to paper preprint (COMING SOON)
+Link to paper (available after publication)
 
 ### Data files
 
