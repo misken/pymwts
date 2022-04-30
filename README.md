@@ -24,7 +24,7 @@ solvers such as Cbc, GLPK, Gurobi, or CPLEX.
 Usage
 -----
 
-See [scheduling_analysis_example.ipynb](https://github.com/misken/pymwts/blob/master/examples/scheduling_analysis_example.ipynb) for a short demo of installing and using pymwts. You can [view an html version here](https://drive.google.com/file/d/1MH5V97gBYI405RXiav_9cj-IbzEhWtTl/view?usp=sharing). 
+See [scheduling_analysis_example.ipynb](https://github.com/misken/pymwts/blob/master/examples/scheduling_analysis_example.ipynb) for a short demo of installing and using pymwts. You can [view an html version here](http://www.sba.oakland.edu/faculty/isken/pymwts/scheduling_analysis_example.html). 
 
 Research paper and associated data
 ----------------------------------
