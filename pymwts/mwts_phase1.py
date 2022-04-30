@@ -1055,7 +1055,7 @@ model.Shift = pyo.Var(model.okShifts,
                       within=pyo.NonNegativeIntegers)
 
 
-# Weekend Days off variables --------------------------------------------------
+# Weekend Days worked variables --------------------------------------------------
 
 # WeekendDaysWorked[d,i,t] = Number of people assigned days-off patterns d
 # in start window i and of tour type t. These are convenience variables as

@@ -1,6 +1,8 @@
 *~
 *.pyc
-tests/outputs/
+tests/inputs/*
+tests/outputs/*
+tests/width_outputs/*
 docs/build/
 .idea/
 #tests/*.db

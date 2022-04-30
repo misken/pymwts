@@ -439,11 +439,15 @@ model.okStartWindowRoots = pyo.Set(model.okStartWindowRoots_idx,
 
 # Phase 1 solution variables --> Phase 2 parameters ---------------------------
 
-model.Shift = pyo.Param(model.okShifts, default=0)
-
+# Shift params
 # Shift[i,j,w,k,t] = Number of shifts of length k starting in period i
 # of day j in week w for a tour of type t
+# x_{ijkwt} in paper
+model.Shift = pyo.Param(model.okShifts, default=0)
 
+
+# Tour type params
+# T_{it} in paper
 def okTourType_rule(M):
     """
     List of (window,tour type) tuples that are allowable.
@@ -487,7 +491,9 @@ def TourType_idx_rule(M):
 model.TourType_idx = pyo.Set(dimen=2, initialize=TourType_idx_rule)
 model.TourType = pyo.Param(model.TourType_idx, default=0)
 
-# Tour type daily variables ---------------------------------------------------
+# Tour type daily params ---------------------------------------------------
+# D_{itjw} in paper
+
 
 def okTourTypeDay_rule(M):
     """
@@ -540,7 +546,8 @@ model.TourTypeDay_idx = pyo.Set(dimen=4, initialize=TourTypeDay_idx_rule)
 model.TourTypeDay = pyo.Param(model.TourTypeDay_idx)
 
 
-# Tour type daily shift variables ---------------------------------------------
+# Tour type daily shift params ---------------------------------------------
+# S_{itkjw} in paper
 
 def okTourTypeDayShift_rule(M):
     """
@@ -586,6 +593,13 @@ model.TourTypeDayShift_idx = pyo.Set(dimen=5, initialize=TourTypeDayShift_idx_ru
 
 model.TourTypeDayShift = pyo.Param(model.TourTypeDayShift_idx, default=0)
 
+# Weekend Days worked params --------------------------------------------------
+
+# WeekendDaysWorked[d,i,t] = Number of people assigned days-off patterns d
+# in start window i and of tour type t. These are convenience variables in Phase 1 as
+# the weekend patterns are part of the MultiWeekDaysWorked variables. Makes
+# it easy to coordinate with Shift variables assigned to weekend days.
+# We don't explicitly
 
 def weekend_days_worked_idx_rule(M):
     """
@@ -608,9 +622,10 @@ def weekend_days_worked_idx_rule(M):
 model.weekend_days_worked_idx = pyo.Set(dimen=3,
                                         initialize=weekend_days_worked_idx_rule)
 
+# Number of tours in (i, t) working weekend pattern p
 model.WeekendDaysWorked = pyo.Param(model.weekend_days_worked_idx, default=0)
 
-
+# Multiweek days worked - M_{itpq} in paper
 def multiweekdaysworked_idx_rule(M):
     """
     Index is (start window, tour type, multiweek num days worked pattern,
@@ -654,6 +669,8 @@ model.TT_x = pyo.Param(model.TOURS)
 
 # Phase 2 Decision Variables --------------------------------------------------
 
+# Boolean variable indicating if a specific shift is assigned to a specific tour
+# In paper, these are the "tour shift" variables in Appendix
 
 def TourShift_idx_rule(M):
     index_list = []
@@ -676,24 +693,9 @@ def TourShift_idx_rule(M):
 model.TourShift_idx = pyo.Set(dimen=6, initialize=TourShift_idx_rule)
 model.TourShift = pyo.Var(model.TourShift_idx, within=pyo.Boolean)
 
-# Aren't the following redundant now that MWDW vars contain weekend
-# patterns?
-
-def TourWeekend_idx_rule(M):
-    index_list = []
-    for s in M.TOURS:
-        for i in [a for a in M.activeWIN if a == M.WIN_x[s]]:
-            for t in [a for a in M.activeTT if a == M.TT_x[s]]:
-                for pattern in pyo.sequence(
-                        M.num_weekend_patterns[M.weekend_type[i, t], t]):
-                    if (i, t) in M.okTourType:
-                        index_list.append((s, pattern, i, t))
-
-    return index_list
-
-
-model.TourWeekend_idx = pyo.Set(dimen=4, initialize=TourWeekend_idx_rule)
-model.TourWeekend = pyo.Var(model.TourWeekend_idx, within=pyo.Boolean)
+# Boolean variable indicating if a specific mwdw pattern and weekend pattern is
+# assigned to a specific tour
+# In paper, these are the "tour pattern" variables in Appendix
 
 
 def TourMWDW_idx_rule(M):
@@ -711,6 +713,29 @@ def TourMWDW_idx_rule(M):
 
 model.TourMWDW_idx = pyo.Set(dimen=5, initialize=TourMWDW_idx_rule)
 model.TourMWDW = pyo.Var(model.TourMWDW_idx, within=pyo.Boolean)
+
+# Aren't the following redundant now that MWDW vars contain weekend patterns?
+# Are they just convenience variables
+
+# Boolean variable indicating if a weekend pattern is
+# assigned to a specific tour
+def TourWeekend_idx_rule(M):
+    index_list = []
+    for s in M.TOURS:
+        for i in [a for a in M.activeWIN if a == M.WIN_x[s]]:
+            for t in [a for a in M.activeTT if a == M.TT_x[s]]:
+                for pattern in pyo.sequence(
+                        M.num_weekend_patterns[M.weekend_type[i, t], t]):
+                    if (i, t) in M.okTourType:
+                        index_list.append((s, pattern, i, t))
+
+    return index_list
+
+
+model.TourWeekend_idx = pyo.Set(dimen=4, initialize=TourWeekend_idx_rule)
+model.TourWeekend = pyo.Var(model.TourWeekend_idx, within=pyo.Boolean)
+
+
 
 
 # Obj. Function ----------------------------------------------------------------
@@ -735,7 +760,10 @@ model.total_shifts = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
 
 # Constraints -----------------------------------------------------------------
 
-
+# TourWeekend parameters are from Phase1 TourWeekend convenience variables used for
+# making it easy to coordinate
+# shift variables with multi-week days worked variables. T
+# They are the number of tours working pattern p in (i, t).
 
 def Tour_Weekend_conservation_idx_rule(M):
     """
@@ -966,7 +994,8 @@ model.TourShift_Weekend_integration1 = \
 
 
 def TourShift_MWDW_integration1_idx_rule(M):
-    return [(s, w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT and M.WIN_x[s] in M.activeWIN]
+    return [(s, w) for s in M.TOURS for w in M.WEEKS if M.TT_x[s] in M.activeTT
+            and M.WIN_x[s] in M.activeWIN]
 
 
 model.TourShift_MWDW_integration1_idx = pyo.Set(dimen=2,

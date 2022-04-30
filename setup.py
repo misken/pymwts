@@ -1,4 +1,4 @@
-"""Setup file for chime scenario runner
+"""Setup file for pymwts
 """
 __version__ = "0.2.0"
 __author__ = "misken"
