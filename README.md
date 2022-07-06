@@ -29,7 +29,7 @@ See [scheduling_analysis_example.ipynb](https://github.com/misken/pymwts/blob/ma
 Research paper and associated data
 ----------------------------------
 
-[A tactical multi-week implicit tour scheduling model with applications in healthcare](https://link.springer.com/article/10.1007/s10729-022-09601-8)
+Isken, M.W., Aydas, O.T. A tactical multi-week implicit tour scheduling model with applications in healthcare. Health Care Manag Sci (2022). https://doi.org/10.1007/s10729-022-09601-8
 
 ### Data files
 
